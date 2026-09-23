@@ -139,12 +139,6 @@ export function GamePage() {
   }
 
   const hardcore = parseNum(game.complexity) >= 8;
-  const maskDown = {
-    maskImage:
-      "linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 100%)",
-    WebkitMaskImage:
-      "linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 100%)",
-  };
 
   return (
     <div className="space-y-8">

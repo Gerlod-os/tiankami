@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import {
   FiClock,
   FiExternalLink,
-  FiStar,
   FiTag,
   FiCalendar,
   FiGlobe,
@@ -15,7 +14,6 @@ import { statusMeta, ratingColor } from "../utils/statusMeta";
 import { checkYouTubeUrlSafe } from "../utils/youtubeSafe";
 import { parseYouTubeUrl } from "../utils/youtube";
 import { moodOf } from "../utils/recommend";
-import { RARITY_META } from "../utils/rarity";
 import { RarityEgg } from "./RarityEgg";
 import { MITrophy } from "./MITrophy";
 import { useData } from "./DataProvider";

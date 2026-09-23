@@ -128,7 +128,6 @@ export function Layout({ children }) {
             aria-label="Основная навигация"
           >
             {NAV.map(({ to, label, icon: Icon, end }) => {
-              const isActive = false;
               const iconColor =
                 to === "/"
                   ? "text-pastel-pink"

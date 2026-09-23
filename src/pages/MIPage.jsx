@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FiExternalLink, FiYoutube, FiCalendar, FiUsers, FiBookOpen, FiInfo } from "react-icons/fi";
+import { FiExternalLink, FiYoutube, FiUsers, FiBookOpen, FiInfo } from "react-icons/fi";
 import { useData } from "../components/DataProvider";
 import { GameCard } from "../components/GameCard";
 import { GameModal } from "../components/GameModal";
@@ -7,7 +7,6 @@ import { MITrophy } from "../components/MITrophy";
 import { MASCOTS } from "../config/mascots";
 import { hasMI, isUrl } from "../utils/normalize";
 import { usePageMeta } from "../utils/usePageMeta";
-import { RarityEgg } from "../components/RarityEgg";
 
 export function MIPage() {
   const { games, bySlug } = useData();
