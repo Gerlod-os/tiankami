@@ -3,8 +3,7 @@ import { Link } from "react-router-dom";
 import { FiX, FiArrowRight } from "react-icons/fi";
 import { GameDetails } from "./GameDetails";
 
-// Модалка быстрого просмотра: Escape, клик по фону, блокировка скролла,
-// фокус-трап + возврат фокуса (Г2)
+// Модалка быстрого просмотра: Escape, клик по фону, блокировка скролла
 export function GameModal({ game, onClose }) {
   const boxRef = useRef(null);
   const closeRef = useRef(null);
@@ -17,7 +16,7 @@ export function GameModal({ game, onClose }) {
       if (e.key === "Escape") onClose();
       if (e.key === "Tab" && boxRef.current) {
         const els = boxRef.current.querySelectorAll(
-          'a[href], button, iframe, [tabindex]:not([tabindex="-1"])'
+          'a[href], button, iframe, [tabindex]:not([tabindex="-1"])',
         );
         if (!els.length) return;
         const first = els[0];
@@ -49,19 +48,36 @@ export function GameModal({ game, onClose }) {
       role="dialog"
       aria-modal="true"
       aria-label={game.title}
+      style={{
+        backgroundImage: game.image
+          ? `linear-gradient(to bottom, rgba(10,10,30,0.7), rgba(10,10,30,0.95)), url(${game.image})`
+          : undefined,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
     >
       <div
-        className="absolute inset-0 bg-night-900/85 backdrop-blur-sm"
+        className="absolute inset-0 bg-night-900/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div ref={boxRef} className="card relative max-h-[88vh] w-full max-w-4xl animate-fadeUp overflow-y-auto p-5 sm:p-7">
+      <div
+        ref={boxRef}
+        className="relative max-h-[88vh] w-full max-w-4xl animate-fadeUp overflow-y-auto rounded-card border border-white/10 bg-night-900/80 p-5 sm:p-7 shadow-card"
+        style={{
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+        }}
+      >
         <div className="mb-4 flex items-start justify-between gap-4">
-          <h2 className="font-display text-2xl font-black text-ink">{game.title}</h2>
+          <h2 className="font-display text-2xl font-black text-ink">
+            {game.title}
+          </h2>
           <button
             ref={closeRef}
             type="button"
             onClick={onClose}
-            className="btn-ghost !p-3"
+            className="btn-ghost !p-3 text-ink-dim hover:text-ink"
             aria-label="Закрыть"
           >
             <FiX />

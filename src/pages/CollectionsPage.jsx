@@ -23,12 +23,13 @@ export function CollectionsPage() {
         <div className="grid items-center gap-6 p-6 md:grid-cols-[minmax(0,1fr)_320px] md:p-10">
           <div>
             <h1 className="section-title text-3xl md:text-4xl">
-              <span className="h-marker">Подборки</span> <span className="section-accent">от Тиана</span>
+              <span className="h-marker">Подборки</span>{" "}
+              <span className="section-accent">от Тиана</span>
             </h1>
             <p className="mt-3 max-w-xl text-ink-dim">
               Личные топы и тематические списки: что стоит играть, во что зайти
-              новичку и что я считаю легендами. Открывай коробку — внутри мини-Тианы
-              уже всё разложили.
+              новичку и что я считаю легендами. Открывай коробку — внутри
+              мини-Тианы уже всё разложили.
             </p>
           </div>
           <img
@@ -44,58 +45,68 @@ export function CollectionsPage() {
         {(collections || []).map((c) => {
           const golden = /золотой/i.test(c.name);
           return (
-          <Link
-            key={c.slug}
-            to={`/collections/${c.slug}`}
-            className={
-              "card card-hover flex flex-col p-5 " + (golden ? "gold-card" : "")
-            }
-          >
-            <div className="flex items-center gap-2">
-              {golden ? (
-                <RarityEgg rarity="legendary" size={30} />
-              ) : (
-                <CollectionIcon name={c.name} size={30} />
+            <Link
+              key={c.slug}
+              to={`/collections/${c.slug}`}
+              className={
+                "card card-hover flex flex-col p-5 " +
+                (golden ? "gold-card" : "")
+              }
+            >
+              <div className="flex items-center gap-2">
+                {golden ? (
+                  <RarityEgg rarity="legendary" size={48} />
+                ) : (
+                  <CollectionIcon name={c.name} size={30} />
+                )}
+                <h2
+                  className={
+                    "line-clamp-1 font-display text-xl font-extrabold " +
+                    (golden ? "font-gothic text-pastel-amber" : "text-ink")
+                  }
+                >
+                  {c.name}
+                </h2>
+              </div>
+              {c.description && (
+                <p className="mt-2 line-clamp-2 text-sm text-ink-dim">
+                  {c.description}
+                </p>
               )}
-              <h2
-                className={
-                  "line-clamp-1 font-display text-lg font-extrabold " +
-                  (golden ? "font-gothic text-pastel-amber" : "text-ink")
-                }
-              >
-                {c.name}
-              </h2>
-            </div>
-            {c.description && (
-              <p className="mt-2 line-clamp-2 text-sm text-ink-dim">{c.description}</p>
-            )}
-            <div className="mt-4">
-              <CoverFan
-                games={c.games
-                  .map((g) => byTitle.get(String(g.name).toLowerCase()))
-                  .filter(Boolean)}
-              />
-            </div>
-            <ul className="mt-3 space-y-1.5 text-sm text-ink-dim">
-              {c.games.slice(0, 4).map((g, i) => {
-                const match = byTitle.get(String(g.name).toLowerCase());
-                return (
-                  <li key={`${g.name}-${i}`} className="flex items-center gap-2">
-                    <span className="w-7 shrink-0 text-center">
-                      {rankMedal(g.rank) || (g.rank ? `#${g.rank}` : "•")}
-                    </span>
-                    <span className="min-w-0 flex-1 truncate">{g.name}</span>
-                    {match && (
-                      <RarityEgg rarity={bySlug?.[match.slug] || "common"} size={14} />
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-            <span className="mt-auto flex items-center gap-1 pt-4 text-xs font-bold text-pastel-pink">
-              {c.games.length} игр <FiArrowRight />
-            </span>
-          </Link>
+              <div className="mt-4">
+                <CoverFan
+                  games={c.games
+                    .map((g) => byTitle.get(String(g.name).toLowerCase()))
+                    .filter(Boolean)}
+                  size={golden ? 48 : 40}
+                />
+              </div>
+              <ul className="mt-3 space-y-1.5 text-sm text-ink-dim">
+                {c.games.slice(0, 4).map((g, i) => {
+                  const match = byTitle.get(String(g.name).toLowerCase());
+                  return (
+                    <li
+                      key={`${g.name}-${i}`}
+                      className="flex items-center gap-2"
+                    >
+                      <span className="w-7 shrink-0 text-center">
+                        {rankMedal(g.rank) || (g.rank ? `#${g.rank}` : "•")}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate">{g.name}</span>
+                      {match && (
+                        <RarityEgg
+                          rarity={bySlug?.[match.slug] || "common"}
+                          size={14}
+                        />
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+              <span className="mt-auto flex items-center gap-1 pt-4 text-xs font-bold text-pastel-pink">
+                {c.games.length} игр <FiArrowRight />
+              </span>
+            </Link>
           );
         })}
       </div>

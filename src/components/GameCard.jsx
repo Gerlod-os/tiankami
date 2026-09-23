@@ -18,6 +18,7 @@ export const GameCard = memo(function GameCard({
   rarity = "common",
   delay = 0,
   egg = "big",
+  teleport = 0,
 }) {
   const [broken, setBroken] = useState(false);
   const meta = statusMeta(game.status);
@@ -27,11 +28,15 @@ export const GameCard = memo(function GameCard({
 
   return (
     <article
-      className="card card-hover group relative flex animate-fadeUp flex-col"
+      className={
+        "card card-hover group relative flex animate-fadeUp flex-col " +
+        (teleport > 0 ? "teleport-in" : "")
+      }
       style={{
         animationDelay: `${Math.min(delay, 20) * 0.05}s`,
         ["--glow"]: RARITY_GLOW[rarity] || RARITY_GLOW.common,
       }}
+      key={teleport}
     >
       {egg === "big" && (
         <span className="absolute -top-5 right-5 z-10">
@@ -50,13 +55,18 @@ export const GameCard = memo(function GameCard({
             alt={`Обложка ${game.title}`}
             loading="lazy"
             onError={() => setBroken(true)}
-            className={
-              "h-full w-full object-cover " + (rating === 10 ? "glitch-hover" : "")
-            }
+            className={"h-full w-full object-cover "}
           />
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-night-700 via-night-600 to-night-700 p-3 text-center">
-            <svg viewBox="0 0 24 24" className="h-16 w-16 opacity-30" fill="none" stroke="#B9B4CF" strokeWidth="1.5" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-16 w-16 opacity-30"
+              fill="none"
+              stroke="#B9B4CF"
+              strokeWidth="1.5"
+              aria-hidden="true"
+            >
               <path d="M6 9h12a4 4 0 0 1 4 4v3a3 3 0 0 1-3 3h-2l-2-2H9l-2 2H5a3 3 0 0 1-3-3v-3a4 4 0 0 1 4-4Z" />
               <circle cx="7.5" cy="13" r="1" fill="#B9B4CF" />
               <circle cx="16.5" cy="12" r="1" fill="#B9B4CF" />
@@ -87,7 +97,9 @@ export const GameCard = memo(function GameCard({
           to={`/catalog/${game.slug}`}
           className="flex items-center gap-2 font-display text-base font-extrabold text-ink transition hover:text-pastel-pink"
         >
-          {egg === "inline" && <RarityEgg rarity={rarity} size={18} className="shrink-0" />}
+          {egg === "inline" && (
+            <RarityEgg rarity={rarity} size={18} className="shrink-0" />
+          )}
           <span className="line-clamp-1">
             <Highlight text={game.title} q={highlight} />
           </span>
@@ -104,7 +116,9 @@ export const GameCard = memo(function GameCard({
             {skulls > 0 && (
               <span className="flex" title={`Сложность ${cx}/10`}>
                 {Array.from({ length: skulls }, (_, i) => (
-                  <span key={i} className="skull">💀</span>
+                  <span key={i} className="skull">
+                    💀
+                  </span>
                 ))}
               </span>
             )}

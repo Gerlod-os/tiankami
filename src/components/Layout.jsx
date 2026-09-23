@@ -1,7 +1,23 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { FaTwitch, FaYoutube, FaDiscord, FaVk, FaTelegramPlane } from "react-icons/fa";
-import { FiHome, FiGrid, FiFolder, FiCalendar, FiInfo, FiRefreshCw, FiMenu, FiX, FiAward } from "react-icons/fi";
+import {
+  FaTwitch,
+  FaYoutube,
+  FaDiscord,
+  FaVk,
+  FaTelegramPlane,
+} from "react-icons/fa";
+import {
+  FiHome,
+  FiGrid,
+  FiFolder,
+  FiCalendar,
+  FiInfo,
+  FiRefreshCw,
+  FiMenu,
+  FiX,
+  FiAward,
+} from "react-icons/fi";
 import { BRAND } from "../config/branding";
 import { MASCOTS } from "../config/mascots";
 import { TwitchHeaderWidget } from "./TwitchHeaderWidget";
@@ -19,11 +35,31 @@ const NAV = [
 ];
 
 const SOCIALS = [
-  { href: "twitch", icon: FaTwitch, cls: "soc-twitch", label: "Twitch канал Tiankami" },
-  { href: "youtube", icon: FaYoutube, cls: "soc-youtube", label: "YouTube канал Tiankami" },
-  { href: "discord", icon: FaDiscord, cls: "soc-discord", label: "Discord коммьюнити" },
+  {
+    href: "twitch",
+    icon: FaTwitch,
+    cls: "soc-twitch",
+    label: "Twitch канал Tiankami",
+  },
+  {
+    href: "youtube",
+    icon: FaYoutube,
+    cls: "soc-youtube",
+    label: "YouTube канал Tiankami",
+  },
+  {
+    href: "discord",
+    icon: FaDiscord,
+    cls: "soc-discord",
+    label: "Discord коммьюнити",
+  },
   { href: "vk", icon: FaVk, cls: "soc-vk", label: "ВКонтакте" },
-  { href: "telegram", icon: FaTelegramPlane, cls: "soc-telegram", label: "Телеграм" },
+  {
+    href: "telegram",
+    icon: FaTelegramPlane,
+    cls: "soc-telegram",
+    label: "Телеграм",
+  },
 ];
 
 export function Layout({ children }) {
@@ -56,11 +92,17 @@ export function Layout({ children }) {
     <div className="flex min-h-screen flex-col overflow-x-clip">
       <YandexMetrika />
       <FxPanel />
-      {flash > 0 && <div key={flash} className="warp-flash" aria-hidden="true" />}
+      {flash > 0 && (
+        <div key={flash} className="warp-flash" aria-hidden="true" />
+      )}
 
       <header className="sticky top-0 z-40 border-b border-white/5 bg-night-800/85 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3">
-          <Link to="/" className="group flex items-center gap-3" aria-label="TianKami — на главную">
+          <Link
+            to="/"
+            className="group flex items-center gap-3"
+            aria-label="TianKami — на главную"
+          >
             <img
               key={flip}
               src={MASCOTS.logo}
@@ -81,27 +123,56 @@ export function Layout({ children }) {
             </span>
           </Link>
 
-          <nav className="mx-auto hidden gap-1 md:flex" aria-label="Основная навигация">
-            {NAV.map(({ to, label, icon: Icon, end }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={end}
-                className={({ isActive }) =>
-                  "nav-link flex items-center gap-1.5 " + (isActive ? "nav-link-active" : "")
-                }
-              >
-                <Icon className="text-base" />
-                {label}
-              </NavLink>
-            ))}
+          <nav
+            className="mx-auto hidden gap-1 md:flex"
+            aria-label="Основная навигация"
+          >
+            {NAV.map(({ to, label, icon: Icon, end }) => {
+              const isActive = false;
+              const iconColor =
+                to === "/"
+                  ? "text-pastel-pink"
+                  : to === "/catalog"
+                    ? "text-pastel-mint"
+                    : to === "/collections"
+                      ? "text-pastel-blue"
+                      : to === "/mi"
+                        ? "text-pastel-amber"
+                        : "text-pastel-purple";
+              return (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={end}
+                  className={({ isActive }) =>
+                    "nav-link group flex items-center gap-1.5 " +
+                    (isActive ? "nav-link-active" : "")
+                  }
+                >
+                  <span
+                    className={`transition-transform group-hover:scale-110 ${iconColor}`}
+                  >
+                    <Icon className="text-base" />
+                  </span>
+                  {label}
+                </NavLink>
+              );
+            })}
           </nav>
 
           <div className="ml-auto flex items-center gap-2 md:ml-0">
             <TwitchHeaderWidget />
             <div className="hidden items-center gap-1 xl:flex">
               {SOCIALS.map(({ href, icon: Icon, cls, label }) => (
-                <a key={href} className={"soc " + cls} href={BRAND.links[href]} target="_blank" rel="noopener noreferrer" aria-label={label} title={label}>
+                <a
+                  key={href}
+                  className={"soc " + cls}
+                  href={BRAND.links[href]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  title={label}
+                >
                   <Icon />
                 </a>
               ))}
@@ -121,22 +192,44 @@ export function Layout({ children }) {
 
       {menuOpen && (
         <>
-          <div className="fixed inset-0 z-40 bg-night-900/70 backdrop-blur-sm md:hidden" onClick={() => setMenuOpen(false)} />
-          <div className="drawer md:hidden" role="dialog" aria-modal="true" aria-label="Меню">
+          <div
+            className="fixed inset-0 z-40 bg-night-900/70 backdrop-blur-sm md:hidden"
+            onClick={() => setMenuOpen(false)}
+          />
+          <div
+            className="drawer md:hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Меню"
+          >
             <div className="mb-6 flex items-center justify-between">
-              <img src={MASCOTS.logo} alt="" className="h-10 w-10 rounded-full border-2 border-white object-cover" />
-              <button type="button" className="btn-ghost !p-3" onClick={() => setMenuOpen(false)} aria-label="Закрыть меню">
+              <img
+                src={MASCOTS.logo}
+                alt=""
+                className="h-10 w-10 rounded-full border-2 border-white object-cover"
+              />
+              <button
+                type="button"
+                className="btn-ghost !p-3"
+                onClick={() => setMenuOpen(false)}
+                aria-label="Закрыть меню"
+              >
                 <FiX />
               </button>
             </div>
-            <nav className="flex flex-col gap-1" aria-label="Мобильная навигация">
+            <nav
+              className="flex flex-col gap-1"
+              aria-label="Мобильная навигация"
+            >
               {NAV.map(({ to, label, icon: Icon }) => (
                 <NavLink
                   key={to}
                   to={to}
                   className={({ isActive }) =>
                     "flex items-center gap-3 rounded-btn px-4 py-3 font-display font-bold " +
-                    (isActive ? "bg-pastel-pink/15 text-pastel-pink" : "text-ink-dim hover:bg-white/5 hover:text-ink")
+                    (isActive
+                      ? "bg-pastel-pink/15 text-pastel-pink"
+                      : "text-ink-dim hover:bg-white/5 hover:text-ink")
                   }
                 >
                   <Icon /> {label}
@@ -145,7 +238,14 @@ export function Layout({ children }) {
             </nav>
             <div className="mt-6 flex gap-2">
               {SOCIALS.map(({ href, icon: Icon, cls, label }) => (
-                <a key={href} className={"soc " + cls} href={BRAND.links[href]} target="_blank" rel="noopener noreferrer" aria-label={label}>
+                <a
+                  key={href}
+                  className={"soc " + cls}
+                  href={BRAND.links[href]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                >
                   <Icon />
                 </a>
               ))}
@@ -154,18 +254,27 @@ export function Layout({ children }) {
         </>
       )}
 
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">{children}</main>
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
+        {children}
+      </main>
 
       <footer className="border-t border-white/5 bg-night-900/60">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 md:grid-cols-3">
           <div>
             <div className="flex items-center gap-3">
-              <img src={MASCOTS.logo} alt="" className="h-9 w-9 rounded-full border border-pastel-purple/60 object-cover" loading="lazy" />
-              <span className="section-accent font-display text-lg font-black">TianKami</span>
+              <img
+                src={MASCOTS.logo}
+                alt=""
+                className="h-9 w-9 rounded-full border border-pastel-purple/60 object-cover"
+                loading="lazy"
+              />
+              <span className="section-accent font-display text-lg font-black">
+                TianKami
+              </span>
             </div>
             <p className="mt-3 text-sm text-ink-dim">
-              Уютный хардкор: рогалики, новинки в первые дни релиза, МИ и ламповое
-              коммьюнити. {BRAND.footerText}
+              Уютный хардкор: рогалики, новинки в первые дни релиза, МИ и
+              ламповое коммьюнити. {BRAND.footerText}
             </p>
           </div>
           <div className="text-sm">
@@ -173,16 +282,27 @@ export function Layout({ children }) {
             <ul className="mt-3 grid grid-cols-2 gap-2 text-ink-dim">
               {NAV.map(({ to, label }) => (
                 <li key={to}>
-                  <Link className="transition hover:text-pastel-pink" to={to}>{label}</Link>
+                  <Link className="transition hover:text-pastel-pink" to={to}>
+                    {label}
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
           <div className="text-sm">
-            <h3 className="font-display font-extrabold text-ink">Соцсети и данные</h3>
+            <h3 className="font-display font-extrabold text-ink">
+              Соцсети и данные
+            </h3>
             <div className="mt-3 flex gap-2">
               {SOCIALS.map(({ href, icon: Icon, cls, label }) => (
-                <a key={href} className={"soc " + cls} href={BRAND.links[href]} target="_blank" rel="noopener noreferrer" aria-label={label}>
+                <a
+                  key={href}
+                  className={"soc " + cls}
+                  href={BRAND.links[href]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                >
                   <Icon />
                 </a>
               ))}
@@ -202,7 +322,8 @@ export function Layout({ children }) {
           </div>
         </div>
         <div className="border-t border-white/5 py-4 text-center text-xs text-ink-faint">
-          © {new Date().getFullYear()} {BRAND.name} · {BRAND.footerText} · сделано с 🥐 и любовью
+          © {new Date().getFullYear()} {BRAND.name} · {BRAND.footerText} ·
+          сделано с 🥐 и любовью
         </div>
       </footer>
     </div>

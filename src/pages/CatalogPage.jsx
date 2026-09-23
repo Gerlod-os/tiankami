@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
-  FiSearch, FiX, FiChevronDown, FiFilter, FiStar, FiCalendar, FiArrowDown,
+  FiSearch,
+  FiX,
+  FiChevronDown,
+  FiFilter,
+  FiStar,
+  FiCalendar,
+  FiArrowDown,
 } from "react-icons/fi";
 import { useData } from "../components/DataProvider";
 import { GameCard } from "../components/GameCard";
@@ -26,11 +32,13 @@ const EMPTY_PHRASES = [
 
 const SORTS = {
   "played-desc": (a, b) =>
-    (parseRuDate(b.playedDate)?.getTime() || 0) - (parseRuDate(a.playedDate)?.getTime() || 0),
+    (parseRuDate(b.playedDate)?.getTime() || 0) -
+    (parseRuDate(a.playedDate)?.getTime() || 0),
   "rating-desc": (a, b) => parseNum(b.rating) - parseNum(a.rating),
   "hours-desc": (a, b) => parseNum(b.hours) - parseNum(a.hours),
   "release-desc": (a, b) =>
-    (parseRuDate(b.releaseDate)?.getTime() || 0) - (parseRuDate(a.releaseDate)?.getTime() || 0),
+    (parseRuDate(b.releaseDate)?.getTime() || 0) -
+    (parseRuDate(a.releaseDate)?.getTime() || 0),
   "progress-desc": (a, b) => parseNum(b.progress) - parseNum(a.progress),
   title: (a, b) => a.title.localeCompare(b.title, "ru"),
 };
@@ -62,7 +70,10 @@ export function CatalogPage() {
 
   const [q, setQ] = useState(searchParams.get("q") || "");
   const [dropOpen, setDropOpen] = useState(false);
-  const [genresSel, setGenresSel] = useState(() => new Set(genreParam ? [genreParam] : []));
+  const [genresSel, setGenresSel] = useState(
+    () => new Set(genreParam ? [genreParam] : []),
+  );
+  const MAX_GENRES = 2;
   const [status, setStatus] = useState("any");
   const [year, setYear] = useState("any");
   const [ratingMin, setRatingMin] = useState(0);
@@ -74,6 +85,7 @@ export function CatalogPage() {
   const [visible, setVisible] = useState(PAGE);
   const [modal, setModal] = useState(null);
   const [emptyPhrase, setEmptyPhrase] = useState(EMPTY_PHRASES[0]);
+  const [teleportKey, setTeleportKey] = useState(0);
   const searchRef = useRef(null);
   const filtersRef = useRef(null);
 
@@ -94,11 +106,26 @@ export function CatalogPage() {
     }
   }, [searchParams]);
 
+  // Телепортация при поиске
+  const prevQ = useRef(q);
+  useEffect(() => {
+    if (prevQ.current !== q && q) {
+      setTeleportKey((k) => k + 1);
+      setVisible(PAGE);
+    }
+    prevQ.current = q;
+  }, [q]);
+
   // «/» — фокус на поиск
   useEffect(() => {
     const onKey = (e) => {
       const tag = document.activeElement?.tagName;
-      if (e.key === "/" && tag !== "INPUT" && tag !== "TEXTAREA" && tag !== "SELECT") {
+      if (
+        e.key === "/" &&
+        tag !== "INPUT" &&
+        tag !== "TEXTAREA" &&
+        tag !== "SELECT"
+      ) {
         e.preventDefault();
         searchRef.current?.focus();
       }
@@ -115,21 +142,19 @@ export function CatalogPage() {
     return () => window.removeEventListener("scroll", on, true);
   }, [dropOpen]);
 
-  // Сворачивание фильтров: Escape, клик вне, скролл
+  // Сворачивание фильтров: Escape, клик вне (НО НЕ при скролле — фильтр остаётся)
   useEffect(() => {
     if (!filtersOpen) return undefined;
     const onKey = (e) => e.key === "Escape" && setFiltersOpen(false);
     const onDown = (e) => {
-      if (filtersRef.current && !filtersRef.current.contains(e.target)) setFiltersOpen(false);
+      if (filtersRef.current && !filtersRef.current.contains(e.target))
+        setFiltersOpen(false);
     };
-    const onScroll = () => setFiltersOpen(false);
     document.addEventListener("keydown", onKey);
     document.addEventListener("mousedown", onDown);
-    window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("mousedown", onDown);
-      window.removeEventListener("scroll", onScroll);
     };
   }, [filtersOpen]);
 
@@ -140,38 +165,58 @@ export function CatalogPage() {
 
   const meta = useMemo(() => getGameMetadata(games), [games]);
   const statuses = useMemo(
-    () => [...new Set(games.map((g) => g.status).filter(Boolean))].sort((a, b) => a.localeCompare(b, "ru")),
-    [games]
+    () =>
+      [...new Set(games.map((g) => g.status).filter(Boolean))].sort((a, b) =>
+        a.localeCompare(b, "ru"),
+      ),
+    [games],
   );
   const genreCounts = useMemo(() => {
     const m = new Map();
     games.forEach((g) =>
-      String(g.genre).split(",").map((s) => s.trim()).filter(Boolean)
-        .forEach((x) => m.set(x, (m.get(x) || 0) + 1))
+      String(g.genre)
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .forEach((x) => m.set(x, (m.get(x) || 0) + 1)),
     );
     return m;
   }, [games]);
 
   const collection = useMemo(() => {
     if (!collectionParam) return null;
-    return collections.find((c) => c.name === collectionParam || c.slug === collectionParam) || null;
+    return (
+      collections.find(
+        (c) => c.name === collectionParam || c.slug === collectionParam,
+      ) || null
+    );
   }, [collectionParam, collections]);
   const collectionTitles = useMemo(
-    () => (collection ? new Set(collection.games.map((g) => String(g.name).toLowerCase())) : null),
-    [collection]
+    () =>
+      collection
+        ? new Set(collection.games.map((g) => String(g.name).toLowerCase()))
+        : null,
+    [collection],
   );
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
     const list = games.filter((g) => {
-      if (collectionTitles && !collectionTitles.has(String(g.title).toLowerCase())) return false;
+      if (
+        collectionTitles &&
+        !collectionTitles.has(String(g.title).toLowerCase())
+      )
+        return false;
       if (query) {
-        const hay = `${g.title} ${g.genre} ${g.setting} ${g.features} ${g.notes}`.toLowerCase();
+        const hay =
+          `${g.title} ${g.genre} ${g.setting} ${g.features} ${g.notes}`.toLowerCase();
         if (!hay.includes(query)) return false;
       }
       if (genresSel.size) {
-        const gset = String(g.genre).split(",").map((s) => s.trim());
-        if (![...genresSel].some((x) => gset.includes(x))) return false;
+        const gset = String(g.genre)
+          .split(",")
+          .map((s) => s.trim());
+        if (![...genresSel].every((x) => gset.includes(x))) return false;
       }
       if (status !== "any" && g.status !== status) return false;
       if (year !== "any" && !String(g.releaseDate).includes(year)) return false;
@@ -189,47 +234,102 @@ export function CatalogPage() {
       return true;
     });
     return list.sort(SORTS[sort] || SORTS.title);
-  }, [games, q, genresSel, status, year, ratingMin, complexity, hours, miOnly, sort, collectionTitles]);
+  }, [
+    games,
+    q,
+    genresSel,
+    status,
+    year,
+    ratingMin,
+    complexity,
+    hours,
+    miOnly,
+    sort,
+    collectionTitles,
+  ]);
 
   useEffect(() => {
     setVisible(PAGE);
-  }, [q, genresSel, status, year, ratingMin, complexity, hours, miOnly, sort, collectionParam]);
+  }, [
+    q,
+    genresSel,
+    status,
+    year,
+    ratingMin,
+    complexity,
+    hours,
+    miOnly,
+    sort,
+    collectionParam,
+  ]);
 
   const sugg = useMemo(() => {
     const query = q.trim().toLowerCase();
     if (query.length < 2) return null;
-    const g = games.filter((x) => x.title.toLowerCase().includes(query)).slice(0, 5);
-    const genres = meta.genres.filter((x) => x.toLowerCase().includes(query)).slice(0, 4);
+    const g = games
+      .filter((x) => x.title.toLowerCase().includes(query))
+      .slice(0, 5);
+    const genres = meta.genres
+      .filter((x) => x.toLowerCase().includes(query))
+      .slice(0, 4);
     const settings = [...new Set(games.map((x) => x.setting).filter(Boolean))]
-      .filter((x) => x.toLowerCase().includes(query)).slice(0, 3);
-    const features = [...new Set(games.flatMap((x) => String(x.features).split(",").map((s) => s.trim())))]
-      .filter((x) => x && x.toLowerCase().includes(query)).slice(0, 3);
-    if (!g.length && !genres.length && !settings.length && !features.length) return null;
+      .filter((x) => x.toLowerCase().includes(query))
+      .slice(0, 3);
+    const features = [
+      ...new Set(
+        games.flatMap((x) =>
+          String(x.features)
+            .split(",")
+            .map((s) => s.trim()),
+        ),
+      ),
+    ]
+      .filter((x) => x && x.toLowerCase().includes(query))
+      .slice(0, 3);
+    if (!g.length && !genres.length && !settings.length && !features.length)
+      return null;
     return { g, genres, settings, features };
   }, [q, games, meta]);
 
   const hasFilters =
-    q || genresSel.size || status !== "any" || year !== "any" || ratingMin > 0 ||
-    complexity !== "any" || hours !== "any" || miOnly || collectionParam || genreParam;
+    q ||
+    genresSel.size ||
+    status !== "any" ||
+    year !== "any" ||
+    ratingMin > 0 ||
+    complexity !== "any" ||
+    hours !== "any" ||
+    miOnly ||
+    collectionParam ||
+    genreParam;
 
   const reset = () => {
-    setQ(""); setGenresSel(new Set()); setStatus("any"); setYear("any");
-    setRatingMin(0); setComplexity("any"); setHours("any"); setMiOnly(false);
+    setQ("");
+    setGenresSel(new Set());
+    setStatus("any");
+    setYear("any");
+    setRatingMin(0);
+    setComplexity("any");
+    setHours("any");
+    setMiOnly(false);
   };
 
   return (
     <div className="space-y-6">
       <div className="text-center">
         <h1 className="section-title text-3xl md:text-4xl">
-          <span className="h-marker">Каталог</span> <span className="section-accent">рогаликов</span>
+          <span className="h-marker">Каталог</span>{" "}
+          <span className="section-accent">рогаликов</span>
         </h1>
-        <p className="mt-1 text-sm text-ink-dim">
-          {games.length} игр · по фильтрам: <b className="text-pastel-pink">{filtered.length}</b> ·{" "}
-          <kbd className="rounded border border-white/20 bg-white/10 px-1.5 font-display">/</kbd> — поиск
+        <p className="mt-2 text-base text-ink-dim">
+          <span className="text-ink-dim">Всего:</span>{" "}
+          <b className="text-pastel-pink text-lg">{games.length}</b>{" "}
+          <span className="text-ink-dim">· по фильтрам:</span>{" "}
+          <b className="text-pastel-pink text-lg">{filtered.length}</b>
         </p>
       </div>
 
-      {/* Поиск 64px, glass */}
+      {/* Поиск + сброс — единая панель */}
       <div className="relative mx-auto w-full max-w-3xl">
         <FiSearch className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-faint" />
         <input
@@ -237,12 +337,24 @@ export function CatalogPage() {
           className="input glass !h-16 !rounded-card border-2 !border-transparent !pl-12 !text-base transition focus:!border-pastel-pink/60 focus:shadow-glow-pink"
           placeholder="Введите название, жанр, сеттинг…"
           value={q}
-          onChange={(e) => { setQ(e.target.value); setDropOpen(true); }}
+          onChange={(e) => {
+            setQ(e.target.value);
+            setDropOpen(true);
+          }}
           onFocus={() => setDropOpen(true)}
           onBlur={() => setTimeout(() => setDropOpen(false), 150)}
           onKeyDown={(e) => e.key === "Escape" && setDropOpen(false)}
           aria-label="Живой поиск по каталогу"
         />
+        {hasFilters && !q && (
+          <button
+            type="button"
+            onClick={reset}
+            className="absolute right-4 top-1/2 -translate-y-1/2 btn-ghost !px-2 !py-1 text-xs"
+          >
+            <FiX /> Сбросить всё
+          </button>
+        )}
         {dropOpen && sugg && (
           <div className="card absolute inset-x-0 top-full z-30 mt-2 max-h-96 overflow-y-auto p-4 text-left shadow-glow-purple">
             {sugg.g.length > 0 && (
@@ -255,10 +367,20 @@ export function CatalogPage() {
                     className="flex w-full items-center gap-2 rounded-btn px-2 py-1.5 text-left text-sm text-ink transition hover:bg-white/5"
                     onMouseDown={() => navigate(`/catalog/${g.slug}`)}
                   >
-                    <RarityEgg rarity={bySlug?.[g.slug] || "common"} size={16} />
-                    <span className="min-w-0 flex-1 truncate"><Highlight text={g.title} q={q} /></span>
+                    <RarityEgg
+                      rarity={bySlug?.[g.slug] || "common"}
+                      size={16}
+                    />
+                    <span className="min-w-0 flex-1 truncate">
+                      <Highlight text={g.title} q={q} />
+                    </span>
                     {parseNum(g.rating) > 0 && (
-                      <span className={"flex items-center gap-1 text-xs " + ratingColor(g.rating)}>
+                      <span
+                        className={
+                          "flex items-center gap-1 text-xs " +
+                          ratingColor(g.rating)
+                        }
+                      >
                         <FiStar /> {parseNum(g.rating)}/10
                       </span>
                     )}
@@ -271,7 +393,13 @@ export function CatalogPage() {
                 <div className="label">⚔️ Жанры</div>
                 <div className="flex flex-wrap gap-1.5">
                   {sugg.genres.map((x) => (
-                    <Chip key={x} onClick={() => { setGenresSel((s) => new Set(s).add(x)); setQ(""); }}>
+                    <Chip
+                      key={x}
+                      onClick={() => {
+                        setGenresSel((s) => new Set(s).add(x));
+                        setQ("");
+                      }}
+                    >
                       <Highlight text={x} q={q} /> ({genreCounts.get(x) || 0})
                     </Chip>
                   ))}
@@ -283,7 +411,9 @@ export function CatalogPage() {
                 <div className="label">🏛️ Сеттинги</div>
                 <div className="flex flex-wrap gap-1.5">
                   {sugg.settings.map((x) => (
-                    <Chip key={x} onClick={() => setQ(x)}><Highlight text={x} q={q} /></Chip>
+                    <Chip key={x} onClick={() => setQ(x)}>
+                      <Highlight text={x} q={q} />
+                    </Chip>
                   ))}
                 </div>
               </div>
@@ -293,7 +423,9 @@ export function CatalogPage() {
                 <div className="label">✨ Особенности</div>
                 <div className="flex flex-wrap gap-1.5">
                   {sugg.features.map((x) => (
-                    <Chip key={x} onClick={() => setQ(x)}><Highlight text={x} q={q} /></Chip>
+                    <Chip key={x} onClick={() => setQ(x)}>
+                      <Highlight text={x} q={q} />
+                    </Chip>
                   ))}
                 </div>
               </div>
@@ -304,12 +436,24 @@ export function CatalogPage() {
 
       {collection && (
         <div className="card flex flex-wrap items-center gap-3 border-pastel-purple/30 p-4">
-          <span className="text-2xl" aria-hidden="true">📦</span>
+          <span className="text-2xl" aria-hidden="true">
+            📦
+          </span>
           <div className="min-w-0 flex-1">
-            <div className="font-display font-extrabold text-ink">Подборка: {collection.name}</div>
-            {collection.description && <div className="text-xs text-ink-dim">{collection.description}</div>}
+            <div className="font-display font-extrabold text-ink">
+              Подборка: {collection.name}
+            </div>
+            {collection.description && (
+              <div className="text-xs text-ink-dim">
+                {collection.description}
+              </div>
+            )}
           </div>
-          <Link to="/catalog" className="btn-ghost !px-3 !py-1.5 text-xs" onClick={reset}>
+          <Link
+            to="/catalog"
+            className="btn-ghost !px-3 !py-1.5 text-xs"
+            onClick={reset}
+          >
             <FiX /> Сбросить
           </Link>
         </div>
@@ -325,7 +469,9 @@ export function CatalogPage() {
             aria-expanded={filtersOpen}
           >
             <FiFilter /> Фильтры
-            <FiChevronDown className={filtersOpen ? "rotate-180 transition" : "transition"} />
+            <FiChevronDown
+              className={filtersOpen ? "rotate-180 transition" : "transition"}
+            />
           </button>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -343,15 +489,27 @@ export function CatalogPage() {
             </label>
 
             <span className="select-wrap">
-              <select value={year} onChange={(e) => setYear(e.target.value)} aria-label="Год выхода">
+              <select
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                aria-label="Год выхода"
+              >
                 <option value="any">Любой год</option>
-                {meta.years.map((y) => (<option key={y} value={y}>{y}</option>))}
+                {meta.years.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
               </select>
               <FiCalendar className="sel-icon" />
             </span>
 
             <span className="select-wrap">
-              <select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Сортировка">
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                aria-label="Сортировка"
+              >
                 <option value="played-desc">Сначала недавние</option>
                 <option value="rating-desc">По оценке Тиана</option>
                 <option value="hours-desc">По часам</option>
@@ -367,7 +525,7 @@ export function CatalogPage() {
         {filtersOpen && (
           <div className="grid animate-fadeUp gap-4 md:grid-cols-2">
             <div>
-              <div className="label">Жанр (макс. 2 в ряд)</div>
+              <div className="label">Жанр (макс. 2) — работает по ИЛИ</div>
               <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                 {meta.genres.slice(0, 14).map((x) => (
                   <Chip
@@ -376,12 +534,17 @@ export function CatalogPage() {
                     onClick={() =>
                       setGenresSel((s) => {
                         const n = new Set(s);
-                        if (n.has(x)) n.delete(x); else n.add(x);
+                        if (n.has(x)) n.delete(x);
+                        else if (n.size < MAX_GENRES) n.add(x);
                         return n;
                       })
                     }
+                    disabled={!genresSel.has(x) && genresSel.size >= MAX_GENRES}
                   >
                     {x}
+                    {!genresSel.has(x) && genresSel.size >= MAX_GENRES
+                      ? " 🔒"
+                      : ""}
                   </Chip>
                 ))}
               </div>
@@ -390,9 +553,20 @@ export function CatalogPage() {
               <div>
                 <div className="label">Статус</div>
                 <div className="flex flex-wrap gap-1.5">
-                  <Chip active={status === "any"} onClick={() => setStatus("any")}>Любой</Chip>
+                  <Chip
+                    active={status === "any"}
+                    onClick={() => setStatus("any")}
+                  >
+                    Любой
+                  </Chip>
                   {statuses.map((s) => (
-                    <Chip key={s} active={status === s} onClick={() => setStatus(status === s ? "any" : s)}>{s}</Chip>
+                    <Chip
+                      key={s}
+                      active={status === s}
+                      onClick={() => setStatus(status === s ? "any" : s)}
+                    >
+                      {s}
+                    </Chip>
                   ))}
                 </div>
               </div>
@@ -400,7 +574,11 @@ export function CatalogPage() {
                 <div className="label">Оценка</div>
                 <div className="flex flex-wrap gap-1.5">
                   {[0, 6, 8, 9, 10].map((r) => (
-                    <Chip key={r} active={ratingMin === r} onClick={() => setRatingMin(ratingMin === r ? 0 : r)}>
+                    <Chip
+                      key={r}
+                      active={ratingMin === r}
+                      onClick={() => setRatingMin(ratingMin === r ? 0 : r)}
+                    >
                       {r === 0 ? "Любая" : `⭐ ${r}+`}
                     </Chip>
                   ))}
@@ -409,20 +587,60 @@ export function CatalogPage() {
               <div>
                 <div className="label">Сложность</div>
                 <div className="flex flex-wrap gap-1.5">
-                  <Chip active={complexity === "any"} onClick={() => setComplexity("any")}>Любая</Chip>
-                  <Chip active={complexity === "low"} onClick={() => setComplexity(complexity === "low" ? "any" : "low")}>💀 Лёгкие</Chip>
-                  <Chip active={complexity === "mid"} onClick={() => setComplexity(complexity === "mid" ? "any" : "mid")}>💀💀 Средне</Chip>
-                  <Chip active={complexity === "high"} onClick={() => setComplexity(complexity === "high" ? "any" : "high")}>💀💀💀 Хардкор</Chip>
+                  <Chip
+                    active={complexity === "any"}
+                    onClick={() => setComplexity("any")}
+                  >
+                    Любая
+                  </Chip>
+                  <Chip
+                    active={complexity === "low"}
+                    onClick={() =>
+                      setComplexity(complexity === "low" ? "any" : "low")
+                    }
+                  >
+                    💀 Лёгкие
+                  </Chip>
+                  <Chip
+                    active={complexity === "mid"}
+                    onClick={() =>
+                      setComplexity(complexity === "mid" ? "any" : "mid")
+                    }
+                  >
+                    💀💀 Средне
+                  </Chip>
+                  <Chip
+                    active={complexity === "high"}
+                    onClick={() =>
+                      setComplexity(complexity === "high" ? "any" : "high")
+                    }
+                  >
+                    💀💀💀 Хардкор
+                  </Chip>
                 </div>
               </div>
               <div>
                 <div className="label">Часы</div>
                 <div className="flex flex-wrap gap-1.5">
-                  {[["any", "Любые"], ["lt10", "<10ч"], ["10-49", "10–50ч"], ["50-99", "50–100ч"], ["100+", "100ч+"]].map(([v, l]) => (
-                    <Chip key={v} active={hours === v} onClick={() => setHours(hours === v ? "any" : v)}>{l}</Chip>
+                  {[
+                    ["any", "Любые"],
+                    ["lt10", "<10ч"],
+                    ["10-49", "10–50ч"],
+                    ["50-99", "50–100ч"],
+                    ["100+", "100ч+"],
+                  ].map(([v, l]) => (
+                    <Chip
+                      key={v}
+                      active={hours === v}
+                      onClick={() => setHours(hours === v ? "any" : v)}
+                    >
+                      {l}
+                    </Chip>
                   ))}
                   {hasFilters && (
-                    <Chip onClick={reset}><FiX /> Сбросить всё</Chip>
+                    <Chip onClick={reset}>
+                      <FiX /> Сбросить всё
+                    </Chip>
                   )}
                 </div>
               </div>
@@ -432,15 +650,34 @@ export function CatalogPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="card flex flex-col items-center gap-4 p-10 text-center">
-          <img src="/img/mascot-sad.png" alt="Грустный чиби-герой с пустой коробкой" className="w-40 drop-shadow-[0_8px_20px_rgba(0,0,0,.5)]" loading="lazy" />
-          <p className="font-display text-lg font-extrabold text-ink">{emptyPhrase}</p>
-          <div className="grid w-full gap-x-4 gap-y-6 sm:grid-cols-3">
+        <div className="flex flex-col items-center gap-8 py-16 text-center">
+          <img
+            src="/img/mascot-sad.png"
+            alt="Грустный чиби-герой"
+            className="w-56 drop-shadow-none"
+            loading="lazy"
+          />
+          <p className="font-display text-2xl font-extrabold text-ink">
+            {emptyPhrase}
+          </p>
+          <div className="grid w-full max-w-3xl gap-x-6 gap-y-8 sm:grid-cols-3">
             {topRated(games, 3).map((g, i) => (
-              <GameCard key={g.slug} game={g} rarity={bySlug?.[g.slug] || "common"} delay={i} egg="inline" />
+              <div
+                key={g.slug}
+                className="opacity-50 transition-all duration-300 hover:opacity-100 hover:scale-105"
+              >
+                <GameCard
+                  game={g}
+                  rarity={bySlug?.[g.slug] || "common"}
+                  delay={i}
+                  egg="inline"
+                />
+              </div>
             ))}
           </div>
-          <button type="button" className="btn-primary" onClick={reset}>Сбросить фильтры</button>
+          <button type="button" className="btn-primary" onClick={reset}>
+            Сбросить фильтры
+          </button>
         </div>
       ) : (
         <>
@@ -454,12 +691,17 @@ export function CatalogPage() {
                 rarity={bySlug?.[g.slug] || "common"}
                 delay={i % PAGE}
                 egg="inline"
+                teleport={teleportKey}
               />
             ))}
           </div>
           {visible < filtered.length && (
             <div className="flex justify-center">
-              <button type="button" className="btn-ghost" onClick={() => setVisible((v) => v + PAGE)}>
+              <button
+                type="button"
+                className="btn-ghost"
+                onClick={() => setVisible((v) => v + PAGE)}
+              >
                 <FiChevronDown /> Показать ещё ({filtered.length - visible})
               </button>
             </div>
