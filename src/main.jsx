@@ -1,6 +1,7 @@
 // Клиентская точка входа
 import "@fontsource-variable/nunito";
 import "@fontsource-variable/inter";
+import "@fontsource-variable/unbounded";
 import "@fontsource/cinzel/700.css";
 import "./index.css";
 import { StrictMode } from "react";

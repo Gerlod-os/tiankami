@@ -136,8 +136,8 @@ export function MIPage() {
       <div className="flex justify-center">
         <img
           src={MASCOTS.croissant}
-          alt="Кроассан-геймпад держит кубок"
-          className="sticker w-56 -rotate-2 rounded-full transition-transform hover:rotate-0"
+          alt="Кроассан-маскот держит кубок"
+          className="w-56 -rotate-2 transition-transform hover:rotate-0 drop-shadow-[0_10px_22px_rgba(0,0,0,.5)]"
           loading="lazy"
         />
       </div>

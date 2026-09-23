@@ -4,20 +4,21 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Тёплая тёмная база «уютного хардкора» — уголь с тёплым подтоном
         night: {
-          900: "#0d0d16",
-          800: "#121212",
-          700: "#1a1a2e",
-          600: "#232338",
-          500: "#2c2c45",
-          400: "#3a3a58",
+          900: "#14100C",
+          800: "#181310",
+          700: "#201913",
+          600: "#2A211A",
+          500: "#362B21",
+          400: "#4A3C2E",
         },
         pastel: {
           pink: "#FFB6C1",
           purple: "#C9A0DC",
           blue: "#A0C4FF",
           mint: "#9FE2B9",
-          amber: "#FFD9A0",
+          amber: "#FFC46B",
           rose: "#FF8FA3",
         },
         ink: {
@@ -28,6 +29,14 @@ export default {
       },
       fontFamily: {
         gothic: ["Cinzel", "Georgia", "serif"],
+        // Героический дисплей — заголовки с характером (кириллица)
+        hero: [
+          '"Unbounded Variable"',
+          "Unbounded",
+          '"Nunito Variable"',
+          "Nunito",
+          "sans-serif",
+        ],
         display: [
           '"Nunito Variable"',
           "Nunito",

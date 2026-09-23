@@ -45,11 +45,11 @@ templateSrc = templateSrc.replace(
     return `<style data-build="${href.replace(/^\//, "")}">${css}</style>`;
   }
 );
-// preload нового webp-логотипа вместо png в SSR-разметке
-if (fs.existsSync(path.join(DIST, "img/logo.webp"))) {
+// preload векторного логотипа вместо старого webp в SSR-разметке
+if (fs.existsSync(path.join(DIST, "img/logo.svg"))) {
   templateSrc = templateSrc.replace(
-    /rel="preload" as="image" href="\/img\/logo\.png"/g,
-    'rel="preload" as="image" href="/img/logo.webp"'
+    /rel="preload" as="image" href="\/img\/logo\.(png|webp)"/g,
+    'rel="preload" as="image" href="/img/logo.svg"'
   );
 }
 
@@ -57,8 +57,10 @@ if (fs.existsSync(path.join(DIST, "img/logo.webp"))) {
 const FONT_PRELOAD_PREFIXES = [
   "nunito-cyrillic-wght-",
   "inter-cyrillic-wght-",
+  "unbounded-cyrillic-wght-",
   "nunito-latin-wght-",
   "inter-latin-wght-",
+  "unbounded-latin-wght-",
   "cinzel-latin-700-",
 ];
 const fontPreloads = fs

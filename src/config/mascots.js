@@ -1,11 +1,16 @@
-// Бренд-ассеты канала Tiankami (стикеры)
+// Бренд-ассеты канала Tiankami (векторные маскоты, единый стиль «кроассан»)
 export const MASCOTS = {
-  // Аватар канала (точная копия с Twitch): WebP 14КБ вместо 210КБ PNG
-  logo: "/img/logo.webp",
+  // Логотип-бейдж: кроассан-геймпад
+  logo: "/img/logo.svg",
   og: "/img/og.png",
-  croissant: "/img/mascot-croissant.webp",
+  // Кроассан-персонаж
+  croissant: "/img/mascot-croissant.svg",
   // Герой с копилкой — блок поддержки/подписки
-  support: "/img/mascot-support.webp",
-  // Герой с коробкой мини-героев — подборки
-  collections: "/img/mascot-collections.webp",
+  support: "/img/mascot-support.svg",
+  // Герой с коробкой мини-кроассанов — подборки
+  collections: "/img/mascot-collections.svg",
+  // Рыбак — «улов дня»
+  fisher: "/img/mascot-fisher.svg",
+  // Грустный — пустое состояние каталога
+  sad: "/img/mascot-sad.svg",
 };

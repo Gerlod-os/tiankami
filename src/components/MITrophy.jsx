@@ -1,6 +1,6 @@
 import { useId } from "react";
 
-// 3D-кубок «Мастер Игорей» — SVG с золотым градиентом, свечением и частицами
+// Кубок «Мастер Игорей» — векторный приз: чаша, ручки, постамент, звезда
 export function MITrophy({ size = "sm", className = "" }) {
   const uid = useId().replace(/:/g, "");
   const px =
@@ -18,41 +18,52 @@ export function MITrophy({ size = "sm", className = "" }) {
           viewBox="0 0 64 72"
           width="100%"
           height="100%"
-          style={{ filter: "drop-shadow(0 0 12px rgba(255,217,160,.9)) drop-shadow(0 0 28px rgba(255,182,193,.5))" }}
+          style={{ filter: "drop-shadow(0 1px 5px rgba(255,214,120,.75))" }}
         >
           <defs>
-            <linearGradient id={`tg${uid}`} x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#ffe8a0" />
-              <stop offset="30%" stopColor="#d4a020" />
-              <stop offset="70%" stopColor="#f0c860" />
-              <stop offset="100%" stopColor="#8a6a00" />
+            <linearGradient id={`g${uid}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#FFF3C4" />
+              <stop offset="35%" stopColor="#F5CE6E" />
+              <stop offset="70%" stopColor="#D9A233" />
+              <stop offset="100%" stopColor="#9C6F1E" />
             </linearGradient>
-            <linearGradient id={`tgR${uid}`} x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#fff" stopOpacity="0.5" />
-              <stop offset="50%" stopColor="#fff" stopOpacity="0" />
-              <stop offset="100%" stopColor="#fff" stopOpacity="0.3" />
+            <linearGradient id={`r${uid}`} x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#FFF3C4" />
+              <stop offset="50%" stopColor="#E8B84A" />
+              <stop offset="100%" stopColor="#B8862A" />
             </linearGradient>
-            <radialGradient id={`tgG${uid}`} cx="50%" cy="40%" r="50%">
-              <stop offset="0%" stopColor="#fff" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#fff" stopOpacity="0" />
-            </radialGradient>
           </defs>
 
-          {/* Ножка кубка */}
-          <rect x="27" y="54" width="10" height="12" rx="2" fill={`url(#tg${uid})`} stroke="#8a6a00" strokeWidth="0.8" />
-          {/* Основание */}
-          <rect x="20" y="64" width="24" height="5" rx="2.5" fill={`url(#tg${uid})`} stroke="#8a6a00" strokeWidth="0.8" />
+          {/* Ручки (за чашей) */}
+          <path d="M15 21 C3 21 3 41 17 41" fill="none" stroke={`url(#g${uid})`} strokeWidth="6" strokeLinecap="round" />
+          <path d="M49 21 C61 21 61 41 47 41" fill="none" stroke={`url(#g${uid})`} strokeWidth="6" strokeLinecap="round" />
+          <path d="M15 21 C3 21 3 41 17 41" fill="none" stroke="#7A5514" strokeWidth="1.2" strokeLinecap="round" opacity=".55" />
+          <path d="M49 21 C61 21 61 41 47 41" fill="none" stroke="#7A5514" strokeWidth="1.2" strokeLinecap="round" opacity=".55" />
+
+          {/* Постамент */}
+          <rect x="16" y="65" width="32" height="6" rx="3" fill={`url(#r${uid})`} stroke="#7A5514" strokeWidth="1.4" />
+          <path d="M22 59 L42 59 L46 65 L18 65 Z" fill={`url(#g${uid})`} stroke="#7A5514" strokeWidth="1.4" strokeLinejoin="round" />
+          <rect x="29" y="52" width="6" height="8" fill={`url(#g${uid})`} stroke="#7A5514" strokeWidth="1.2" />
+          <circle cx="32" cy="53.5" r="3.6" fill={`url(#g${uid})`} stroke="#7A5514" strokeWidth="1.2" />
+
           {/* Чаша */}
-          <path d="M14 12 C 14 12 14 48 32 50 C 50 48 50 12 50 12 C 50 12 40 18 32 18 C 24 18 14 12 14 12 Z" fill={`url(#tg${uid})`} stroke="#8a6a00" strokeWidth="1" />
-          {/* Блик на чаше */}
-          <path d="M14 12 C 14 12 14 48 32 50 C 50 48 50 12 50 12 C 50 12 40 18 32 18 C 24 18 14 12 14 12 Z" fill={`url(#tgG${uid})`} />
-          {/* Ручки */}
-          <path d="M14 18 C 4 18 4 32 18 32" fill="none" stroke={`url(#tg${uid})`} strokeWidth="3" strokeLinecap="round" />
-          <path d="M50 18 C 60 18 60 32 46 32" fill="none" stroke={`url(#tg${uid})`} strokeWidth="3" strokeLinecap="round" />
-          {/* Звезда на кубке */}
-          <polygon points="32,24 34,30 40,30 35,34 37,40 32,36 27,40 29,34 24,30 30,30" fill="#fff" opacity="0.7" />
-          {/* Блик слева */}
-          <path d="M20 16 C 20 16 20 30 24 36 C 22 30 22 20 20 16 Z" fill={`url(#tgR${uid})`} />
+          <path
+            d="M13 17 L51 17 L50 31 C49 43 42 51 32 53 C22 51 15 43 14 31 Z"
+            fill={`url(#g${uid})`} stroke="#7A5514" strokeWidth="1.6" strokeLinejoin="round"
+          />
+          {/* Венчик */}
+          <rect x="11" y="10" width="42" height="8" rx="4" fill={`url(#r${uid})`} stroke="#7A5514" strokeWidth="1.4" />
+          <ellipse cx="32" cy="14.2" rx="15.5" ry="3.2" fill="#5E4210" opacity=".8" />
+
+          {/* Блик чаша + звезда победителя */}
+          <path d="M20 23 C19 33 23 41 28 46" fill="none" stroke="#FFF7D6" strokeWidth="3" strokeLinecap="round" opacity=".55" />
+          <polygon
+            points="32,26 34.4,32.2 41,32.6 36,36.8 37.6,43.2 32,39.6 26.4,43.2 28,36.8 23,32.6 29.6,32.2"
+            fill="#FFF3C0" opacity=".95"
+          />
+
+          {/* Блик основания */}
+          <rect x="21" y="66.6" width="12" height="2" rx="1" fill="#FFF7D6" opacity=".6" />
         </svg>
       </span>
       {/* Золотая пыль */}

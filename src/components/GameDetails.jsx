@@ -121,11 +121,11 @@ export function GameDetails({ game }) {
       <div className="flex flex-wrap gap-2">
         {game.steamUrl && (
           <a
-            className="inline-flex w-full items-center justify-center gap-2 rounded-btn px-4 py-3 font-display font-extrabold text-white transition-all duration-300 hover:scale-[1.02]"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-btn px-4 py-3 font-display font-extrabold text-[#0E1621] transition-all duration-300 hover:scale-[1.02]"
             style={{
               backgroundImage:
-                "linear-gradient(135deg,#667eea 0%,#764ba2 100%)",
-              boxShadow: "0 10px 30px rgba(102,126,234,0.5)",
+                "linear-gradient(135deg,#66C0F4 0%,#3E8BC0 100%)",
+              boxShadow: "0 10px 26px rgba(102,192,244,0.30)",
             }}
             href={game.steamUrl}
             target="_blank"
@@ -139,8 +139,8 @@ export function GameDetails({ game }) {
             className="inline-flex w-full items-center justify-center gap-2 rounded-btn px-4 py-3 font-display font-extrabold text-white transition-all duration-300 hover:scale-[1.02]"
             style={{
               backgroundImage:
-                "linear-gradient(135deg,#ff0000 0%,#cc0000 100%)",
-              boxShadow: "0 10px 30px rgba(255,0,0,0.4)",
+                "linear-gradient(135deg,#FF2D2D 0%,#C40000 100%)",
+              boxShadow: "0 10px 26px rgba(255,0,0,0.28)",
             }}
             href={game.youtube}
             target="_blank"

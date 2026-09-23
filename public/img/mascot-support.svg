@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Кроассан обнимает копилку — поддержка канала">
+  <defs>
+    <linearGradient id="gold" x1=".2" y1="0" x2=".8" y2="1">
+      <stop offset="0" stop-color="#FBE0A4"/>
+      <stop offset=".35" stop-color="#F2BE62"/>
+      <stop offset=".75" stop-color="#E39B3B"/>
+      <stop offset="1" stop-color="#C77E2A"/>
+    </linearGradient>
+    <radialGradient id="sheen" cx=".35" cy=".25" r=".75">
+      <stop offset="0" stop-color="#fff" stop-opacity=".5"/>
+      <stop offset=".45" stop-color="#fff" stop-opacity=".07"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="pig" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FBC6D6"/>
+      <stop offset="1" stop-color="#F490AE"/>
+    </linearGradient>
+  </defs>
+
+  <!-- кроассан-персонаж позади -->
+  <g transform="translate(38 18) scale(0.62)">
+    <path
+      d="M84 318 C84 168 162 104 256 104 C350 104 428 168 428 318 C428 352 404 370 386 350 C350 272 314 240 256 240 C198 240 162 272 126 350 C108 370 84 352 84 318 Z"
+      fill="url(#gold)" stroke="#FFFFFF" stroke-width="26" stroke-linejoin="round" paint-order="stroke"/>
+    <g stroke="#B9741F" stroke-opacity=".5" stroke-width="12" stroke-linecap="round" fill="none">
+      <path d="M158 150 C166 185 164 225 152 262"/>
+      <path d="M210 120 C216 155 214 195 206 232"/>
+      <path d="M302 120 C296 155 298 195 306 232"/>
+      <path d="M354 150 C346 185 348 225 360 262"/>
+    </g>
+    <path
+      d="M84 318 C84 168 162 104 256 104 C350 104 428 168 428 318 C428 352 404 370 386 350 C350 272 314 240 256 240 C198 240 162 272 126 350 C108 370 84 352 84 318 Z"
+      fill="url(#sheen)"/>
+    <ellipse cx="196" cy="216" rx="16" ry="10" fill="#FF8FA3" opacity=".55"/>
+    <ellipse cx="316" cy="216" rx="16" ry="10" fill="#FF8FA3" opacity=".55"/>
+    <circle cx="228" cy="190" r="16" fill="#5B3A1E"/>
+    <circle cx="284" cy="190" r="16" fill="#5B3A1E"/>
+    <circle cx="233" cy="184" r="5" fill="#fff"/>
+    <circle cx="289" cy="184" r="5" fill="#fff"/>
+    <path d="M240 214 Q256 234 272 214" fill="none" stroke="#5B3A1E" stroke-width="9" stroke-linecap="round"/>
+  </g>
+
+  <!-- копилка -->
+  <g stroke-linejoin="round">
+    <!-- ухо -->
+    <path d="M252 288 L262 246 L302 276 Z" fill="#F490AE" stroke="#FFFFFF" stroke-width="16" paint-order="stroke"/>
+    <!-- хвост-спираль -->
+    <path d="M196 344 q-26 -4 -24 -24 q2 -16 20 -12" fill="none" stroke="#FFFFFF" stroke-width="34" stroke-linecap="round" paint-order="stroke"/>
+    <path d="M196 344 q-26 -4 -24 -24 q2 -16 20 -12" fill="none" stroke="#F490AE" stroke-width="18" stroke-linecap="round"/>
+    <!-- ноги -->
+    <g fill="#F490AE" stroke="#FFFFFF" stroke-width="14" paint-order="stroke">
+      <rect x="216" y="414" width="34" height="34" rx="14"/>
+      <rect x="276" y="424" width="34" height="34" rx="14"/>
+      <rect x="342" y="424" width="34" height="34" rx="14"/>
+      <rect x="396" y="414" width="34" height="34" rx="14"/>
+    </g>
+    <!-- тело -->
+    <ellipse cx="318" cy="360" rx="132" ry="96" fill="url(#pig)" stroke="#FFFFFF" stroke-width="18" paint-order="stroke"/>
+    <!-- блик -->
+    <ellipse cx="286" cy="304" rx="52" ry="24" fill="#fff" opacity=".45" transform="rotate(-12 286 304)"/>
+    <!-- пятачок -->
+    <ellipse cx="444" cy="368" rx="34" ry="27" fill="#FBB9CC" stroke="#FFFFFF" stroke-width="14" paint-order="stroke"/>
+    <circle cx="436" cy="362" r="5" fill="#D96A90"/>
+    <circle cx="453" cy="372" r="5" fill="#D96A90"/>
+    <!-- глаз -->
+    <circle cx="384" cy="330" r="9" fill="#5B3A1E"/>
+    <circle cx="387" cy="326" r="3" fill="#fff"/>
+    <!-- прорезь для монет -->
+    <rect x="286" y="276" width="72" height="15" rx="7.5" fill="#B25A7E" transform="rotate(-6 322 284)"/>
+    <!-- монета -->
+    <g transform="translate(320 236)">
+      <circle r="24" fill="#F2BE62" stroke="#FFFFFF" stroke-width="12" paint-order="stroke"/>
+      <circle r="24" fill="none" stroke="#B9741F" stroke-width="4"/>
+      <path d="M-5 -11 h7 a8 8 0 0 1 0 16 h-7 m0 0 h8 a8 8 0 0 1 0 16 h-8 m4 -32 v6 m0 16 v6" stroke="#8A5A1E" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- рука-объятие -->
+  <path d="M186 330 Q214 402 288 424" fill="none" stroke="#FFFFFF" stroke-width="42" stroke-linecap="round" paint-order="stroke"/>
+  <path d="M186 330 Q214 402 288 424" fill="none" stroke="#E39B3B" stroke-width="26" stroke-linecap="round"/>
+</svg>

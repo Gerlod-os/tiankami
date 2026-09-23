@@ -18,8 +18,8 @@ export function AboutPage() {
         <div className="grid items-center gap-8 md:grid-cols-[280px_minmax(0,1fr)]">
           <img
             src={MASCOTS.croissant}
-            alt="Кроассан-геймпад — маскот канала Tiankami"
-            className="sticker w-full -rotate-2 rounded-full transition-transform hover:rotate-0"
+            alt="Кроассан-маскот канала Tiankami"
+            className="w-full -rotate-2 transition-transform hover:rotate-0 drop-shadow-[0_14px_28px_rgba(0,0,0,.5)]"
             loading="lazy"
           />
           <div>
@@ -99,8 +99,8 @@ export function AboutPage() {
           </div>
           <img
             src={MASCOTS.support}
-            alt="Тиан-герой обнимает копилку"
-            className="sticker w-full max-w-[280px] rotate-2 justify-self-center transition-transform hover:rotate-0"
+            alt="Кроассан обнимает копилку"
+            className="w-full max-w-[280px] rotate-2 justify-self-center transition-transform hover:rotate-0 drop-shadow-[0_14px_28px_rgba(0,0,0,.5)]"
             loading="lazy"
           />
         </div>
