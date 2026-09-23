@@ -49,7 +49,7 @@ function SimilarCarousel({ items, bySlug, onQuickView }) {
         type="button"
         onClick={() => go(-1)}
         aria-label="Предыдущие похожие игры"
-        className="absolute -left-3 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-night-900/80 text-xl text-ink opacity-60 backdrop-blur transition hover:opacity-100 hover:shadow-glow-purple"
+        className="absolute -left-3 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-night-900/90 text-xl text-ink opacity-60 transition hover:opacity-100 hover:shadow-glow-purple"
       >
         <FiChevronLeft />
       </button>
@@ -57,7 +57,7 @@ function SimilarCarousel({ items, bySlug, onQuickView }) {
         type="button"
         onClick={() => go(1)}
         aria-label="Следующие похожие игры"
-        className="absolute -right-3 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-night-900/80 text-xl text-ink opacity-60 backdrop-blur transition hover:opacity-100 hover:shadow-glow-purple"
+        className="absolute -right-3 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-night-900/90 text-xl text-ink opacity-60 transition hover:opacity-100 hover:shadow-glow-purple"
       >
         <FiChevronRight />
       </button>
@@ -215,7 +215,7 @@ export function GamePage() {
           <div className="mt-6 flex flex-wrap gap-3">
             {game.steamUrl && (
               <a
-                className="inline-flex items-center justify-center gap-2 rounded-btn px-6 py-3 font-display font-extrabold text-[#0E1621] transition-all duration-300 hover:scale-[1.02]"
+                className="inline-flex items-center justify-center gap-2 rounded-btn px-6 py-3 font-display font-extrabold text-[#0E1621] transition duration-300 hover:scale-[1.02]"
                 style={{
                   backgroundImage:
                     "linear-gradient(135deg,#66C0F4 0%,#3E8BC0 100%)",
@@ -230,7 +230,7 @@ export function GamePage() {
             )}
             {game.youtube && (
               <a
-                className="inline-flex items-center justify-center gap-2 rounded-btn px-6 py-3 font-display font-extrabold text-white transition-all duration-300 hover:scale-[1.02]"
+                className="inline-flex items-center justify-center gap-2 rounded-btn px-6 py-3 font-display font-extrabold text-white transition duration-300 hover:scale-[1.02]"
                 style={{
                   backgroundImage:
                     "linear-gradient(135deg,#FF2D2D 0%,#C40000 100%)",

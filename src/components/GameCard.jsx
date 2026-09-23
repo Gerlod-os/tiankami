@@ -18,7 +18,6 @@ export const GameCard = memo(function GameCard({
   rarity = "common",
   delay = 0,
   egg = "big",
-  teleport = 0,
 }) {
   const [broken, setBroken] = useState(false);
   const meta = statusMeta(game.status);
@@ -28,15 +27,11 @@ export const GameCard = memo(function GameCard({
 
   return (
     <article
-      className={
-        "card card-hover group relative flex animate-fadeUp flex-col " +
-        (teleport > 0 ? "teleport-in" : "")
-      }
+      className="card card-hover group relative flex animate-fadeUp flex-col"
       style={{
         animationDelay: `${Math.min(delay, 20) * 0.05}s`,
         ["--glow"]: RARITY_GLOW[rarity] || RARITY_GLOW.common,
       }}
-      key={teleport}
     >
       {egg === "big" && (
         <span className="absolute -top-5 right-5 z-10">
@@ -77,7 +72,7 @@ export const GameCard = memo(function GameCard({
         )}
         <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-night-900/90 to-transparent" />
         {rating > 0 && (
-          <span className="chip absolute right-2 top-2 border border-white/10 bg-night-900/80 backdrop-blur">
+          <span className="chip absolute right-2 top-2 border border-white/10 bg-night-900/90">
             <FiStar className={ratingColor(rating)} />
             <span className={ratingColor(rating)}>{rating}/10</span>
           </span>

@@ -13,7 +13,7 @@ export function MITrophy({ size = "sm", className = "" }) {
       aria-label="Кубок Мастера Игорей"
       role="img"
     >
-      <span className={`trophy-spin ${px} leading-none`}>
+      <span className={`${px} leading-none`}>
         <svg
           viewBox="0 0 64 72"
           width="100%"
@@ -66,11 +66,6 @@ export function MITrophy({ size = "sm", className = "" }) {
           <rect x="21" y="66.6" width="12" height="2" rx="1" fill="#FFF7D6" opacity=".6" />
         </svg>
       </span>
-      {/* Золотая пыль */}
-      <span className="trophy-dust absolute h-1 w-1 rounded-full bg-pastel-amber" style={{ left: "10%", top: "15%", boxShadow: "0 0 6px #ffd880" }} />
-      <span className="trophy-dust absolute h-0.5 w-0.5 rounded-full bg-pastel-pink" style={{ right: "8%", top: "30%", animationDelay: ".7s", boxShadow: "0 0 4px #ffb6c1" }} />
-      <span className="trophy-dust absolute h-1 w-1 rounded-full bg-pastel-amber" style={{ left: "25%", bottom: "5%", animationDelay: "1.3s", boxShadow: "0 0 6px #ffd880" }} />
-      <span className="trophy-dust absolute h-0.5 w-0.5 rounded-full bg-pastel-amber" style={{ right: "20%", bottom: "20%", animationDelay: ".3s", boxShadow: "0 0 4px #ffd880" }} />
     </span>
   );
 }

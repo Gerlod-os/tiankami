@@ -74,7 +74,7 @@ export function CollectionPage() {
               {match ? (
                 <Link
                   to={`/catalog/${match.slug}`}
-                  className="card card-hover flex items-center gap-4 p-4 transition-all hover:scale-[1.02] hover:shadow-card"
+                  className="card card-hover flex items-center gap-4 p-4 transition duration-300 hover:scale-[1.02] hover:shadow-card"
                 >
                   {/* Мини-обложка */}
                   {match.image && (

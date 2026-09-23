@@ -121,7 +121,7 @@ export function GameDetails({ game }) {
       <div className="flex flex-wrap gap-2">
         {game.steamUrl && (
           <a
-            className="inline-flex w-full items-center justify-center gap-2 rounded-btn px-4 py-3 font-display font-extrabold text-[#0E1621] transition-all duration-300 hover:scale-[1.02]"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-btn px-4 py-3 font-display font-extrabold text-[#0E1621] transition duration-300 hover:scale-[1.02]"
             style={{
               backgroundImage:
                 "linear-gradient(135deg,#66C0F4 0%,#3E8BC0 100%)",
@@ -136,7 +136,7 @@ export function GameDetails({ game }) {
         )}
         {isUrl(game.youtube) && (
           <a
-            className="inline-flex w-full items-center justify-center gap-2 rounded-btn px-4 py-3 font-display font-extrabold text-white transition-all duration-300 hover:scale-[1.02]"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-btn px-4 py-3 font-display font-extrabold text-white transition duration-300 hover:scale-[1.02]"
             style={{
               backgroundImage:
                 "linear-gradient(135deg,#FF2D2D 0%,#C40000 100%)",

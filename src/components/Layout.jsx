@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import {
   FaTwitch,
@@ -66,19 +66,11 @@ export function Layout({ children }) {
   const location = useLocation();
   const { refresh, refreshing, resetCache } = useData();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [flash, setFlash] = useState(0);
   const [flip, setFlip] = useState(0);
 
-  const firstRoute = useRef(true);
   useEffect(() => {
     window.scrollTo({ top: 0 });
     setMenuOpen(false);
-    // warp-вспышка только при SPA-переходах, НЕ на первичной загрузке (F1)
-    if (firstRoute.current) {
-      firstRoute.current = false;
-      return;
-    }
-    setFlash((f) => f + 1);
   }, [location.pathname]);
 
   useEffect(() => {
@@ -92,11 +84,8 @@ export function Layout({ children }) {
     <div className="flex min-h-screen flex-col overflow-x-clip">
       <YandexMetrika />
       <FxPanel />
-      {flash > 0 && (
-        <div key={flash} className="warp-flash" aria-hidden="true" />
-      )}
 
-      <header className="sticky top-0 z-40 border-b border-white/5 bg-night-800/85 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-white/5 bg-night-800">
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3">
           <Link
             to="/"
@@ -192,7 +181,7 @@ export function Layout({ children }) {
       {menuOpen && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-night-900/70 backdrop-blur-sm md:hidden"
+            className="fixed inset-0 z-40 bg-night-900/85 md:hidden"
             onClick={() => setMenuOpen(false)}
           />
           <div

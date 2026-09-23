@@ -166,12 +166,9 @@ export function FxPanel() {
             ctx.fillText("🥐", p.x, p.y);
           } else {
             ctx.fillStyle = p.color;
-            ctx.shadowColor = p.color;
-            ctx.shadowBlur = 9;
             ctx.beginPath();
             ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
             ctx.fill();
-            ctx.shadowBlur = 0;
           }
         }
         for (let i = flashes.length - 1; i >= 0; i--) {
@@ -223,7 +220,7 @@ export function FxPanel() {
         aria-pressed={enabled}
         aria-label="Переключить визуальные эффекты"
         className={
-          "fixed bottom-4 right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full border text-xl transition-all duration-300 " +
+          "fixed bottom-4 right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full border text-xl transition duration-300 " +
           (enabled
             ? "border-pastel-pink/50 bg-gradient-to-br from-pastel-pink/30 to-pastel-purple/30 text-pastel-pink shadow-glow-pink"
             : "border-white/10 bg-night-600/80 text-ink-faint hover:text-ink")

@@ -50,7 +50,7 @@ function Chip({ active, onClick, children, title }) {
       onClick={onClick}
       title={title}
       className={
-        "chip border px-4 py-2 transition-all duration-200 " +
+        "chip border px-4 py-2 transition duration-200 " +
         (active
           ? "border-transparent bg-gradient-to-r from-pastel-pink to-pastel-purple font-extrabold text-night-900 shadow-glow-pink"
           : "border-white/10 bg-white/5 text-ink-dim hover:border-pastel-purple/40 hover:text-ink")
@@ -85,7 +85,6 @@ export function CatalogPage() {
   const [visible, setVisible] = useState(PAGE);
   const [modal, setModal] = useState(null);
   const [emptyPhrase, setEmptyPhrase] = useState(EMPTY_PHRASES[0]);
-  const [teleportKey, setTeleportKey] = useState(0);
   const searchRef = useRef(null);
   const filtersRef = useRef(null);
 
@@ -106,13 +105,10 @@ export function CatalogPage() {
     }
   }, [searchParams]);
 
-  // Телепортация при поиске
+  // Сброс пагинации при изменении поискового запроса (без ремонта карточек)
   const prevQ = useRef(q);
   useEffect(() => {
-    if (prevQ.current !== q && q) {
-      setTeleportKey((k) => k + 1);
-      setVisible(PAGE);
-    }
+    if (prevQ.current !== q && q) setVisible(PAGE);
     prevQ.current = q;
   }, [q]);
 
@@ -652,7 +648,7 @@ export function CatalogPage() {
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center gap-8 py-16 text-center">
           <img
-            src="/img/mascot-sad.svg"
+            src="/img/mascot-sad.png"
             alt="Грустный кроассан"
             className="w-56 drop-shadow-[0_14px_28px_rgba(0,0,0,.45)]"
             loading="lazy"
@@ -664,7 +660,7 @@ export function CatalogPage() {
             {topRated(games, 3).map((g, i) => (
               <div
                 key={g.slug}
-                className="opacity-50 transition-all duration-300 hover:opacity-100 hover:scale-105"
+                className="opacity-50 transition duration-300 hover:opacity-100 hover:scale-105"
               >
                 <GameCard
                   game={g}
@@ -691,7 +687,6 @@ export function CatalogPage() {
                 rarity={bySlug?.[g.slug] || "common"}
                 delay={i % PAGE}
                 egg="inline"
-                teleport={teleportKey}
               />
             ))}
           </div>

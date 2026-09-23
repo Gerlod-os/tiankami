@@ -58,16 +58,12 @@ export function GameModal({ game, onClose }) {
       }}
     >
       <div
-        className="absolute inset-0 bg-night-900/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-night-900/75"
         onClick={onClose}
       />
       <div
         ref={boxRef}
-        className="relative max-h-[88vh] w-full max-w-4xl animate-fadeUp overflow-y-auto rounded-card border border-white/10 bg-night-900/80 p-5 sm:p-7 shadow-card"
-        style={{
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-        }}
+        className="relative max-h-[88vh] w-full max-w-4xl animate-fadeUp overflow-y-auto rounded-card border border-white/10 bg-night-900/95 p-5 sm:p-7 shadow-card"
       >
         <div className="mb-4 flex items-start justify-between gap-4">
           <h2 className="font-display text-2xl font-black text-ink">
