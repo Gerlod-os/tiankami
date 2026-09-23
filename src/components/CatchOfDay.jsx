@@ -109,7 +109,7 @@ export function CatchOfDay() {
                   : "Поймать случайную игру"}
             </button>
             <img
-              src="/img/mascot-fisher.svg"
+              src="/img/mascot-fisher.png"
               alt="Кроассан-рыбак"
               className="hidden w-28 -scale-x-100 drop-shadow-[0_6px_16px_rgba(0,0,0,.5)] sm:block"
               loading="lazy"
