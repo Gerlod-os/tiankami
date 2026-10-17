@@ -13,7 +13,6 @@ import {
   FiFolder,
   FiCalendar,
   FiInfo,
-  FiRefreshCw,
   FiMenu,
   FiX,
   FiAward,
@@ -23,7 +22,7 @@ import { MASCOTS } from "../config/mascots";
 import { TwitchHeaderWidget } from "./TwitchHeaderWidget";
 import { FxPanel } from "./FxPanel";
 import { YandexMetrika } from "./YandexMetrika";
-import { useData } from "./DataProvider";
+import { buildDate } from "../utils/loadData";
 
 const NAV = [
   { to: "/", label: "Главная", icon: FiHome, end: true },
@@ -64,7 +63,6 @@ const SOCIALS = [
 
 export function Layout({ children }) {
   const location = useLocation();
-  const { refresh, refreshing, resetCache } = useData();
   const [menuOpen, setMenuOpen] = useState(false);
   const [flip, setFlip] = useState(0);
 
@@ -295,18 +293,9 @@ export function Layout({ children }) {
                 </a>
               ))}
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                resetCache();
-                refresh();
-              }}
-              className="btn-ghost mt-4 !px-3 !py-1.5 text-xs"
-              title="Сбросить кэш и свериться с Google Таблицей"
-            >
-              <FiRefreshCw className={refreshing ? "animate-spin" : ""} />
-              Обновить данные
-            </button>
+            <p className="mt-4 text-xs text-ink-faint">
+              Данные обновлены: {buildDate() || "при последней сборке"}
+            </p>
           </div>
         </div>
         <div className="border-t border-white/5 py-4 text-center text-xs text-ink-faint">

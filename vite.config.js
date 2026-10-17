@@ -6,6 +6,10 @@ import { BASE_PATH } from "./src/config/site.js";
 export default defineConfig({
   // GitHub Pages отдаёт сайт из подпапки /tiankami/ — без этого все ассеты уйдут в корень.
   base: BASE_PATH + "/",
+  // Дата сборки — её показывает подвал вместо кнопки «Обновить данные».
+  define: {
+    __BUILD_DATE__: JSON.stringify(new Date().toISOString().slice(0, 10)),
+  },
   plugins: [react()],
   build: {
     rollupOptions: {
