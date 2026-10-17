@@ -162,7 +162,38 @@ try {
 }
 
 // ── 5. Пишем JSON ────────────────────────────────────────────────────────────
-writeJson("games.json", games);
+// Обложки Steam и ссылки добавляет только шаг «Копия» с ключом Sheets API.
+// Без ключа (сборка на GitHub) свежие данные вышли бы без картинок, поэтому
+// переносим их из уже сохранённого файла — иначе страницы теряют обложки и og:image.
+writeJson("games.json", withRichFields(games));
 writeJson("collections.json", collections);
 writeJson("schedule.json", schedule);
 console.log("✅ Синхронизация завершена.");
+
+function withRichFields(games) {
+  const file = path.join(DATA_DIR, "games.json");
+  if (!fs.existsSync(file)) return games;
+  let prev;
+  try {
+    prev = JSON.parse(fs.readFileSync(file, "utf8"));
+  } catch {
+    return games;
+  }
+  if (!Array.isArray(prev) || !prev.length) return games;
+  const bySlug = new Map(prev.map((g) => [g.slug, g]));
+  let restored = 0;
+  for (const g of games) {
+    const old = bySlug.get(g.slug);
+    if (!old) continue;
+    for (const f of ["image", "steamAppId", "steamUrl", "youtube", "miVideo"]) {
+      if (!g[f] && old[f]) {
+        g[f] = old[f];
+        restored++;
+      }
+    }
+  }
+  if (restored) {
+    console.log(`  ↺ обложки и ссылки перенесены из прежнего файла: ${restored} полей`);
+  }
+  return games;
+}
