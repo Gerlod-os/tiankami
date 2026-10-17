@@ -142,11 +142,12 @@ function buildPage(pathname) {
     "<!--ssr-head-->",
     `<link rel="canonical" href="${SITE}${pathname === "/" ? "/" : pathname}" />`
   );
-  // Vite 8 инжектит preload-ссылки внутрь #root — вырезаем их (иначе hydration
-  // mismatch), в «чистом» шаблоне внутри #root нет вложенных div, первое </div> — корневое.
+  // В #root может оказаться мусор от инструментов: preload-ссылки Vite и
+  // атрибуты редактора вроде data-page-node-id. Поэтому открывающий тег ищем
+  // с любыми атрибутами, а конец — по </div> непосредственно перед </body>.
   page = page.replace(
-    /<div id="root">[\s\S]*?<\/div>/,
-    () => `<div id="root">${html}</div>`
+    /<div id="root"[^>]*>[\s\S]*?<\/div>(\s*<\/body>)/,
+    (_match, tail) => `<div id="root">${html}</div>${tail}`
   );
   return page;
 }
