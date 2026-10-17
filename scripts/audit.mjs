@@ -146,10 +146,20 @@ async function main() {
       await page.addInitScript(INIT);
       const started = Date.now();
       let navError = '';
+      let loadTimedOut = false;
       try {
-        await page.goto(BASE + encodeURI(pagePath), { waitUntil: 'load', timeout: 45000 });
+        await page.goto(BASE + encodeURI(pagePath), { waitUntil: 'load', timeout: 20000 });
       } catch (e) {
+        // Страница может не дождаться 'load': сторонний скрипт (плеер YouTube)
+        // не догружается в окружении без доступа к нему. Это не поломка сайта —
+        // печатаем отдельным флагом и меряем дальше по 'domcontentloaded'.
         navError = String(e).slice(0, 200);
+        loadTimedOut = true;
+        try {
+          await page.goto(BASE + encodeURI(pagePath), { waitUntil: 'domcontentloaded', timeout: 20000 });
+        } catch (e2) {
+          navError = String(e2).slice(0, 200);
+        }
       }
       await page.waitForTimeout(2500);
 
@@ -169,6 +179,7 @@ async function main() {
         page: pagePath,
         name,
         viewport: vp.tag,
+        loadTimedOut,
         ms: Date.now() - started,
         lcp: vitals.lcp || null,
         lcpMissing: !vitals.lcp,
@@ -230,6 +241,12 @@ async function main() {
     console.log('');
     console.log('LCP не измерен (браузер не выдал ни одной записи): ' + noLcp.join(', '));
     console.log('для этих страниц смотреть FCP и вес — LCP считать нечем, и это не «хорошо»');
+  }
+  const timedOut = results.filter((r) => r.loadTimedOut).map((r) => `${r.name}/${r.viewport}`);
+  if (timedOut.length) {
+    console.log('');
+    console.log('страница не дождалась события load (сторонний скрипт не догрузился): ' + timedOut.join(', '));
+    console.log('вес на этих страницах — неполный, остальные метрики верны');
   }
 
   const violations = [];

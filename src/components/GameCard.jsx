@@ -48,6 +48,8 @@ export const GameCard = memo(function GameCard({
           <img
             src={game.image}
             alt={`Обложка ${game.title}`}
+            width={460}
+            height={215}
             loading="lazy"
             onError={() => setBroken(true)}
             className={"h-full w-full object-cover "}

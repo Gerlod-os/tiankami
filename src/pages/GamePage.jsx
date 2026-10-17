@@ -164,6 +164,8 @@ export function GamePage() {
             <img
               src={game.image}
               alt={`Обложка ${game.title}`}
+              width={460}
+              height={215}
               className="w-full rounded-card border-4 border-white object-cover shadow-sticker"
             />
           ) : (

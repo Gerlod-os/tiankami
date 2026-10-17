@@ -35,6 +35,8 @@ export function CollectionsPage() {
           <img
             src={MASCOTS.collections}
             alt="Кроассан открывает коробку с мини-подборками"
+            width={900}
+            height={501}
             className="w-full max-w-[320px] justify-self-center rotate-2 transition-transform hover:rotate-0 drop-shadow-[0_14px_28px_rgba(0,0,0,.5)]"
             loading="lazy"
           />

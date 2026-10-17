@@ -137,6 +137,8 @@ export function MIPage() {
         <img
           src={MASCOTS.croissant}
           alt="Кроассан-маскот держит кубок"
+          width={720}
+          height={720}
           className="w-56 -rotate-2 transition-transform hover:rotate-0 drop-shadow-[0_10px_22px_rgba(0,0,0,.5)]"
           loading="lazy"
         />

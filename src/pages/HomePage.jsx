@@ -136,6 +136,8 @@ export function HomePage() {
             <img
               src={MASCOTS.logo}
               alt="Аватар Tiankami с Twitch — кроассан-геймпад"
+              width={512}
+              height={512}
               className="relative z-10 w-[240px] rounded-full border-4 border-white object-cover shadow-sticker md:w-[320px]"
             />
           </div>

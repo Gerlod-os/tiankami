@@ -112,6 +112,8 @@ export function CatchOfDay() {
             <img
               src={MASCOTS.fisher}
               alt="Кроассан-рыбак"
+              width={700}
+              height={700}
               className="hidden w-28 -scale-x-100 drop-shadow-[0_6px_16px_rgba(0,0,0,.5)] sm:block"
               loading="lazy"
             />

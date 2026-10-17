@@ -6,7 +6,7 @@ const img = (file) => `${BASE_PATH}/img/${file}`;
 
 export const MASCOTS = {
   // Логотип-бейдж: кроассан-геймпад
-  logo: img("logo.png"),
+  logo: img("logo.webp"),
   og: img("og.png"),
   // Кроассан-персонаж
   croissant: img("mascot-croissant.webp"),
@@ -15,7 +15,7 @@ export const MASCOTS = {
   // Герой с коробкой мини-кроассанов — подборки
   collections: img("mascot-collections.webp"),
   // Рыбак — «улов дня»
-  fisher: img("mascot-fisher.png"),
+  fisher: img("mascot-fisher.webp"),
   // Грустный — пустое состояние каталога
-  sad: img("mascot-sad.png"),
+  sad: img("mascot-sad.webp"),
 };

@@ -98,6 +98,8 @@ export function GameDetails({ game }) {
         <img
           src={game.image}
           alt={`Обложка ${game.title}`}
+          width={460}
+          height={215}
           className="w-full rounded-card border border-white/10 object-cover shadow-sticker"
           loading="lazy"
         />

@@ -19,6 +19,8 @@ export function AboutPage() {
           <img
             src={MASCOTS.croissant}
             alt="Кроассан-маскот канала Tiankami"
+            width={720}
+            height={720}
             className="w-full -rotate-2 transition-transform hover:rotate-0 drop-shadow-[0_14px_28px_rgba(0,0,0,.5)]"
             loading="lazy"
           />
@@ -100,6 +102,8 @@ export function AboutPage() {
           <img
             src={MASCOTS.support}
             alt="Кроассан обнимает копилку"
+            width={900}
+            height={501}
             className="w-full max-w-[280px] rotate-2 justify-self-center transition-transform hover:rotate-0 drop-shadow-[0_14px_28px_rgba(0,0,0,.5)]"
             loading="lazy"
           />

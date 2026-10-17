@@ -651,6 +651,8 @@ export function CatalogPage() {
           <img
             src={MASCOTS.sad}
             alt="Грустный кроассан"
+            width={700}
+            height={700}
             className="w-56 drop-shadow-[0_14px_28px_rgba(0,0,0,.45)]"
             loading="lazy"
           />

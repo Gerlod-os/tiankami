@@ -1,0 +1,1161 @@
+{
+ "ts": "2026-10-17T18:54:54.443Z",
+ "base": "http://localhost:4191/tiankami",
+ "git": "0563b9a",
+ "viewports": [
+  {
+   "width": 1440,
+   "height": 900,
+   "tag": "desktop"
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "tag": "mobile"
+  }
+ ],
+ "thresholds": {
+  "lcp": 2500,
+  "cls": 0.1,
+  "brokenImages": 0,
+  "consoleErrors": 0,
+  "overflow": 0,
+  "smallTargets": 0
+ },
+ "results": [
+  {
+   "page": "/",
+   "name": "home",
+   "viewport": "desktop",
+   "loadTimedOut": false,
+   "ms": 3126,
+   "lcp": 176,
+   "lcpMissing": false,
+   "lcpEl": "IMG",
+   "cls": 0,
+   "ttfb": 12,
+   "fcp": 164,
+   "load": 605,
+   "requests": 25,
+   "kb": 703,
+   "consoleErrors": [],
+   "failedRequests": [],
+   "title": "Tiankami — каталог рогаликов",
+   "h1": [
+    "The Magus Circle"
+   ],
+   "images": 19,
+   "brokenImages": [],
+   "imagesWithoutSize": 2,
+   "smallTargets": 23,
+   "smallTargetsSample": [
+    {
+     "text": "Twitch",
+     "w": 89,
+     "h": 22
+    },
+    {
+     "text": "Backpack Battles",
+     "w": 266,
+     "h": 24
+    },
+    {
+     "text": "Обзор",
+     "w": 79,
+     "h": 26
+    },
+    {
+     "text": "Darkest Dungeon",
+     "w": 266,
+     "h": 24
+    },
+    {
+     "text": "Обзор",
+     "w": 79,
+     "h": 26
+    },
+    {
+     "text": "Hades",
+     "w": 266,
+     "h": 24
+    },
+    {
+     "text": "Обзор",
+     "w": 79,
+     "h": 26
+    },
+    {
+     "text": "Against the Storm",
+     "w": 266,
+     "h": 24
+    }
+   ],
+   "tinyText": 10,
+   "overflow": 0,
+   "domNodes": 852,
+   "navError": ""
+  },
+  {
+   "page": "/",
+   "name": "home",
+   "viewport": "mobile",
+   "loadTimedOut": false,
+   "ms": 2918,
+   "lcp": 132,
+   "lcpMissing": false,
+   "lcpEl": "IMG",
+   "cls": 0,
+   "ttfb": 7,
+   "fcp": 116,
+   "load": 399,
+   "requests": 22,
+   "kb": 604,
+   "consoleErrors": [],
+   "failedRequests": [],
+   "title": "Tiankami — каталог рогаликов",
+   "h1": [
+    "The Magus Circle"
+   ],
+   "images": 19,
+   "brokenImages": [],
+   "imagesWithoutSize": 2,
+   "smallTargets": 23,
+   "smallTargetsSample": [
+    {
+     "text": "Twitch",
+     "w": 89,
+     "h": 22
+    },
+    {
+     "text": "Backpack Battles",
+     "w": 324,
+     "h": 24
+    },
+    {
+     "text": "Обзор",
+     "w": 79,
+     "h": 26
+    },
+    {
+     "text": "Darkest Dungeon",
+     "w": 324,
+     "h": 24
+    },
+    {
+     "text": "Обзор",
+     "w": 79,
+     "h": 26
+    },
+    {
+     "text": "Hades",
+     "w": 324,
+     "h": 24
+    },
+    {
+     "text": "Обзор",
+     "w": 79,
+     "h": 26
+    },
+    {
+     "text": "Against the Storm",
+     "w": 324,
+     "h": 24
+    }
+   ],
+   "tinyText": 10,
+   "overflow": 0,
+   "domNodes": 852,
+   "navError": ""
+  },
+  {
+   "page": "/catalog/",
+   "name": "catalog",
+   "viewport": "desktop",
+   "loadTimedOut": false,
+   "ms": 2623,
+   "lcp": 492,
+   "lcpMissing": false,
+   "lcpEl": "IMG",
+   "cls": 0,
+   "ttfb": 7,
+   "fcp": 116,
+   "load": 110,
+   "requests": 36,
+   "kb": 1344,
+   "consoleErrors": [],
+   "failedRequests": [],
+   "title": "Каталог рогаликов — Tiankami",
+   "h1": [
+    "Каталог рогаликов"
+   ],
+   "images": 24,
+   "brokenImages": [],
+   "imagesWithoutSize": 0,
+   "smallTargets": 56,
+   "smallTargetsSample": [
+    {
+     "text": "Twitch",
+     "w": 89,
+     "h": 22
+    },
+    {
+     "text": "Только с кубком МИ",
+     "w": 1,
+     "h": 1
+    },
+    {
+     "text": "РедкоеХорошая игра, стоит попр",
+     "w": 266,
+     "h": 24
+    },
+    {
+     "text": "Обзор",
+     "w": 79,
+     "h": 26
+    },
+    {
+     "text": "РедкоеХорошая игра, стоит попр",
+     "w": 266,
+     "h": 24
+    },
+    {
+     "text": "Обзор",
+     "w": 79,
+     "h": 26
+    },
+    {
+     "text": "РедкоеХорошая игра, стоит попр",
+     "w": 266,
+     "h": 24
+    },
+    {
+     "text": "Обзор",
+     "w": 79,
+     "h": 26
+    }
+   ],
+   "tinyText": 25,
+   "overflow": 0,
+   "domNodes": 1199,
+   "navError": ""
+  },
+  {
+   "page": "/catalog/",
+   "name": "catalog",
+   "viewport": "mobile",
+   "loadTimedOut": false,
+   "ms": 2639,
+   "lcp": 572,
+   "lcpMissing": false,
+   "lcpEl": "IMG",
+   "cls": 0,
+   "ttfb": 9,
+   "fcp": 108,
+   "load": 119,
+   "requests": 24,
+   "kb": 704,
+   "consoleErrors": [],
+   "failedRequests": [],
+   "title": "Каталог рогаликов — Tiankami",
+   "h1": [
+    "Каталог рогаликов"
+   ],
+   "images": 24,
+   "brokenImages": [],
+   "imagesWithoutSize": 0,
+   "smallTargets": 56,
+   "smallTargetsSample": [
+    {
+     "text": "Twitch",
+     "w": 89,
+     "h": 22
+    },
+    {
+     "text": "Только с кубком МИ",
+     "w": 1,
+     "h": 1
+    },
+    {
+     "text": "РедкоеХорошая игра, стоит попр",
+     "w": 324,
+     "h": 24
+    },
+    {
+     "text": "Обзор",
+     "w": 79,
+     "h": 26
+    },
+    {
+     "text": "РедкоеХорошая игра, стоит попр",
+     "w": 324,
+     "h": 24
+    },
+    {
+     "text": "Обзор",
+     "w": 79,
+     "h": 26
+    },
+    {
+     "text": "РедкоеХорошая игра, стоит попр",
+     "w": 324,
+     "h": 24
+    },
+    {
+     "text": "Обзор",
+     "w": 79,
+     "h": 26
+    }
+   ],
+   "tinyText": 25,
+   "overflow": 0,
+   "domNodes": 1199,
+   "navError": ""
+  },
+  {
+   "page": "/catalog/hades/",
+   "name": "game",
+   "viewport": "desktop",
+   "loadTimedOut": true,
+   "ms": 22579,
+   "lcp": null,
+   "lcpMissing": true,
+   "lcpEl": "",
+   "cls": 0,
+   "ttfb": 17,
+   "fcp": 104,
+   "load": 66,
+   "requests": 76,
+   "kb": 3141,
+   "consoleErrors": [],
+   "failedRequests": [
+    "https://googleads.g.doubleclick.net/pagead/id :: net::ERR_ABORTED"
+   ],
+   "title": "Hades — Пройдено | Tiankami",
+   "h1": [
+    "Hades"
+   ],
+   "images": 11,
+   "brokenImages": [],
+   "imagesWithoutSize": 1,
+   "smallTargets": 23,
+   "smallTargetsSample": [
+    {
+     "text": "Twitch",
+     "w": 89,
+     "h": 22
+    },
+    {
+     "text": "Главная",
+     "w": 56,
+     "h": 20
+    },
+    {
+     "text": "Каталог",
+     "w": 54,
+     "h": 20
+    },
+    {
+     "text": "Экшен",
+     "w": 64,
+     "h": 22
+    },
+    {
+     "text": "Древнегреческая мифология",
+     "w": 221,
+     "h": 22
+    },
+    {
+     "text": "Children of Morta",
+     "w": 208,
+     "h": 22
+    },
+    {
+     "text": "Обзор",
+     "w": 73,
+     "h": 24
+    },
+    {
+     "text": "Cursemark",
+     "w": 208,
+     "h": 22
+    }
+   ],
+   "tinyText": 9,
+   "overflow": 0,
+   "domNodes": 647,
+   "navError": "TimeoutError: page.goto: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4191/tiankami/catalog/hades/\", waiting until \"load\"\u001b[22m\n"
+  },
+  {
+   "page": "/catalog/hades/",
+   "name": "game",
+   "viewport": "mobile",
+   "loadTimedOut": false,
+   "ms": 2967,
+   "lcp": null,
+   "lcpMissing": true,
+   "lcpEl": "",
+   "cls": 0,
+   "ttfb": 7,
+   "fcp": 96,
+   "load": 448,
+   "requests": 32,
+   "kb": 1523,
+   "consoleErrors": [],
+   "failedRequests": [],
+   "title": "Hades — Пройдено | Tiankami",
+   "h1": [
+    "Hades"
+   ],
+   "images": 11,
+   "brokenImages": [],
+   "imagesWithoutSize": 1,
+   "smallTargets": 23,
+   "smallTargetsSample": [
+    {
+     "text": "Twitch",
+     "w": 89,
+     "h": 22
+    },
+    {
+     "text": "Главная",
+     "w": 56,
+     "h": 20
+    },
+    {
+     "text": "Каталог",
+     "w": 54,
+     "h": 20
+    },
+    {
+     "text": "Экшен",
+     "w": 64,
+     "h": 22
+    },
+    {
+     "text": "Древнегреческая мифология",
+     "w": 221,
+     "h": 22
+    },
+    {
+     "text": "Hand of Fate 2",
+     "w": 208,
+     "h": 22
+    },
+    {
+     "text": "Обзор",
+     "w": 73,
+     "h": 24
+    },
+    {
+     "text": "Moon Hunters",
+     "w": 208,
+     "h": 22
+    }
+   ],
+   "tinyText": 9,
+   "overflow": 0,
+   "domNodes": 647,
+   "navError": ""
+  },
+  {
+   "page": "/collections/",
+   "name": "collections",
+   "viewport": "desktop",
+   "loadTimedOut": false,
+   "ms": 2629,
+   "lcp": 132,
+   "lcpMissing": false,
+   "lcpEl": "IMG",
+   "cls": 0,
+   "ttfb": 9,
+   "fcp": 100,
+   "load": 117,
+   "requests": 34,
+   "kb": 1213,
+   "consoleErrors": [],
+   "failedRequests": [],
+   "title": "Подборки от Тиана — Tiankami",
+   "h1": [
+    "Подборки от Тиана"
+   ],
+   "images": 28,
+   "brokenImages": [],
+   "imagesWithoutSize": 0,
+   "smallTargets": 7,
+   "smallTargetsSample": [
+    {
+     "text": "Twitch",
+     "w": 89,
+     "h": 22
+    },
+    {
+     "text": "Главная",
+     "w": 56,
+     "h": 17
+    },
+    {
+     "text": "Каталог",
+     "w": 54,
+     "h": 17
+    },
+    {
+     "text": "Подборки",
+     "w": 68,
+     "h": 17
+    },
+    {
+     "text": "МИ",
+     "w": 23,
+     "h": 17
+    },
+    {
+     "text": "Расписание",
+     "w": 82,
+     "h": 17
+    },
+    {
+     "text": "Обо мне",
+     "w": 59,
+     "h": 17
+    }
+   ],
+   "tinyText": 23,
+   "overflow": 0,
+   "domNodes": 772,
+   "navError": ""
+  },
+  {
+   "page": "/collections/",
+   "name": "collections",
+   "viewport": "mobile",
+   "loadTimedOut": false,
+   "ms": 2627,
+   "lcp": 132,
+   "lcpMissing": false,
+   "lcpEl": "IMG",
+   "cls": 0,
+   "ttfb": 7,
+   "fcp": 88,
+   "load": 110,
+   "requests": 34,
+   "kb": 1213,
+   "consoleErrors": [],
+   "failedRequests": [],
+   "title": "Подборки от Тиана — Tiankami",
+   "h1": [
+    "Подборки от Тиана"
+   ],
+   "images": 28,
+   "brokenImages": [],
+   "imagesWithoutSize": 0,
+   "smallTargets": 7,
+   "smallTargetsSample": [
+    {
+     "text": "Twitch",
+     "w": 89,
+     "h": 22
+    },
+    {
+     "text": "Главная",
+     "w": 56,
+     "h": 17
+    },
+    {
+     "text": "Каталог",
+     "w": 54,
+     "h": 17
+    },
+    {
+     "text": "Подборки",
+     "w": 68,
+     "h": 17
+    },
+    {
+     "text": "МИ",
+     "w": 23,
+     "h": 17
+    },
+    {
+     "text": "Расписание",
+     "w": 82,
+     "h": 17
+    },
+    {
+     "text": "Обо мне",
+     "w": 59,
+     "h": 17
+    }
+   ],
+   "tinyText": 23,
+   "overflow": 0,
+   "domNodes": 772,
+   "navError": ""
+  },
+  {
+   "page": "/collections/золотой-список/",
+   "name": "collection",
+   "viewport": "desktop",
+   "loadTimedOut": false,
+   "ms": 2620,
+   "lcp": 92,
+   "lcpMissing": false,
+   "lcpEl": "H1",
+   "cls": 0,
+   "ttfb": 8,
+   "fcp": 92,
+   "load": 106,
+   "requests": 14,
+   "kb": 234,
+   "consoleErrors": [],
+   "failedRequests": [],
+   "title": "ЗОЛОТОЙ СПИСОК — подборка от Тиана | Tiankami",
+   "h1": [
+    "ЗОЛОТОЙ СПИСОК"
+   ],
+   "images": 2,
+   "brokenImages": [],
+   "imagesWithoutSize": 0,
+   "smallTargets": 8,
+   "smallTargetsSample": [
+    {
+     "text": "Twitch",
+     "w": 89,
+     "h": 22
+    },
+    {
+     "text": "Все подборки",
+     "w": 127,
+     "h": 30
+    },
+    {
+     "text": "Главная",
+     "w": 56,
+     "h": 17
+    },
+    {
+     "text": "Каталог",
+     "w": 54,
+     "h": 17
+    },
+    {
+     "text": "Подборки",
+     "w": 68,
+     "h": 17
+    },
+    {
+     "text": "МИ",
+     "w": 23,
+     "h": 17
+    },
+    {
+     "text": "Расписание",
+     "w": 82,
+     "h": 17
+    },
+    {
+     "text": "Обо мне",
+     "w": 59,
+     "h": 17
+    }
+   ],
+   "tinyText": 2,
+   "overflow": 0,
+   "domNodes": 248,
+   "navError": ""
+  },
+  {
+   "page": "/collections/золотой-список/",
+   "name": "collection",
+   "viewport": "mobile",
+   "loadTimedOut": false,
+   "ms": 2617,
+   "lcp": 84,
+   "lcpMissing": false,
+   "lcpEl": "H1",
+   "cls": 0,
+   "ttfb": 6,
+   "fcp": 84,
+   "load": 101,
+   "requests": 14,
+   "kb": 234,
+   "consoleErrors": [],
+   "failedRequests": [],
+   "title": "ЗОЛОТОЙ СПИСОК — подборка от Тиана | Tiankami",
+   "h1": [
+    "ЗОЛОТОЙ СПИСОК"
+   ],
+   "images": 2,
+   "brokenImages": [],
+   "imagesWithoutSize": 0,
+   "smallTargets": 8,
+   "smallTargetsSample": [
+    {
+     "text": "Twitch",
+     "w": 89,
+     "h": 22
+    },
+    {
+     "text": "Все подборки",
+     "w": 127,
+     "h": 30
+    },
+    {
+     "text": "Главная",
+     "w": 56,
+     "h": 17
+    },
+    {
+     "text": "Каталог",
+     "w": 54,
+     "h": 17
+    },
+    {
+     "text": "Подборки",
+     "w": 68,
+     "h": 17
+    },
+    {
+     "text": "МИ",
+     "w": 23,
+     "h": 17
+    },
+    {
+     "text": "Расписание",
+     "w": 82,
+     "h": 17
+    },
+    {
+     "text": "Обо мне",
+     "w": 59,
+     "h": 17
+    }
+   ],
+   "tinyText": 2,
+   "overflow": 0,
+   "domNodes": 248,
+   "navError": ""
+  },
+  {
+   "page": "/mi/",
+   "name": "mi",
+   "viewport": "desktop",
+   "loadTimedOut": false,
+   "ms": 2629,
+   "lcp": 120,
+   "lcpMissing": false,
+   "lcpEl": "H1",
+   "cls": 0,
+   "ttfb": 9,
+   "fcp": 120,
+   "load": 112,
+   "requests": 38,
+   "kb": 1364,
+   "consoleErrors": [],
+   "failedRequests": [],
+   "title": "Мастер Игорей — Tiankami",
+   "h1": [
+    "Мастер Игорей"
+   ],
+   "images": 26,
+   "brokenImages": [],
+   "imagesWithoutSize": 0,
+   "smallTargets": 53,
+   "smallTargetsSample": [
+    {
+     "text": "Twitch",
+     "w": 89,
+     "h": 22
+    },
+    {
+     "text": "[REDACTED]",
+     "w": 266,
+     "h": 24
+    },
+    {
+     "text": "Обзор",
+     "w": 79,
+     "h": 26
+    },
+    {
+     "text": "Absolum",
+     "w": 266,
+     "h": 24
+    },
+    {
+     "text": "Обзор",
+     "w": 79,
+     "h": 26
+    },
+    {
+     "text": "Astral Ascent",
+     "w": 266,
+     "h": 24
+    },
+    {
+     "text": "Обзор",
+     "w": 79,
+     "h": 26
+    },
+    {
+     "text": "Backpack Battles",
+     "w": 266,
+     "h": 24
+    }
+   ],
+   "tinyText": 24,
+   "overflow": 0,
+   "domNodes": 2169,
+   "navError": ""
+  },
+  {
+   "page": "/mi/",
+   "name": "mi",
+   "viewport": "mobile",
+   "loadTimedOut": false,
+   "ms": 2630,
+   "lcp": 108,
+   "lcpMissing": false,
+   "lcpEl": "P",
+   "cls": 0,
+   "ttfb": 7,
+   "fcp": 108,
+   "load": 108,
+   "requests": 20,
+   "kb": 601,
+   "consoleErrors": [],
+   "failedRequests": [],
+   "title": "Мастер Игорей — Tiankami",
+   "h1": [
+    "Мастер Игорей"
+   ],
+   "images": 26,
+   "brokenImages": [],
+   "imagesWithoutSize": 0,
+   "smallTargets": 53,
+   "smallTargetsSample": [
+    {
+     "text": "Twitch",
+     "w": 89,
+     "h": 22
+    },
+    {
+     "text": "[REDACTED]",
+     "w": 324,
+     "h": 24
+    },
+    {
+     "text": "Обзор",
+     "w": 79,
+     "h": 26
+    },
+    {
+     "text": "Absolum",
+     "w": 324,
+     "h": 24
+    },
+    {
+     "text": "Обзор",
+     "w": 79,
+     "h": 26
+    },
+    {
+     "text": "Astral Ascent",
+     "w": 324,
+     "h": 24
+    },
+    {
+     "text": "Обзор",
+     "w": 79,
+     "h": 26
+    },
+    {
+     "text": "Backpack Battles",
+     "w": 324,
+     "h": 24
+    }
+   ],
+   "tinyText": 24,
+   "overflow": 0,
+   "domNodes": 2169,
+   "navError": ""
+  },
+  {
+   "page": "/schedule/",
+   "name": "schedule",
+   "viewport": "desktop",
+   "loadTimedOut": false,
+   "ms": 2617,
+   "lcp": 92,
+   "lcpMissing": false,
+   "lcpEl": "P",
+   "cls": 0,
+   "ttfb": 9,
+   "fcp": 92,
+   "load": 106,
+   "requests": 14,
+   "kb": 234,
+   "consoleErrors": [],
+   "failedRequests": [],
+   "title": "Расписание стримов — Tiankami",
+   "h1": [
+    "Расписание стримов"
+   ],
+   "images": 2,
+   "brokenImages": [],
+   "imagesWithoutSize": 0,
+   "smallTargets": 11,
+   "smallTargetsSample": [
+    {
+     "text": "Twitch",
+     "w": 89,
+     "h": 22
+    },
+    {
+     "text": "группе Вконтакте",
+     "w": 121,
+     "h": 17
+    },
+    {
+     "text": "Канал",
+     "w": 82,
+     "h": 30
+    },
+    {
+     "text": "Канал",
+     "w": 82,
+     "h": 30
+    },
+    {
+     "text": "Канал",
+     "w": 82,
+     "h": 30
+    },
+    {
+     "text": "Главная",
+     "w": 56,
+     "h": 17
+    },
+    {
+     "text": "Каталог",
+     "w": 54,
+     "h": 17
+    },
+    {
+     "text": "Подборки",
+     "w": 68,
+     "h": 17
+    }
+   ],
+   "tinyText": 4,
+   "overflow": 0,
+   "domNodes": 213,
+   "navError": ""
+  },
+  {
+   "page": "/schedule/",
+   "name": "schedule",
+   "viewport": "mobile",
+   "loadTimedOut": false,
+   "ms": 2615,
+   "lcp": 80,
+   "lcpMissing": false,
+   "lcpEl": "P",
+   "cls": 0,
+   "ttfb": 6,
+   "fcp": 80,
+   "load": 100,
+   "requests": 14,
+   "kb": 234,
+   "consoleErrors": [],
+   "failedRequests": [],
+   "title": "Расписание стримов — Tiankami",
+   "h1": [
+    "Расписание стримов"
+   ],
+   "images": 2,
+   "brokenImages": [],
+   "imagesWithoutSize": 0,
+   "smallTargets": 11,
+   "smallTargetsSample": [
+    {
+     "text": "Twitch",
+     "w": 89,
+     "h": 22
+    },
+    {
+     "text": "группе Вконтакте",
+     "w": 121,
+     "h": 17
+    },
+    {
+     "text": "Канал",
+     "w": 82,
+     "h": 30
+    },
+    {
+     "text": "Канал",
+     "w": 82,
+     "h": 30
+    },
+    {
+     "text": "Канал",
+     "w": 82,
+     "h": 30
+    },
+    {
+     "text": "Главная",
+     "w": 56,
+     "h": 17
+    },
+    {
+     "text": "Каталог",
+     "w": 54,
+     "h": 17
+    },
+    {
+     "text": "Подборки",
+     "w": 68,
+     "h": 17
+    }
+   ],
+   "tinyText": 4,
+   "overflow": 0,
+   "domNodes": 213,
+   "navError": ""
+  },
+  {
+   "page": "/about/",
+   "name": "about",
+   "viewport": "desktop",
+   "loadTimedOut": false,
+   "ms": 2624,
+   "lcp": 136,
+   "lcpMissing": false,
+   "lcpEl": "IMG",
+   "cls": 0,
+   "ttfb": 8,
+   "fcp": 92,
+   "load": 112,
+   "requests": 16,
+   "kb": 315,
+   "consoleErrors": [],
+   "failedRequests": [],
+   "title": "Обо мне — Tiankami",
+   "h1": [
+    "Обо мне"
+   ],
+   "images": 4,
+   "brokenImages": [],
+   "imagesWithoutSize": 0,
+   "smallTargets": 7,
+   "smallTargetsSample": [
+    {
+     "text": "Twitch",
+     "w": 89,
+     "h": 22
+    },
+    {
+     "text": "Главная",
+     "w": 56,
+     "h": 17
+    },
+    {
+     "text": "Каталог",
+     "w": 54,
+     "h": 17
+    },
+    {
+     "text": "Подборки",
+     "w": 68,
+     "h": 17
+    },
+    {
+     "text": "МИ",
+     "w": 23,
+     "h": 17
+    },
+    {
+     "text": "Расписание",
+     "w": 82,
+     "h": 17
+    },
+    {
+     "text": "Обо мне",
+     "w": 59,
+     "h": 17
+    }
+   ],
+   "tinyText": 1,
+   "overflow": 0,
+   "domNodes": 212,
+   "navError": ""
+  },
+  {
+   "page": "/about/",
+   "name": "about",
+   "viewport": "mobile",
+   "loadTimedOut": false,
+   "ms": 2618,
+   "lcp": 132,
+   "lcpMissing": false,
+   "lcpEl": "IMG",
+   "cls": 0,
+   "ttfb": 8,
+   "fcp": 100,
+   "load": 104,
+   "requests": 16,
+   "kb": 315,
+   "consoleErrors": [],
+   "failedRequests": [],
+   "title": "Обо мне — Tiankami",
+   "h1": [
+    "Обо мне"
+   ],
+   "images": 4,
+   "brokenImages": [],
+   "imagesWithoutSize": 0,
+   "smallTargets": 7,
+   "smallTargetsSample": [
+    {
+     "text": "Twitch",
+     "w": 89,
+     "h": 22
+    },
+    {
+     "text": "Главная",
+     "w": 56,
+     "h": 17
+    },
+    {
+     "text": "Каталог",
+     "w": 54,
+     "h": 17
+    },
+    {
+     "text": "Подборки",
+     "w": 68,
+     "h": 17
+    },
+    {
+     "text": "МИ",
+     "w": 23,
+     "h": 17
+    },
+    {
+     "text": "Расписание",
+     "w": 82,
+     "h": 17
+    },
+    {
+     "text": "Обо мне",
+     "w": 59,
+     "h": 17
+    }
+   ],
+   "tinyText": 1,
+   "overflow": 0,
+   "domNodes": 212,
+   "navError": ""
+  }
+ ]
+}

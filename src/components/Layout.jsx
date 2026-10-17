@@ -94,6 +94,8 @@ export function Layout({ children }) {
               key={flip}
               src={MASCOTS.logo}
               alt="Аватар Tiankami — кроассан-геймпад"
+              width={512}
+              height={512}
               onClick={() => setFlip((f) => f + 1)}
               className={
                 "h-11 w-11 cursor-pointer rounded-full border-2 border-white object-cover shadow-glow-pink transition-transform group-hover:scale-105 " +
@@ -192,6 +194,8 @@ export function Layout({ children }) {
               <img
                 src={MASCOTS.logo}
                 alt=""
+                width={512}
+                height={512}
                 className="h-10 w-10 rounded-full border-2 border-white object-cover"
               />
               <button
@@ -251,6 +255,8 @@ export function Layout({ children }) {
               <img
                 src={MASCOTS.logo}
                 alt=""
+                width={512}
+                height={512}
                 className="h-9 w-9 rounded-full border border-pastel-purple/60 object-cover"
                 loading="lazy"
               />
