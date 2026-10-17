@@ -89,8 +89,8 @@ export function HomePage() {
             style={maskStyle}
           />
         )}
-        <div className="relative z-10 grid gap-8 p-6 md:p-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-          <div className="animate-fadeUp">
+        <div className="relative z-10 grid grid-cols-1 gap-8 p-6 md:p-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+          <div className="animate-fadeUp min-w-0">
             <div className="flex items-center gap-3">
               <span className="section-accent font-display text-2xl font-black tracking-wide">TianKami</span>
               <span className="chip border border-white/10 bg-white/5 text-ink-dim">{`Уютный хардкор · Рогалики`}</span>
