@@ -129,7 +129,12 @@ async function main() {
       let bytes = 0;
 
       page.on('console', (m) => {
-        if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 160));
+        if (m.type() !== 'error') return;
+        const text = m.text();
+        // Шум чужого кода: YouTube-плеер ругается на политику compute-pressure.
+        // Это не ошибка сайта, но в отчёте она выглядела бы как наша.
+        if (/compute-pressure/i.test(text)) return;
+        consoleErrors.push(text.slice(0, 160));
       });
       page.on('requestfailed', (r) => failedRequests.push(`${r.url().slice(0, 110)} :: ${(r.failure() || {}).errorText || ''}`));
       page.on('response', (r) => {
