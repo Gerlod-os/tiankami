@@ -49,6 +49,21 @@ async function fetchText(url, tries = 3, timeoutMs = 15000) {
 function writeJson(name, data) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
   const file = path.join(DATA_DIR, name);
+  // Сеть недоступна — источник вернул пусто. Прежние данные не трогаем:
+  // иначе сборка на хостинге задеплоит каталог без игр.
+  if (Array.isArray(data) && data.length === 0 && fs.existsSync(file)) {
+    try {
+      const prev = JSON.parse(fs.readFileSync(file, "utf8"));
+      if (Array.isArray(prev) && prev.length > 0) {
+        console.warn(
+          `  ⚠ src/data/${name}: свежих данных нет, оставляю прежние (${prev.length})`
+        );
+        return;
+      }
+    } catch {
+      /* файл битый — перезапишем */
+    }
+  }
   fs.writeFileSync(file, JSON.stringify(data));
   console.log(`  ✔ src/data/${name} (${(fs.statSync(file).size / 1024).toFixed(0)} KB)`);
 }
