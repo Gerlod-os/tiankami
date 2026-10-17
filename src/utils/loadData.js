@@ -22,7 +22,7 @@ import { parseRuDate, formatRuDate } from "./date";
 import { safeGet, safeSet, safeRemove, hashStr } from "./storage";
 
 const REFRESH_MS = 15 * 60 * 1000; // сверка с таблицей не чаще 1 раза в 15 минут
-const V = "v5";
+const V = "v6";
 
 const memory = { games: null, collections: null, schedule: null };
 
