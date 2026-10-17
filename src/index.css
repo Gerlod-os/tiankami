@@ -109,7 +109,9 @@
     height: 31px;
   }
   .switch input {
-    @apply sr-only;
+    /* Не sr-only: сам input должен быть областью нажатия размером с переключатель,
+       иначе «таргет» точки 1x1 и в него трудно попадать пальцем. */
+    @apply absolute inset-0 h-full w-full cursor-pointer appearance-none rounded-full opacity-0;
   }
   .switch .knob {
     @apply absolute left-0.5 top-0.5 h-[27px] w-[27px] rounded-full bg-white shadow transition-transform duration-300;

@@ -185,11 +185,17 @@ export function GamePage() {
             className="flex flex-wrap items-center gap-1 text-sm text-ink-dim"
             aria-label="Хлебные крошки"
           >
-            <Link className="transition hover:text-pastel-pink" to="/">
+            <Link
+              className="inline-flex min-h-6 items-center rounded-btn px-1 transition hover:text-pastel-pink"
+              to="/"
+            >
               Главная
             </Link>
             <FiChevronRight />
-            <Link className="transition hover:text-pastel-pink" to="/catalog">
+            <Link
+              className="inline-flex min-h-6 items-center rounded-btn px-1 transition hover:text-pastel-pink"
+              to="/catalog"
+            >
               Каталог
             </Link>
             <FiChevronRight />

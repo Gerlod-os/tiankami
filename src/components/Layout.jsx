@@ -28,7 +28,7 @@ const NAV = [
   { to: "/", label: "Главная", icon: FiHome, end: true },
   { to: "/catalog", label: "Каталог", icon: FiGrid },
   { to: "/collections", label: "Подборки", icon: FiFolder },
-  { to: "/mi", label: "МИ", icon: FiAward },
+  { to: "/mi", label: "Мастер Игорей", icon: FiAward },
   { to: "/schedule", label: "Расписание", icon: FiCalendar },
   { to: "/about", label: "Обо мне", icon: FiInfo },
 ];
@@ -65,6 +65,16 @@ export function Layout({ children }) {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [flip, setFlip] = useState(0);
+
+  // Закрытие меню по Esc — на телефоне единственный способ не тянуться к крестику.
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const onKey = (e) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -274,7 +284,10 @@ export function Layout({ children }) {
             <ul className="mt-3 grid grid-cols-2 gap-2 text-ink-dim">
               {NAV.map(({ to, label }) => (
                 <li key={to}>
-                  <Link className="transition hover:text-pastel-pink" to={to}>
+                  <Link
+                    className="inline-flex min-h-8 items-center transition hover:text-pastel-pink"
+                    to={to}
+                  >
                     {label}
                   </Link>
                 </li>

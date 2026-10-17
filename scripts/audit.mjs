@@ -67,14 +67,20 @@ const INIT = () => {
 };
 
 const COLLECT = () => {
+  // ВНИМАНИЕ: эта функция выполняется в браузере — константы Node сюда не видны.
+  // Порог WCAG 2.2 SC 2.5.8: 24x24 CSS px (44x44 — рекомендация для важных кнопок).
+  const MIN_TARGET = 24;
   const imgs = [...document.images];
   const interactive = [...document.querySelectorAll('a,button,input,select,textarea,[role="button"]')];
   const small = interactive
     .map((el) => {
       const r = el.getBoundingClientRect();
-      return { text: (el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 30), w: Math.round(r.width), h: Math.round(r.height) };
+      // Ссылки внутри абзаца WCAG не считает целью нажатия (исключение «inline»):
+      // их размер dictated by line-height, а не автором.
+      const inline = el.closest('p') !== null;
+      return { inline, text: (el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 30), w: Math.round(r.width), h: Math.round(r.height) };
     })
-    .filter((x) => x.h > 0 && (x.h < 32 || x.w < 32));
+    .filter((x) => x.h > 0 && (x.h < MIN_TARGET || x.w < MIN_TARGET) && !x.inline);
 
   let tiny = 0;
   document.querySelectorAll('body *').forEach((el) => {

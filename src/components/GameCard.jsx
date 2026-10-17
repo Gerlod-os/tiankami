@@ -43,6 +43,7 @@ export const GameCard = memo(function GameCard({
         to={`/catalog/${game.slug}`}
         className="relative block aspect-[2/1] overflow-hidden rounded-t-card bg-night-900"
         title={game.title}
+        aria-label={game.title}
       >
         {!broken && game.image ? (
           <img
@@ -89,10 +90,10 @@ export const GameCard = memo(function GameCard({
         )}
       </Link>
 
-      <div className="flex flex-1 flex-col gap-2 rounded-b-card bg-night-600/60 p-4">
+      <div className="flex flex-1 flex-col gap-1 rounded-b-card bg-night-600/60 p-3 sm:p-4">
         <Link
           to={`/catalog/${game.slug}`}
-          className="flex items-center gap-2 font-display text-base font-extrabold text-ink transition hover:text-pastel-pink"
+          className="flex min-h-8 items-center gap-2 font-display text-sm font-extrabold text-ink transition hover:text-pastel-pink sm:text-base"
         >
           {egg === "inline" && (
             <RarityEgg rarity={rarity} size={18} className="shrink-0" />
@@ -124,7 +125,7 @@ export const GameCard = memo(function GameCard({
             <button
               type="button"
               onClick={() => onQuickView(game)}
-              className="btn-ghost !px-2.5 !py-1 text-xs"
+              className="btn-ghost !min-h-8 !px-3 !py-1 text-xs"
               title="Быстрый просмотр"
             >
               <FiEye /> Обзор

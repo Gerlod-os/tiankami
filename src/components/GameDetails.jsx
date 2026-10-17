@@ -58,7 +58,7 @@ function MetaRow({ icon: Icon, iconCls, label, children, onGo }) {
           {...(onGo ? { type: "button", onClick: onGo } : {})}
           className={
             onGo
-              ? "text-pastel-blue underline-offset-2 transition hover:underline hover:drop-shadow-[0_0_8px_rgba(160,196,255,.6)]"
+              ? "inline-flex min-h-8 items-center rounded-btn px-1 -mx-1 text-pastel-blue underline-offset-2 transition hover:underline hover:drop-shadow-[0_0_8px_rgba(160,196,255,.6)]"
               : "text-ink"
           }
         >

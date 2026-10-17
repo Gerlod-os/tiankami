@@ -47,7 +47,7 @@ export function TwitchHeaderWidget() {
       href={BRAND.links.twitch}
       target="_blank"
       rel="noopener noreferrer"
-      className="chip border border-white/10 bg-white/5 transition hover:border-pastel-purple/50 hover:shadow-glow-purple"
+      className="chip min-h-8 border border-white/10 bg-white/5 transition hover:border-pastel-purple/50 hover:shadow-glow-purple"
       title={live ? `В эфире: ${status?.text || ""}` : "Канал на Twitch"}
     >
       <FaTwitch className="text-pastel-purple" />
