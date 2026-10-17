@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { pagesCount, visibleFor, pageNumbers } from "../utils/pagination";
 import {
   FiSearch,
   FiX,
@@ -70,6 +71,20 @@ export function CatalogPage() {
   const genreParam = searchParams.get("genre");
 
   const [q, setQ] = useState(searchParams.get("q") || "");
+  // Страница каталога живёт в адресе: /catalog?page=3 открывается напрямую
+  // и переживает перезагрузку. Ссылку можно скинуть в чат.
+  const page = Math.max(1, Math.floor(Number(searchParams.get("page")) || 1));
+  const goToPage = useCallback(
+    (n) => {
+      const clean = Math.max(1, Math.floor(Number(n) || 1));
+      const next = new URLSearchParams(searchParams);
+      if (clean <= 1) next.delete("page");
+      else next.set("page", String(clean));
+      navigate({ search: next.toString() });
+      window.scrollTo({ top: 0 });
+    },
+    [navigate, searchParams]
+  );
   const [dropOpen, setDropOpen] = useState(false);
   const [genresSel, setGenresSel] = useState(
     () => new Set(genreParam ? [genreParam] : []),
@@ -106,12 +121,15 @@ export function CatalogPage() {
     }
   }, [searchParams]);
 
-  // Сброс пагинации при изменении поискового запроса (без ремонта карточек)
+  // Новый поиск начинается с первой страницы, а не с той, где человек был.
   const prevQ = useRef(q);
   useEffect(() => {
-    if (prevQ.current !== q && q) setVisible(PAGE);
+    if (prevQ.current !== q && q) {
+      prevQ.current = q;
+      if (page > 1) goToPage(1);
+    }
     prevQ.current = q;
-  }, [q]);
+  }, [q, page, goToPage]);
 
   // «/» — фокус на поиск
   useEffect(() => {
@@ -245,20 +263,20 @@ export function CatalogPage() {
     collectionTitles,
   ]);
 
+  // Сколько всего страниц и какая открыта. Если фильтры сократили список и
+  // открытой страницы больше нет (был ?page=7, стал 2) — показываем первую,
+  // а адрес один раз подчищаем. Условие именно «страницы нет», иначе клик по
+  // любой странице сбрасывал бы человека на первую.
+  const pages = pagesCount(filtered.length, PAGE);
+  const safePage = Math.min(page, pages || 1);
+
   useEffect(() => {
-    setVisible(PAGE);
-  }, [
-    q,
-    genresSel,
-    status,
-    year,
-    ratingMin,
-    complexity,
-    hours,
-    miOnly,
-    sort,
-    collectionParam,
-  ]);
+    setVisible(visibleFor(safePage, filtered.length, PAGE));
+  }, [safePage, filtered.length]);
+
+  useEffect(() => {
+    if (pages > 0 && page > pages) goToPage(1);
+  }, [page, pages, goToPage]);
 
   const sugg = useMemo(() => {
     const query = q.trim().toLowerCase();
@@ -680,7 +698,7 @@ export function CatalogPage() {
         </div>
       ) : (
         <>
-          <div className="grid gap-x-4 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-6 lg:grid-cols-3 xl:grid-cols-4">
             {filtered.slice(0, visible).map((g, i) => (
               <GameCard
                 key={g.slug}
@@ -698,11 +716,40 @@ export function CatalogPage() {
               <button
                 type="button"
                 className="btn-ghost"
-                onClick={() => setVisible((v) => v + PAGE)}
+                onClick={() => goToPage(safePage + 1)}
               >
                 <FiChevronDown /> Показать ещё ({filtered.length - visible})
               </button>
             </div>
+          )}
+          {pages > 1 && (
+            <nav
+              aria-label="Страницы каталога"
+              className="mt-8 flex flex-wrap items-center justify-center gap-1.5 text-sm"
+            >
+              {pageNumbers(pages, safePage).map((n, i) =>
+                n === "…" ? (
+                  <span key={`gap-${i}`} className="px-1 text-ink-faint">
+                    …
+                  </span>
+                ) : (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => goToPage(n)}
+                    aria-current={n === safePage ? "page" : undefined}
+                    className={
+                      "min-w-9 rounded-btn px-2.5 py-1.5 font-display font-bold transition " +
+                      (n === safePage
+                        ? "bg-pastel-purple/25 text-ink"
+                        : "text-ink-dim hover:bg-white/5 hover:text-ink")
+                    }
+                  >
+                    {n}
+                  </button>
+                )
+              )}
+            </nav>
           )}
         </>
       )}
