@@ -1,7 +1,6 @@
 import { FiClock, FiCalendar } from "react-icons/fi";
 import { FaTwitch } from "react-icons/fa";
 import { useData } from "../components/DataProvider";
-import { ScheduleForm } from "../components/ScheduleForm";
 import { parseRuDate, todayUTC } from "../utils/date";
 import { usePageMeta } from "../utils/usePageMeta";
 
@@ -131,13 +130,6 @@ export function SchedulePage() {
           ))}
         </section>
       )}
-
-      <section className="space-y-3">
-        <h2 className="font-display text-lg font-extrabold text-ink">
-          📮 Предложить стрим / добавить в расписание
-        </h2>
-        <ScheduleForm />
-      </section>
 
       <p className="text-center text-xs text-ink-faint">
         <FiCalendar className="inline" /> Все анонсы и изменения — в соцсетях канала.

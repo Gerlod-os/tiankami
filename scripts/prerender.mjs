@@ -4,11 +4,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { build } from "vite";
+import { SITE_URL, BASE_PATH } from "../src/config/site.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const DIST = path.join(ROOT, "dist");
-const SITE = "https://tiankami.vercel.app";
+const SITE = SITE_URL;
 
 if (!fs.existsSync(path.join(DIST, "index.html"))) {
   console.error("❌ dist/index.html не найден — сначала выполни `vite build`.");
@@ -41,7 +42,9 @@ let templateSrc = fs.readFileSync(path.join(DIST, "index.html"), "utf8");
 templateSrc = templateSrc.replace(
   /<link rel="stylesheet"[^>]*href="([^"]+)"[^>]*>/g,
   (m, href) => {
-    const css = fs.readFileSync(path.join(DIST, href), "utf8");
+    // href уже содержит префикс сайта (/tiankami/...), а файл лежит прямо в dist.
+    const rel = href.startsWith(BASE_PATH + "/") ? href.slice(BASE_PATH.length) : href;
+    const css = fs.readFileSync(path.join(DIST, rel), "utf8");
     return `<style data-build="${href.replace(/^\//, "")}">${css}</style>`;
   }
 );
@@ -59,7 +62,7 @@ const FONT_PRELOAD_PREFIXES = [
 const fontPreloads = fs
   .readdirSync(path.join(DIST, "assets"))
   .filter((f) => f.endsWith(".woff2") && FONT_PRELOAD_PREFIXES.some((p) => f.startsWith(p)))
-  .map((f) => `<link rel="preload" as="font" type="font/woff2" crossorigin href="/assets/${f}"/>`)
+  .map((f) => `<link rel="preload" as="font" type="font/woff2" crossorigin href="${BASE_PATH}/assets/${f}"/>`)
   .join("");
 if (fontPreloads) {
   templateSrc = templateSrc.replace("<!--ssr-head-->", `${fontPreloads}\n    <!--ssr-head-->`);
@@ -135,12 +138,12 @@ function buildPage(pathname) {
     );
   page = setMetaTag(page, '<meta\\s+property="og:title"[^>]*\\/?>', `<meta property="og:title" content="${esc(head.title)}" />`);
   page = setMetaTag(page, '<meta\\s+property="og:description"[^>]*\\/?>', `<meta property="og:description" content="${esc(head.description)}" />`);
-  page = setMetaTag(page, '<meta\\s+property="og:url"[^>]*\\/?>', `<meta property="og:url" content="${SITE}${pathname === "/" ? "/" : pathname}" />`);
+  page = setMetaTag(page, '<meta\\s+property="og:url"[^>]*\\/?>', `<meta property="og:url" content="${SITE}${pathname === "/" ? "/" : pathname + "/"}" />`);
   page = setMetaTag(page, '<meta\\s+property="og:type"[^>]*\\/?>', `<meta property="og:type" content="${head.type}" />`);
   page = setMetaTag(page, '<meta\\s+property="og:image"[^>]*\\/?>', `<meta property="og:image" content="${esc(ogImage)}" />`);
   page = page.replace(
     "<!--ssr-head-->",
-    `<link rel="canonical" href="${SITE}${pathname === "/" ? "/" : pathname}" />`
+    `<link rel="canonical" href="${SITE}${pathname === "/" ? "/" : pathname + "/"}" />`
   );
   // В #root может оказаться мусор от инструментов: preload-ссылки Vite и
   // атрибуты редактора вроде data-page-node-id. Поэтому открывающий тег ищем
@@ -153,8 +156,11 @@ function buildPage(pathname) {
 }
 
 function fileFor(pathname) {
+  // GitHub Pages не умеет «чистые» адреса (Vercel умел): файл catalog.html
+  // по адресу /catalog не откроется. Кладём каждую страницу в свою папку
+  // как index.html — тогда /catalog/ отдаётся штатно.
   if (pathname === "/") return path.join(DIST, "index.html");
-  return path.join(DIST, `${pathname.slice(1)}.html`);
+  return path.join(DIST, pathname.slice(1), "index.html");
 }
 
 const routes = [
@@ -190,7 +196,7 @@ const sitemap = [
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
   ...routes.map(
     (r) =>
-      `  <url><loc>${SITE}${r === "/" ? "/" : r}</loc><changefreq>${r.startsWith("/catalog/") ? "weekly" : "daily"}</changefreq></url>`
+      `  <url><loc>${SITE}${r === "/" ? "/" : r + "/"}</loc><changefreq>${r.startsWith("/catalog/") ? "weekly" : "daily"}</changefreq></url>`
   ),
   "</urlset>",
 ].join("\n");

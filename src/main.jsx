@@ -8,11 +8,14 @@ import { StrictMode } from "react";
 import { hydrateRoot, createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App.jsx";
+import { BASE_PATH } from "./config/site.js";
 
 const container = document.getElementById("root");
+// На GitHub Pages сайт живёт в подпапке: /tiankami/. Роутер должен знать префикс,
+// иначе внутренние ссылки уведут в корень домена.
 const app = (
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={BASE_PATH}>
       <App />
     </BrowserRouter>
   </StrictMode>

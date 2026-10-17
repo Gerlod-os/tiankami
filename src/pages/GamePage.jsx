@@ -12,6 +12,7 @@ import { GameDetails } from "../components/GameDetails";
 import { GameCard } from "../components/GameCard";
 import { GameModal } from "../components/GameModal";
 import { MITrophy } from "../components/MITrophy";
+import { SITE_URL } from "../config/site.js";
 import { usePageMeta } from "../utils/usePageMeta";
 import { parseNum, hasMI } from "../utils/normalize";
 import { ratingColor } from "../utils/statusMeta";
@@ -105,7 +106,7 @@ export function GamePage() {
           title: `${game.title} — ${game.status || "рогалик"} | Tiankami`,
           description: `${game.genre || "Рогалик"}${game.setting ? ` · ${game.setting}` : ""}. Оценка Тиана: ${parseNum(game.rating) || "—"}/10, наиграно ${parseNum(game.hours) || "—"} ч. ${String(game.notes || "").slice(0, 140)}`,
           image: game.image || "/img/og.png",
-          url: `https://tiankami.vercel.app/catalog/${game.slug}`,
+          url: `${SITE_URL}/catalog/${game.slug}/`,
         }
       : { title: "Игра не найдена — Tiankami" },
   );

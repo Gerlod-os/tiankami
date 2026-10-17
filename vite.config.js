@@ -1,8 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { BASE_PATH } from "./src/config/site.js";
 
 // Vite 8 (rolldown): manualChunks — только функцией!
 export default defineConfig({
+  // GitHub Pages отдаёт сайт из подпапки /tiankami/ — без этого все ассеты уйдут в корень.
+  base: BASE_PATH + "/",
   plugins: [react()],
   build: {
     rollupOptions: {

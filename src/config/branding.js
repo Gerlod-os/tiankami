@@ -1,7 +1,9 @@
+import { SITE_URL } from "./site.js";
+
 export const BRAND = {
   name: "Tiankami",
   siteTitle: "Tiankami — Каталог рогаликов",
-  siteUrl: "https://tiankami.vercel.app",
+  siteUrl: SITE_URL,
   twitchLogin: "tiankami",
   links: {
     twitch: "https://twitch.tv/tiankami",

@@ -19,6 +19,7 @@ import { parseRuDate } from "../utils/date";
 import { ratingColor } from "../utils/statusMeta";
 import { topRated } from "../utils/stats";
 import { usePageMeta } from "../utils/usePageMeta";
+import { MASCOTS } from "../config/mascots";
 
 const PAGE = 24;
 
@@ -648,7 +649,7 @@ export function CatalogPage() {
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center gap-8 py-16 text-center">
           <img
-            src="/img/mascot-sad.png"
+            src={MASCOTS.sad}
             alt="Грустный кроассан"
             className="w-56 drop-shadow-[0_14px_28px_rgba(0,0,0,.45)]"
             loading="lazy"
