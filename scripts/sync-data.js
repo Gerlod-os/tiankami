@@ -21,7 +21,7 @@ function loadEnv() {
 loadEnv();
 
 const DS = await import("../src/config/dataSources.js");
-const { normalizeGames, normalizeCollections, extractLinksFromCopyRow, steamHeaderUrl } =
+const { normalizeGames, normalizeCollections, extractLinksFromCopyRow, steamHeaderUrl, isUrl } =
   await import("../src/utils/normalize.js");
 const { parseRuDate, formatRuDate } = await import("../src/utils/date.js");
 
@@ -181,12 +181,16 @@ function withRichFields(games) {
   }
   if (!Array.isArray(prev) || !prev.length) return games;
   const bySlug = new Map(prev.map((g) => [g.slug, g]));
+  // Переносим только годное: адрес должен быть адресом, appId — числом.
+  // Иначе текст из таблицы («Ссылка на плейлист») вернётся в данные и убьёт плеер.
+  const usable = (f, v) =>
+    f === "steamAppId" ? /^\d+$/.test(String(v).trim()) : isUrl(v);
   let restored = 0;
   for (const g of games) {
     const old = bySlug.get(g.slug);
     if (!old) continue;
     for (const f of ["image", "steamAppId", "steamUrl", "youtube", "miVideo"]) {
-      if (!g[f] && old[f]) {
+      if (!g[f] && old[f] && usable(f, old[f])) {
         g[f] = old[f];
         restored++;
       }

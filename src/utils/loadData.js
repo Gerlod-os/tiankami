@@ -45,25 +45,30 @@ async function fetchText(url, timeoutMs = 15000) {
   }
 }
 
-// ─── Обогащение игр steamAppId-ами и обложками из локального JSON ────────────
+// ─── Обогащение игр данными из локального JSON ───────────────────────────────
+// Живая сверка с таблицей приносит текст вместо гиперссылок («Ссылка на плейлист»),
+// поэтому ссылки, обложки и appId берём из локального файла, если в свежих данных их нет.
 export function enrichWithLocal(games) {
   const bySlug = {};
   const byTitle = {};
   (Array.isArray(localGames) ? localGames : []).forEach((lg) => {
-    if (lg?.slug && lg?.steamAppId) bySlug[lg.slug] = lg.steamAppId;
-    if (lg?.title && lg?.steamAppId)
-      byTitle[String(lg.title).toLowerCase()] = lg.steamAppId;
+    if (lg?.slug) bySlug[lg.slug] = lg;
+    if (lg?.title) byTitle[String(lg.title).toLowerCase()] = lg;
   });
   return (games || []).map((g) => {
-    const appId =
-      g.steamAppId || bySlug[g.slug] || byTitle[String(g.title).toLowerCase()];
-    if (!appId) return g;
-    return {
-      ...g,
-      steamAppId: appId,
-      image: g.image || steamHeaderUrl(appId),
-      steamUrl: g.steamUrl || `https://store.steampowered.com/app/${appId}/`,
-    };
+    const local = bySlug[g.slug] || byTitle[String(g.title).toLowerCase()];
+    if (!local) return g;
+    const appId = g.steamAppId || local.steamAppId;
+    const next = { ...g };
+    if (appId) {
+      next.steamAppId = appId;
+      next.image = g.image || steamHeaderUrl(appId);
+      next.steamUrl = g.steamUrl || `https://store.steampowered.com/app/${appId}/`;
+    }
+    if (!next.image && local.image) next.image = local.image;
+    if (!next.youtube && local.youtube) next.youtube = local.youtube;
+    if (!next.miVideo && local.miVideo) next.miVideo = local.miVideo;
+    return next;
   });
 }
 

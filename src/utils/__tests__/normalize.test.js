@@ -182,3 +182,31 @@ describe("метаданные и числа", () => {
     expect(hasMI({ hasMI: "FALSE" })).toBe(false);
   });
 });
+
+describe("normalizeGames: ссылки YouTube и МИ", () => {
+  const header = ["", "Название", "", "Жанр", "YouTube прохождение", "Выпуск МИ"];
+  const make = (yt, mi) => normalizeGames([header, ["", "Игра", "", "Экшен", yt, mi]])[0];
+
+  test("текст вместо адреса не попадает в данные", () => {
+    const g = make("Ссылка на плейлист", "Ссылка на выпуск");
+    expect(g.youtube).toBe("");
+    expect(g.miVideo).toBe("");
+  });
+
+  test("настоящий адрес сохраняется", () => {
+    const url = "https://www.youtube.com/playlist?list=PL5RpA6jmZ9UmdjS9twE96MLxYWbqfInWP";
+    expect(make(url, "https://youtu.be/2RMUZTt3b8M").youtube).toBe(url);
+    expect(make(url, "https://youtu.be/2RMUZTt3b8M").miVideo).toBe("https://youtu.be/2RMUZTt3b8M");
+  });
+
+  test("формула =HYPERLINK разворачивается в адрес", () => {
+    const g = make('=HYPERLINK("https://youtu.be/abc12345678";"Ссылка на плейлист")', "");
+    expect(g.youtube).toBe("https://youtu.be/abc12345678");
+  });
+
+  test("пустая ячейка остаётся пустой", () => {
+    const g = make("", "");
+    expect(g.youtube).toBe("");
+    expect(g.miVideo).toBe("");
+  });
+});

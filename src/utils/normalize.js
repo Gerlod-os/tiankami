@@ -40,9 +40,9 @@ export function normalizeGameRow(row, colIndex) {
     releaseDate: get(colIndex.releaseDate),
     playedDate: get(colIndex.playedDate),
     notes: get(colIndex.notes),
-    youtube: get(colIndex.youtube),
+    youtube: extractUrlFromCell(get(colIndex.youtube)) || "",
     hasMI: get(colIndex.hasMI),
-    miVideo: get(colIndex.miVideo),
+    miVideo: extractUrlFromCell(get(colIndex.miVideo)) || "",
   };
 }
 
