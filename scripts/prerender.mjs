@@ -95,6 +95,12 @@ function headFor(pathname) {
   };
   if (pathname === "/catalog")
     return { ...base, title: "Каталог рогаликов — Tiankami" };
+  if (pathname === "/404")
+    return {
+      ...base,
+      title: "Страница не найдена — Tiankami",
+      description: "Такой страницы нет. Каталог рогаликов никуда не делся.",
+    };
   if (pathname === "/collections")
     return { ...base, title: "Подборки от Тиана — Tiankami" };
   if (pathname === "/about") return { ...base, title: "Обо мне — Tiankami" };
@@ -189,6 +195,19 @@ for (const route of routes) {
   }
 }
 console.log(`  ✔ страниц: ${done}/${routes.length} за ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+
+// ── Своя страница 404 ────────────────────────────────────────────────────────
+// GitHub Pages на неизвестный адрес отдаёт файл 404.html из корня публикуемой папки.
+// Без него посетитель видит «Page not found · GitHub Pages» без шапки и ссылок.
+try {
+  const page = buildPage("/404")
+    .replace(/\s*<link rel="canonical"[^>]*>/, "")
+    .replace("</head>", '  <meta name="robots" content="noindex" />\n  </head>');
+  fs.writeFileSync(path.join(DIST, "404.html"), page);
+  console.log("  ✔ 404.html");
+} catch (e) {
+  console.warn(`  ⚠ 404.html: ${e.message}`);
+}
 
 // ── sitemap.xml + robots.txt ─────────────────────────────────────────────────
 const sitemap = [
