@@ -81,8 +81,7 @@
     box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
   }
   .glass {
-    @apply rounded-card border border-white/10 bg-white/5;
-    backdrop-filter: blur(10px);
+    @apply rounded-card border border-white/10 bg-white/[0.07];
   }
   .stat-num {
     @apply bg-clip-text font-display text-5xl font-extrabold text-transparent;

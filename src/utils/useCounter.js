@@ -1,37 +1,35 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
+// Анимированный счётчик: SSR и первый клиентский рендер рисуют итоговое
+// значение (гидратация совпадает), эффект в браузере «набегает» с нуля.
+// Без гварда «запущено»: StrictMode в DEV делает mount→cleanup→mount,
+// гвард оставлял счётчик навсегда на 0 (cleanup гасил rAF, повторный
+// запуск выходил по гварду). Уважает prefers-reduced-motion.
 export function useCounter(target, duration) {
   if (duration === undefined) duration = 1200;
-  var isClient = typeof window !== "undefined";
-  var numTarget = 0;
-  if (isClient && typeof target === "number" && !isNaN(target)) {
-    numTarget = target;
-  }
-  var _s = useState(numTarget),
-    value = _s[0],
-    setValue = _s[1];
-  var started = useRef(false);
+  const numTarget =
+    typeof target === "number" && !isNaN(target) ? target : 0;
+  const [value, setValue] = useState(numTarget);
 
-  useEffect(function () {
-    if (started.current) return;
-    started.current = true;
-    var reduced =
+  useEffect(() => {
+    const reduced =
       typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) return;
+    if (reduced || numTarget === 0) {
+      setValue(numTarget);
+      return;
+    }
     setValue(0);
-    var t0 = performance.now();
-    var raf = 0;
-    var tick = function (t) {
-      var p = Math.min(1, (t - t0) / duration);
-      var eased = 1 - Math.pow(1 - p, 3);
+    const t0 = performance.now();
+    let raf = 0;
+    const tick = (t) => {
+      const p = Math.min(1, (t - t0) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
       setValue(Math.round(numTarget * eased));
       if (p < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    return function () {
-      cancelAnimationFrame(raf);
-    };
+    return () => cancelAnimationFrame(raf);
   }, [numTarget, duration]);
 
   return value;

@@ -16,9 +16,14 @@ export function MITrophy({ size = "sm", className = "" }) {
       <span className={`${px} leading-none`}>
         <svg
           viewBox="0 0 64 72"
-          width="100%"
-          height="100%"
-          style={{ filter: "drop-shadow(0 1px 5px rgba(255,214,120,.75))" }}
+          aria-hidden="true"
+          focusable="false"
+          style={{
+            width: "1em",
+            height: "1.125em",
+            display: "block",
+            filter: "drop-shadow(0 1px 5px rgba(255,214,120,.75))",
+          }}
         >
           <defs>
             <linearGradient id={`g${uid}`} x1="0" y1="0" x2="0" y2="1">
