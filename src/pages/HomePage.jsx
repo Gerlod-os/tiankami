@@ -92,12 +92,14 @@ export function HomePage() {
         <div className="relative z-10 grid grid-cols-1 gap-8 p-6 md:p-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
           <div className="animate-fadeUp min-w-0">
             <div className="flex items-center gap-3">
-              <span className="section-accent font-display text-2xl font-black tracking-wide">TianKami</span>
+              <h1 className="section-accent font-display text-2xl font-black tracking-wide">
+                TianKami · каталог рогаликов
+              </h1>
               <span className="chip border border-white/10 bg-white/5 text-ink-dim">{`Уютный хардкор · Рогалики`}</span>
             </div>
-            <h1 className="mt-5 font-display text-4xl font-black leading-tight text-ink md:text-5xl">
+            <h2 className="mt-5 font-display text-4xl font-black leading-tight text-ink md:text-5xl">
               {last?.title || "Каталог рогаликов"}
-            </h1>
+            </h2>
             <p className="mt-3 text-lg text-ink-dim">
               {last?.genre}
               {last?.setting ? ` · ${last.setting}` : ""}

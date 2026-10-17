@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { build } from "vite";
 import { SITE_URL, BASE_PATH } from "../src/config/site.js";
+import { jsonLdFor } from "../src/utils/jsonld.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -135,6 +136,11 @@ function buildPage(pathname) {
   const head = headFor(pathname);
   const ogImage = /^https?:/i.test(head.image) ? head.image : SITE + head.image;
 
+  // JSON-LD: VideoGame + хлебные крошки на странице игры, крошки на подборке.
+  const game = games.find((x) => x.slug === pathname.slice("/catalog/".length) && pathname.startsWith("/catalog/"));
+  const collection = collections.find((x) => x.slug === pathname.slice("/collections/".length) && pathname.startsWith("/collections/"));
+  const ld = jsonLdFor(pathname, { game, collection, site: SITE });
+
   let page = template
     .replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(head.title)}</title>`)
     .replace(
@@ -158,6 +164,7 @@ function buildPage(pathname) {
     /<div id="root"[^>]*>[\s\S]*?<\/div>(\s*<\/body>)/,
     (_match, tail) => `<div id="root">${html}</div>${tail}`
   );
+  if (ld) page = page.replace("</head>", ld + "</head>");
   return page;
 }
 
@@ -210,12 +217,14 @@ try {
 }
 
 // ── sitemap.xml + robots.txt ─────────────────────────────────────────────────
+// lastmod — дата сборки: данные пересобираются сборкой, это честнее даты правки в таблице.
+const lastmod = new Date().toISOString().slice(0, 10);
 const sitemap = [
   '<?xml version="1.0" encoding="UTF-8"?>',
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
   ...routes.map(
     (r) =>
-      `  <url><loc>${SITE}${r === "/" ? "/" : r + "/"}</loc><changefreq>${r.startsWith("/catalog/") ? "weekly" : "daily"}</changefreq></url>`
+      `  <url><loc>${SITE}${r === "/" ? "/" : r + "/"}</loc><lastmod>${lastmod}</lastmod><changefreq>${r.startsWith("/catalog/") ? "weekly" : "daily"}</changefreq></url>`
   ),
   "</urlset>",
 ].join("\n");
