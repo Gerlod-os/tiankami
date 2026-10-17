@@ -119,6 +119,42 @@ if (games.length && SERVER_KEY) {
   console.warn("  ⚠ Нет серверного ключа — пропускаю гиперссылки.");
 }
 
+// ── 2.5. Обложки из overrides — функция ниже, применяется после withRichFields ──
+// В таблице бывают неверные appId и старые адреса обложек. Файл overrides собирается
+// скриптом fix-covers.mjs и применяется последним, чтобы правка не терялась при синке.
+const OVERRIDES = path.join(DATA_DIR, "steam-overrides.json");
+function applyOverrides(games) {
+  if (!games.length || !fs.existsSync(OVERRIDES)) return games;
+  let ov;
+  try {
+    ov = JSON.parse(fs.readFileSync(OVERRIDES, "utf8"));
+  } catch (e) {
+    console.warn("  ⚠ overrides не прочитались:", e.message);
+    return games;
+  }
+  let fixed = 0;
+  const out = games.map((g) => {
+    const o = ov[g.slug];
+    if (!o) return g;
+    // hide: true — обложки нет ни в таблице, ни в Steam. Убираем битый адрес,
+    // чтобы карточка показала заглушку, а не сломанную картинку.
+    if (o.hide) {
+      fixed += 1;
+      return { ...g, image: "", steamAppId: "", steamUrl: "" };
+    }
+    if (!o.appId || !o.image) return g;
+    fixed += 1;
+    return {
+      ...g,
+      steamAppId: String(o.appId),
+      image: o.image,
+      steamUrl: `https://store.steampowered.com/app/${o.appId}/`,
+    };
+  });
+  console.log(`  ✔ обложки из overrides: ${fixed}`);
+  return out;
+}
+
 // ── 3. Подборки (CSV) ────────────────────────────────────────────────────────
 let collections = [];
 try {
@@ -165,7 +201,7 @@ try {
 // Обложки Steam и ссылки добавляет только шаг «Копия» с ключом Sheets API.
 // Без ключа (сборка на GitHub) свежие данные вышли бы без картинок, поэтому
 // переносим их из уже сохранённого файла — иначе страницы теряют обложки и og:image.
-writeJson("games.json", withRichFields(games));
+writeJson("games.json", applyOverrides(withRichFields(games)));
 writeJson("collections.json", collections);
 writeJson("schedule.json", schedule);
 console.log("✅ Синхронизация завершена.");
