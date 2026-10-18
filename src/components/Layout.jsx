@@ -22,7 +22,6 @@ import { MASCOTS } from "../config/mascots";
 import { TwitchHeaderWidget } from "./TwitchHeaderWidget";
 import { FxPanel } from "./FxPanel";
 import { YandexMetrika } from "./YandexMetrika";
-import { buildDate } from "../utils/loadData";
 
 const NAV = [
   { to: "/", label: "Главная", icon: FiHome, end: true },
@@ -288,13 +287,13 @@ export function Layout({ children }) {
         {children}
       </main>
 
-      {/* Подвал — одна строка копирайта. Ссылки на разделы и соцсети убраны:
-          они уже в шапке, второй раз то же самое читается как дубль
-          (решение владельца 18.10.2026). */}
+      {/* Подвал — одна строка. Строку «данные: <дата сборки>» владелец убрал:
+          дата сборки ничего не говорит читателю, а подпись про рогалик вернул
+          (18.10.2026). */}
       <footer className="border-t border-white/5 bg-night-900/60">
         <div className="mx-auto max-w-7xl px-4 py-3 text-center text-[11px] text-ink-faint">
-          © {new Date().getFullYear()} {BRAND.name} · {BRAND.footerText} · данные:{" "}
-          {buildDate() || "при последней сборке"}
+          © {new Date().getFullYear()} {BRAND.name} · {BRAND.footerText} · сделано с{" "}
+          <span aria-hidden="true">🥐</span> и любовью
         </div>
       </footer>
     </div>
