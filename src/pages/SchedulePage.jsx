@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
 import { FiClock, FiCalendar } from "react-icons/fi";
 import { FaTwitch } from "react-icons/fa";
 import { useData } from "../components/DataProvider";
 import { parseRuDate, todayUTC, formatRuDate, formatRuDateLong } from "../utils/date";
+import { splitSchedule, useMoscowTime } from "../utils/schedule";
 import { BRAND } from "../config/branding";
 import { usePageMeta } from "../utils/usePageMeta";
 
@@ -108,37 +108,9 @@ export function SchedulePage() {
       "Расписание стримов Tiankami: ближайшая неделя по календарю канала на Twitch. Стримы каждый день.",
   });
 
-  const today = todayUTC();
-  const todayRu = formatRuDate(today);
-
-  // Текущее время по Москве считаем только в браузере: в пререндере его нет,
-  // иначе серверная разметка разойдётся с клиентской (React #418).
-  const [nowMsk, setNowMsk] = useState("");
-  useEffect(() => {
-    const tick = () => {
-      const n = new Date(Date.now() + 3 * 3600e3);
-      setNowMsk(`${String(n.getUTCHours()).padStart(2, "0")}:${String(n.getUTCMinutes()).padStart(2, "0")}`);
-    };
-    tick();
-    const id = setInterval(tick, 60000);
-    return () => clearInterval(id);
-  }, []);
-
-  const list = [...(schedule || [])].sort(
-    (a, b) => (parseRuDate(a.date)?.getTime() || 0) - (parseRuDate(b.date)?.getTime() || 0)
-  );
-  // Сегодняшний стрим, который уже закончился, в «ближайшие» не берём.
-  const isFinished = (s) => {
-    if (!nowMsk || s.date !== todayRu) return false;
-    return (s.endTime || s.time) < nowMsk;
-  };
-  const upcoming = list.filter(
-    (s) => (parseRuDate(s.date)?.getTime() || 0) >= today.getTime() && !isFinished(s)
-  );
-  const past = list
-    .filter((s) => (parseRuDate(s.date)?.getTime() || 0) < today.getTime())
-    .slice(-5)
-    .reverse();
+  const todayRu = formatRuDate(todayUTC());
+  const nowMsk = useMoscowTime();
+  const { upcoming, past } = splitSchedule(schedule, todayRu, nowMsk);
   const next = upcoming[0];
 
   return (

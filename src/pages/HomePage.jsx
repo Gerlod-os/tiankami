@@ -17,7 +17,8 @@ import { useCountdown, streamMoment } from "../utils/useCountdown";
 import { usePageMeta } from "../utils/usePageMeta";
 import { statusMeta, ratingColor, rankMedal } from "../utils/statusMeta";
 import { parseNum, isUrl } from "../utils/normalize";
-import { parseRuDate, todayUTC } from "../utils/date";
+import { todayUTC, formatRuDate } from "../utils/date";
+import { splitSchedule, useMoscowTime } from "../utils/schedule";
 
 const GRADS = ["grad-pink", "grad-mint", "grad-blue", "grad-amber"];
 
@@ -55,10 +56,10 @@ export function HomePage() {
 
   const stats = computeStats(games, collections);
   const last = lastPlayedGame(games);
-  const today = todayUTC();
-  const nextStream = (schedule || []).find(
-    (s) => (parseRuDate(s.date)?.getTime() || 0) >= today.getTime()
-  );
+  // Ближайший стрим — тот же выбор, что на странице расписания: закончившийся
+  // сегодняшний не показываем, иначе в 22:00 главная зовёт на утренний стрим.
+  const nowMsk = useMoscowTime();
+  const nextStream = splitSchedule(schedule, formatRuDate(todayUTC()), nowMsk).upcoming[0];
   const byTitle = useMemo(
     () => new Map(games.map((g) => [String(g.title).toLowerCase(), g])),
     [games]
