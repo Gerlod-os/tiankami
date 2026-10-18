@@ -122,7 +122,7 @@ export function Layout({ children }) {
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3">
           <Link
             to="/"
-            className="group flex items-center gap-3"
+            className="group flex min-w-0 items-center gap-3"
             aria-label="TianKami — на главную"
           >
             <img
@@ -137,11 +137,11 @@ export function Layout({ children }) {
                 (flip > 0 ? "logo-flip" : "")
               }
             />
-            <span className="leading-tight">
-              <span className="section-accent block font-display text-xl font-black tracking-wide">
+            <span className="min-w-0 leading-tight">
+              <span className="section-accent block truncate font-display text-xl font-black tracking-wide">
                 TianKami
               </span>
-              <span className="block whitespace-nowrap text-[11px] font-semibold uppercase tracking-widest text-ink-faint">
+              <span className="block truncate text-[11px] font-semibold uppercase tracking-widest text-ink-faint">
                 {BRAND.tagline} · рогалики
               </span>
             </span>
@@ -284,8 +284,8 @@ export function Layout({ children }) {
         {children}
       </main>
 
-      {/* Подвал — справочник одной строкой, а не три колонки: на ПК 258 → ~110 px,
-          на телефоне 542 → ~140 px (замер 18.10.2026, решение владельца). */}
+      {/* Подвал — справочник одной строкой, а не три колонки: замер 18.10.2026 —
+          ПК 258 → 91 px, телефон 542 → 235 px (решение владельца). */}
       <footer className="border-t border-white/5 bg-night-900/60">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between md:py-3">
           <div className="flex items-center gap-2">
