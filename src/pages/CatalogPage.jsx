@@ -687,59 +687,58 @@ export function CatalogPage() {
         </div>
       )}
 
-      {/* Панель фильтров: кнопка живёт в строке поиска, карточка — только когда открыта.
-          Слева жанры ровной сеткой в две колонки, справа остальные группы: раньше
-          четырнадцать чипсов шли вперемешку во всю ширину и ряд получался рваным
-          (замечание владельца 18.10.2026). */}
+      {/* Панель фильтров — одна таблица: столбцы равной ширины, у каждого подпись
+          сверху. Было две колонки «жанры слева, всё остальное справа» — владелец
+          назвал это «разбросано хрен пойми как» и попросил единый вид (18.10.2026). */}
       {filtersOpen && (
         <div className="card p-4 md:p-5" data-filters-panel>
-          <div className="grid gap-5 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] lg:gap-8">
-            <div className="lg:border-r lg:border-white/10 lg:pr-8">
-              <div className="label">Жанр</div>
-              <div className="grid grid-cols-2 gap-1.5">
-                {meta.genres.slice(0, 14).map((x) => (
-                  <Chip
-                    key={x}
-                    active={genresSel.has(x)}
-                    onClick={() => toggleGenre(x)}
-                    disabled={!genresSel.has(x) && genresSel.size >= MAX_GENRES}
-                    className="w-full justify-center"
-                  >
-                    {x}
-                  </Chip>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <label className="flex items-center gap-2 text-sm text-ink-dim">
-                  <span className="switch">
-                    <input
-                      type="checkbox"
-                      checked={miOnly}
-                      onChange={(e) => apply({ mi: e.target.checked ? "1" : null })}
-                      aria-label="Только с кубком МИ"
-                    />
-                    <span className="knob" />
-                  </span>
-                  Только с кубком МИ
-                </label>
-
-                <SelectMenu
-                  label="Год выхода"
-                  value={year}
-                  icon={FiCalendar}
-                  onChange={(v) => apply({ year: v })}
-                  options={[
-                    { v: "any", l: "Любой год" },
-                    ...meta.years.map((y) => ({ v: String(y), l: String(y) })),
-                  ]}
-                />
+          <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+              <div className="min-w-0">
+                <div className="label">Жанр</div>
+                <div className="flex flex-wrap gap-1.5">
+                  {meta.genres.slice(0, 14).map((x) => (
+                    <Chip
+                      key={x}
+                      active={genresSel.has(x)}
+                      onClick={() => toggleGenre(x)}
+                      disabled={!genresSel.has(x) && genresSel.size >= MAX_GENRES}
+                      className="!px-3 !py-1.5 text-xs"
+                    >
+                      {x}
+                    </Chip>
+                  ))}
+                </div>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              <div>
+              <div className="min-w-0">
+                <div className="label">Год и кубок</div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <SelectMenu
+                    label="Год выхода"
+                    value={year}
+                    icon={FiCalendar}
+                    onChange={(v) => apply({ year: v })}
+                    options={[
+                      { v: "any", l: "Любой год" },
+                      ...meta.years.map((y) => ({ v: String(y), l: String(y) })),
+                    ]}
+                  />
+                  <label className="flex items-center gap-1.5 text-xs text-ink-dim">
+                    <span className="switch">
+                      <input
+                        type="checkbox"
+                        checked={miOnly}
+                        onChange={(e) => apply({ mi: e.target.checked ? "1" : null })}
+                        aria-label="Только с кубком МИ"
+                      />
+                      <span className="knob" />
+                    </span>
+                    Только МИ
+                  </label>
+                </div>
+              </div>
+
+              <div className="min-w-0">
                 <div className="label">Статус</div>
                 <div className="flex flex-wrap gap-1.5">
                   <Chip
@@ -759,7 +758,7 @@ export function CatalogPage() {
                   ))}
                 </div>
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="label">Оценка</div>
                 <div className="flex flex-wrap gap-1.5">
                   {[0, 6, 8, 9, 10].map((r) => (
@@ -780,7 +779,7 @@ export function CatalogPage() {
                   ))}
                 </div>
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="label">Сложность</div>
                 <div className="flex flex-wrap gap-1.5">
                   <Chip
@@ -815,7 +814,7 @@ export function CatalogPage() {
                   </Chip>
                 </div>
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="label">Часы</div>
                 <div className="flex flex-wrap gap-1.5">
                   {[
@@ -835,10 +834,8 @@ export function CatalogPage() {
                   ))}
                 </div>
               </div>
-              </div>
             </div>
           </div>
-        </div>
       )}
 
       {filtered.length === 0 ? (
