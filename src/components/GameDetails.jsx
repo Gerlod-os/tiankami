@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FiClock,
@@ -6,6 +7,7 @@ import {
   FiCalendar,
   FiGlobe,
   FiYoutube,
+  FiPlay,
 } from "react-icons/fi";
 import { FaSteam } from "react-icons/fa";
 import { parseNum, isUrl, hasMI } from "../utils/normalize";
@@ -77,23 +79,48 @@ export function GameDetails({ game }) {
   // (undefined) — показываем: молча спрятать рабочий плеер хуже.
   const yt = parseYouTubeUrl(game.youtube);
   const showPlayer = Boolean(yt?.embedUrl) && game.youtubeOwn !== false;
+  // Плеер грузится по клику: автозагрузка тянула ~1,2 МБ (замер 18.10.2026 —
+  // 726 КБ без плеера, 1926 КБ с ним) на 172 страницах, а смотрят его единицы.
+  const [playing, setPlaying] = useState(false);
+  const autoplayUrl = yt?.embedUrl
+    ? yt.embedUrl + (yt.embedUrl.includes("?") ? "&" : "?") + "autoplay=1"
+    : "";
 
   return (
     <div className="space-y-5">
       {/* Обложки здесь нет: в шапке страницы она уже стоит дважды (фон + видимая).
           Третья копия на том же экране — дубль (план, Б17). */}
 
-      {/* YouTube под обложкой */}
+      {/* YouTube под обложкой: сначала постер, плеер — по клику */}
       {showPlayer && (
         <div className="overflow-hidden rounded-card border border-white/10 shadow-card">
-          <iframe
-            className="aspect-video w-full"
-            src={yt.embedUrl}
-            title={`Прохождение ${game.title} на YouTube`}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            loading="lazy"
-          />
+          {playing ? (
+            <iframe
+              className="aspect-video w-full"
+              src={autoplayUrl}
+              title={`Прохождение ${game.title} на YouTube`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              loading="lazy"
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setPlaying(true)}
+              aria-label={`Смотреть прохождение ${game.title} на YouTube`}
+              className="group relative flex aspect-video w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-night-700 via-night-800 to-night-900 transition"
+            >
+              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#FF2D2D] text-white shadow-[0_10px_26px_rgba(255,0,0,0.35)] transition group-hover:scale-110">
+                <FiPlay className="ml-1 text-2xl" aria-hidden="true" />
+              </span>
+              <span className="font-display text-sm font-extrabold text-ink">
+                Смотреть прохождение
+              </span>
+              <span className="text-xs text-ink-faint">
+                Плеер YouTube загрузится после нажатия
+              </span>
+            </button>
+          )}
         </div>
       )}
 
