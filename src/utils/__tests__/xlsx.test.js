@@ -53,11 +53,21 @@ function makeZip(files) {
   return Buffer.concat(chunks);
 }
 
+// Обычный лист: заголовок «Название» в B (объединённые ячейки), данные в C,
+// ссылки в R и T. Второй лист — тот же, но со вставленной колонкой: заголовок
+// в C, данные в D, ссылки в S и U. Разбор обязан дать одинаковый результат.
 const SHEET = `<?xml version="1.0" encoding="UTF-8"?>
 <worksheet><sheetData>
-<row r="1"><c r="B1" t="s"><v>0</v></c><c r="C1"/></row>
+<row r="1"><c r="B1" t="s"><v>0</v></c><c r="C1"/><c r="R1" t="s"><v>4</v></c><c r="T1" t="s"><v>5</v></c></row>
 <row r="2"><c r="C2" t="s"><v>2</v></c><hyperlink r:id="rId1" ref="C2"/><hyperlink r:id="rId2" ref="R2"/></row>
 <row r="3"><c r="C3" t="s"><v>3</v></c><hyperlink r:id="rId1" ref="C3"/></row>
+</sheetData><hyperlinks/></worksheet>`;
+
+const SHEET_SHIFTED = `<?xml version="1.0" encoding="UTF-8"?>
+<worksheet><sheetData>
+<row r="1"><c r="C1" t="s"><v>0</v></c><c r="D1"/><c r="S1" t="s"><v>4</v></c><c r="U1" t="s"><v>5</v></c></row>
+<row r="2"><c r="D2" t="s"><v>2</v></c><hyperlink r:id="rId1" ref="D2"/><hyperlink r:id="rId2" ref="S2"/></row>
+<row r="3"><c r="D3" t="s"><v>3</v></c><hyperlink r:id="rId1" ref="D3"/></row>
 </sheetData><hyperlinks/></worksheet>`;
 
 const workbook = `<?xml version="1.0"?><workbook><sheets>
@@ -73,15 +83,15 @@ const sheetRels = `<?xml version="1.0"?><Relationships>
 <Relationship Id="rId2" Target="https://www.youtube.com/playlist?list=PL5RpA6" TargetMode="External"/>
 </Relationships>`;
 
-const shared = `<?xml version="1.0"?><sst><si><t>Название</t></si><si><t>Col C</t></si><si><t>REDACTED</t></si><si><t>20 Minutes Till Dawn</t></si></sst>`;
+const shared = `<?xml version="1.0"?><sst><si><t>Название</t></si><si><t>Col C</t></si><si><t>REDACTED</t></si><si><t>20 Minutes Till Dawn</t></si><si><t>YouTube прохождение</t></si><si><t>Выпуск МИ</t></si></sst>`;
 
-function fixture() {
+function fixture(sheetXml = SHEET) {
   return makeZip([
     ["xl/workbook.xml", workbook],
     ["xl/_rels/workbook.xml.rels", wbRels],
     ["xl/sharedStrings.xml", shared],
     ["xl/worksheets/sheet1.xml", "<worksheet/>"],
-    ["xl/worksheets/sheet2.xml", SHEET],
+    ["xl/worksheets/sheet2.xml", sheetXml],
     ["xl/worksheets/_rels/sheet2.xml.rels", sheetRels],
   ]);
 }
@@ -107,6 +117,14 @@ describe("linksFromSheetXlsx", () => {
     expect(map.get("redacted").youtube).toBe("https://www.youtube.com/playlist?list=PL5RpA6");
     expect(map.get("redacted").mi).toBe("");
     expect(map.get("20 minutes till dawn").youtube).toBe("");
+  });
+
+  test("вставленная колонка не ломает ссылки: колонки ищутся по заголовкам", () => {
+    const normal = linksFromSheetXlsx(fixture(), "Все рогалики");
+    const shifted = linksFromSheetXlsx(fixture(SHEET_SHIFTED), "Все рогалики");
+    expect([...shifted.keys()].sort()).toEqual([...normal.keys()].sort());
+    expect(shifted.get("redacted").steam).toBe(normal.get("redacted").steam);
+    expect(shifted.get("redacted").youtube).toBe(normal.get("redacted").youtube);
   });
 
   test("нет такого листа — пусто", () => {

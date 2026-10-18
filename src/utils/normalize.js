@@ -208,25 +208,6 @@ export function extractUrlFromCell(cell) {
   return null;
 }
 
-// Копия, колонки C:W → C=0, U=18 (Steam), V=19 (YouTube), W=20 (МИ)
-export function extractLinksFromCopyRow(row) {
-  const title = String(row?.[0] || "").trim();
-  if (!title) return null;
-  const entry = {};
-  const steamUrl = extractUrlFromCell(row[18]);
-  if (steamUrl) {
-    const appId = extractSteamAppId(steamUrl);
-    if (appId) entry.steamAppId = appId;
-  }
-  const ytUrl = extractUrlFromCell(row[19]);
-  if (ytUrl) entry.youtube = ytUrl;
-  const miUrl = extractUrlFromCell(row[20]);
-  if (miUrl) entry.miVideo = miUrl;
-  return entry.steamAppId || entry.youtube || entry.miVideo
-    ? { title, entry }
-    : null;
-}
-
 // Обложки Steam — только CDN, БЕЗ запросов к Steam API!
 export function steamHeaderUrl(appId) {
   return `https://cdn.cloudflare.steamstatic.com/steam/apps/${appId}/header.jpg`;

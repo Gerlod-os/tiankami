@@ -8,7 +8,6 @@ import {
   isUrl,
   extractSteamAppId,
   extractUrlFromCell,
-  extractLinksFromCopyRow,
   steamHeaderUrl,
   steamCoverUrl,
   getGameMetadata,
@@ -145,15 +144,6 @@ describe("ссылки", () => {
   test("extractUrlFromCell: голый URL", () => {
     expect(extractUrlFromCell("https://youtu.be/abc")).toBe("https://youtu.be/abc");
     expect(extractUrlFromCell("Ссылка на выпуск")).toBeNull();
-  });
-  test("extractLinksFromCopyRow: колонки U/V/W", () => {
-    const row = Array.from({ length: 21 }, () => "");
-    row[0] = "Игра";
-    row[18] = '=HYPERLINK("https://store.steampowered.com/app/42/"; "Игра")';
-    row[19] = "https://youtube.com/playlist?list=X";
-    const got = extractLinksFromCopyRow(row);
-    expect(got.entry.steamAppId).toBe("42");
-    expect(got.entry.youtube).toContain("playlist");
   });
   test("CDN-обложки Steam без API", () => {
     expect(steamHeaderUrl("7")).toBe(

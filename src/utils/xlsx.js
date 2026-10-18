@@ -106,21 +106,69 @@ export function linksFromSheetXlsx(buffer, sheetName) {
     if (rid && ref && targets[rid[1]]) byCell.set(ref[1], targets[rid[1]]);
   }
 
-  const out = new Map();
-  // [^/>] перед «>» — иначе самозакрывающаяся пустая ячейка (<c r="C1"/>) заставит
-  // регулярку проглотить ячейку следующей строки.
-  for (const m of sheet.matchAll(/<c r="C(\d+)"([^>]*[^/>])?>([\s\S]*?)<\/c>/g)) {
-    const attrs = m[2];
-    const v = /<v>([\s\S]*?)<\/v>/.exec(m[3]);
+  // Ячейки: адрес «БУКВЫ+строка» → значение. Колонки больше не зашиты буквами:
+  // вставит владелец колонку в таблицу — буквы сдвинутся, а заголовки останутся.
+  // Раньше здесь стояло r="C(\d+)", и после вставки колонки ссылки молча пропадали.
+  // Хвост `[^>]*[^/>]` обязателен: без него самозакрывающаяся пустая ячейка
+  // (<c r="C1"/>) проглатывает следующую ячейку строки — проверено тестом.
+  const rows = new Map(); // номер строки → Map(колонка → значение)
+  for (const m of sheet.matchAll(
+    /<c r="([A-Z]+)(\d+)"((?:[^>]*[^/>])?)>([\s\S]*?)<\/c>/g,
+  )) {
+    const col = m[1];
+    const rowNum = Number(m[2]);
+    const v = /<v>([\s\S]*?)<\/v>/.exec(m[4]);
     if (!v) continue;
-    const value = /t="s"/.test(attrs) ? shared[Number(v[1])] || "" : unescapeXml(v[1]);
-    const title = String(value).trim().toLowerCase();
+    const value = /t="s"/.test(m[3]) ? shared[Number(v[1])] || "" : unescapeXml(v[1]);
+    if (!rows.has(rowNum)) rows.set(rowNum, new Map());
+    rows.get(rowNum).set(col, value);
+  }
+
+  const header = rows.get(1) || new Map();
+  const colOf = (name) => {
+    for (const [col, value] of header) {
+      if (String(value).trim() === name) return col;
+    }
+    return null;
+  };
+
+  const colToNum = (s) =>
+    [...s].reduce((n, ch) => n * 26 + (ch.charCodeAt(0) - 64), 0);
+  const numToCol = (n) => {
+    let s = "";
+    while (n > 0) {
+      const r = (n - 1) % 26;
+      s = String.fromCharCode(65 + r) + s;
+      n = Math.floor((n - 1) / 26);
+    }
+    return s;
+  };
+
+  let titleCol = colOf("Название");
+  if (!titleCol) {
+    // Заголовок переименовали — ведём себя как раньше (колонка C), но говорим об этом.
+    console.warn("  ⚠ xlsx: заголовок «Название» не найден, читаю колонку C");
+    titleCol = "C";
+  } else {
+    // Объединённые ячейки: заголовок в одной колонке, данные в следующей.
+    const first = rows.get(2) || new Map();
+    if (!String(first.get(titleCol) || "").trim()) {
+      const next = numToCol(colToNum(titleCol) + 1);
+      if (String(first.get(next) || "").trim()) titleCol = next;
+    }
+  }
+  const youtubeCol = colOf("YouTube прохождение");
+  const miCol = colOf("Выпуск МИ");
+
+  const out = new Map();
+  for (const [rowNum, cells] of rows) {
+    if (rowNum === 1) continue;
+    const title = String(cells.get(titleCol) || "").trim().toLowerCase();
     if (!title) continue;
-    const row = m[1];
     out.set(title, {
-      steam: byCell.get("C" + row) || "",
-      youtube: byCell.get("R" + row) || "",
-      mi: byCell.get("T" + row) || "",
+      steam: byCell.get(titleCol + rowNum) || "",
+      youtube: (youtubeCol && byCell.get(youtubeCol + rowNum)) || "",
+      mi: (miCol && byCell.get(miCol + rowNum)) || "",
     });
   }
   return out;
