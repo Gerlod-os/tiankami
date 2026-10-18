@@ -125,24 +125,28 @@ export function Layout({ children }) {
             className="group flex min-w-0 items-center gap-3"
             aria-label="TianKami — на главную"
           >
-            <img
+            {/* Логотип обрезан по кругу: белая стикерная обводка кроассана выходила
+                на край и читалась белой дугой. Картинка увеличена внутри круга,
+                артефакт ушёл за обрез (решение владельца 18.10.2026). */}
+            <span
               key={flip}
-              src={MASCOTS.logo}
-              alt="Аватар Tiankami — кроассан-геймпад"
-              width={512}
-              height={512}
               onClick={() => setFlip((f) => f + 1)}
               className={
-                "h-11 w-11 cursor-pointer rounded-full border-2 border-white object-cover shadow-glow-pink transition-transform group-hover:scale-105 " +
+                "relative h-11 w-11 shrink-0 cursor-pointer overflow-hidden rounded-full shadow-glow-pink transition-transform group-hover:scale-105 " +
                 (flip > 0 ? "logo-flip" : "")
               }
-            />
+            >
+              <img
+                src={MASCOTS.logo}
+                alt="Аватар Tiankami — кроассан-геймпад"
+                width={512}
+                height={512}
+                className="h-full w-full object-cover"
+              />
+            </span>
             <span className="min-w-0 leading-tight">
               <span className="section-accent block truncate font-display text-xl font-black tracking-wide">
                 TianKami
-              </span>
-              <span className="block truncate text-[11px] font-semibold uppercase tracking-widest text-ink-faint">
-                {BRAND.tagline} · рогалики
               </span>
             </span>
           </Link>
@@ -232,7 +236,7 @@ export function Layout({ children }) {
                 alt=""
                 width={512}
                 height={512}
-                className="h-10 w-10 rounded-full border-2 border-white object-cover"
+                className="h-10 w-10 rounded-full object-cover"
               />
               <button
                 type="button"
@@ -284,55 +288,13 @@ export function Layout({ children }) {
         {children}
       </main>
 
-      {/* Подвал — справочник одной строкой, а не три колонки: замер 18.10.2026 —
-          ПК 258 → 91 px, телефон 542 → 235 px (решение владельца). */}
+      {/* Подвал — одна строка копирайта. Ссылки на разделы и соцсети убраны:
+          они уже в шапке, второй раз то же самое читается как дубль
+          (решение владельца 18.10.2026). */}
       <footer className="border-t border-white/5 bg-night-900/60">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between md:py-3">
-          <div className="flex items-center gap-2">
-            <img
-              src={MASCOTS.logo}
-              alt=""
-              width={512}
-              height={512}
-              className="h-7 w-7 rounded-full border border-pastel-purple/60 object-cover"
-              loading="lazy"
-            />
-            <span className="section-accent font-display text-base font-black">
-              TianKami
-            </span>
-            <span className="hidden text-xs text-ink-faint lg:inline">
-              {BRAND.footerText}
-            </span>
-          </div>
-          <nav className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-dim" aria-label="Разделы сайта">
-            {NAV.map(({ to, label }) => (
-              <Link
-                key={to}
-                className="inline-flex min-h-8 items-center transition hover:text-pastel-pink"
-                to={to}
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
-          <div className="flex items-center gap-2">
-            {SOCIALS.map(({ href, icon: Icon, cls, label }) => (
-              <a
-                key={href}
-                className={"soc " + cls}
-                href={BRAND.links[href]}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-              >
-                <Icon />
-              </a>
-            ))}
-          </div>
-        </div>
-        <div className="border-t border-white/5 py-2 text-center text-[11px] text-ink-faint">
-          © {new Date().getFullYear()} {BRAND.name} · {BRAND.footerText} · сделано с 🥐 и
-          любовью · данные: {buildDate() || "при последней сборке"}
+        <div className="mx-auto max-w-7xl px-4 py-3 text-center text-[11px] text-ink-faint">
+          © {new Date().getFullYear()} {BRAND.name} · {BRAND.footerText} · данные:{" "}
+          {buildDate() || "при последней сборке"}
         </div>
       </footer>
     </div>
