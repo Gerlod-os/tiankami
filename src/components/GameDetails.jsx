@@ -8,6 +8,7 @@ import {
   FiGlobe,
   FiYoutube,
   FiPlay,
+  FiMessageCircle,
 } from "react-icons/fi";
 import { FaSteam } from "react-icons/fa";
 import { parseNum, isUrl, hasMI } from "../utils/normalize";
@@ -280,6 +281,19 @@ export function GameDetails({ game }) {
           </span>
         </MetaRow>
       </div>
+
+      {/* Впечатления Тиана: единственная колонка таблицы, которая не доходила до
+          посетителя (459/459 заполнено, а показывалась лишь обрезкой в meta).
+          Медиана 103 символа — весь текст влезает в 2–3 строки, резать не нужно. */}
+      {game.notes && (
+        <div className="rounded-btn bg-night-700/40 p-3.5">
+          <div className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-ink-faint">
+            <FiMessageCircle className="text-pastel-mint" aria-hidden="true" />
+            Впечатления Тиана
+          </div>
+          <p className="text-sm leading-relaxed text-ink-dim">{game.notes}</p>
+        </div>
+      )}
 
       {game.features && (
         <div className="flex max-w-full flex-wrap gap-1.5">
