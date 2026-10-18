@@ -95,7 +95,7 @@ export function TwitchWidgetInHero() {
           </span>
         </div>
         <p className="mt-0.5 truncate text-sm text-ink-dim">
-          {live ? "Идём умирать в рогалики — залетай!" : "Стримы каждый день, кроме субботы"}
+          {live ? "Идём умирать в рогалики — залетай!" : "Стримы каждый день · по субботам — Мастер Игорей"}
         </p>
       </div>
       <div className="flex flex-col gap-2">

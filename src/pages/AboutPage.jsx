@@ -44,7 +44,7 @@ export function AboutPage() {
               <li className="flex gap-2">
                 <span>📅</span>
                 <span>
-                  <b className="text-ink">Стримлю КАЖДЫЙ ДЕНЬ</b> (выходной в субботу).{" "}
+                  <b className="text-ink">Стримлю КАЖДЫЙ ДЕНЬ</b>.{" "}
                   {BRAND.about.scheduleNote}
                 </span>
               </li>

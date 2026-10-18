@@ -51,7 +51,7 @@ export function CollectionPage() {
           {golden ? (
             <RarityEgg rarity="legendary" size={56} />
           ) : (
-            <RarityEgg rarity={golden ? "legendary" : "rare"} size={40} />
+            <RarityEgg rarity="rare" size={40} />
           )}
           <div>
             <h1 className={`section-title text-3xl ${golden ? "text-pastel-amber" : ""}`}
