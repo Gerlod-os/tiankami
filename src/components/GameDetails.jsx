@@ -45,28 +45,27 @@ function Bar({ label, icon, value, max, suffix }) {
   );
 }
 
-function MetaRow({ icon: Icon, iconCls, label, children, onGo }) {
+// Две ячейки сетки: подпись с иконкой и значение. Иконка одна — вторая,
+// стоявшая перед значением, была дублем и сбивала выравнивание.
+function MetaCell({ icon: Icon, iconCls, label, children, onGo }) {
   if (!children) return null;
   const Comp = onGo ? "button" : "span";
   return (
-    <div className="flex items-start gap-2 text-sm">
-      <Icon className={"mt-0.5 shrink-0 " + iconCls} />
-      <div>
-        <span className="mr-2 text-xs font-bold uppercase tracking-wider text-ink-faint">
-          {label}
-        </span>
-        <Comp
-          {...(onGo ? { type: "button", onClick: onGo } : {})}
-          className={
-            onGo
-              ? "inline-flex min-h-8 items-center rounded-btn px-1 -mx-1 text-pastel-blue underline-offset-2 transition hover:underline hover:drop-shadow-[0_0_8px_rgba(160,196,255,.6)]"
-              : "text-ink"
-          }
-        >
-          {children}
-        </Comp>
-      </div>
-    </div>
+    <>
+      <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ink-faint">
+        <Icon className={"shrink-0 " + iconCls} aria-hidden="true" /> {label}
+      </span>
+      <Comp
+        {...(onGo ? { type: "button", onClick: onGo } : {})}
+        className={
+          onGo
+            ? "-mx-1 inline-flex min-h-8 items-center justify-self-start rounded-btn px-1 text-left text-ink underline-offset-2 transition hover:text-pastel-blue hover:underline"
+            : "min-w-0 text-ink"
+        }
+      >
+        {children}
+      </Comp>
+    </>
   );
 }
 
@@ -86,6 +85,15 @@ export function GameDetails({ game, compact = false }) {
   const autoplayUrl = yt?.embedUrl
     ? yt.embedUrl + (yt.embedUrl.includes("?") ? "&" : "?") + "autoplay=1"
     : "";
+  // Превью ролика: maxresdefault 1280×720 (16:9), запасной mqdefault 320×180.
+  // hqdefault не годится — 480×360 с чёрными полосами у 16:9 (замер 18.10.2026).
+  // У плейлиста ролика нет — подложкой идёт обложка игры.
+  const poster = yt?.videoId
+    ? `https://i.ytimg.com/vi/${yt.videoId}/maxresdefault.jpg`
+    : game.image || "";
+  const posterFallback = yt?.videoId
+    ? `https://i.ytimg.com/vi/${yt.videoId}/mqdefault.jpg`
+    : game.image || "";
 
   return (
     <div className={compact ? "space-y-4" : "space-y-5"}>
@@ -95,7 +103,7 @@ export function GameDetails({ game, compact = false }) {
       {/* YouTube под обложкой: сначала постер, плеер — по клику.
           В модалке плеера нет: там место занимает обложка, а смотреть — на странице игры. */}
       {showPlayer && !compact && (
-        <div className="overflow-hidden rounded-card border border-white/10 shadow-card">
+        <div className="mx-auto max-w-2xl overflow-hidden rounded-card border border-white/10 shadow-card">
           {playing ? (
             <iframe
               className="aspect-video w-full"
@@ -110,23 +118,40 @@ export function GameDetails({ game, compact = false }) {
               type="button"
               onClick={() => setPlaying(true)}
               aria-label={`Смотреть прохождение ${game.title} на YouTube`}
-              className="group relative flex aspect-video w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-night-700 via-night-800 to-night-900 transition"
+              className="group relative flex aspect-video w-full flex-col items-center justify-center gap-2 overflow-hidden bg-night-800 transition"
             >
-              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#FF2D2D] text-white shadow-[0_10px_26px_rgba(255,0,0,0.35)] transition group-hover:scale-110">
+              {poster && (
+                <img
+                  src={poster}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-300 group-hover:scale-[1.02] group-hover:opacity-90"
+                  onError={(e) => {
+                    if (posterFallback && e.currentTarget.src !== posterFallback)
+                      e.currentTarget.src = posterFallback;
+                  }}
+                />
+              )}
+              <span className="absolute inset-0 bg-night-900/55" />
+              <span className="relative flex h-16 w-16 items-center justify-center rounded-full bg-[#FF2D2D] text-white shadow-[0_10px_26px_rgba(255,0,0,0.35)] transition group-hover:scale-110">
                 <FiPlay className="ml-1 text-2xl" aria-hidden="true" />
               </span>
-              <span className="font-display text-sm font-extrabold text-ink">
-                Смотреть прохождение
-              </span>
-              <span className="text-xs text-ink-faint">
-                Плеер YouTube загрузится после нажатия
+              <span className="relative flex flex-col items-center gap-0.5 rounded-btn bg-night-900/70 px-4 py-2 text-center backdrop-blur-sm">
+                <span className="font-display text-sm font-extrabold text-ink">
+                  Смотреть прохождение
+                </span>
+                <span className="text-xs text-ink-dim">
+                  Плеер YouTube загрузится после нажатия
+                </span>
               </span>
             </button>
           )}
         </div>
       )}
 
-      {/* Кнопки: в один ряд 50/50, спокойный фон — цвет остаётся только у иконки */}
+      {/* Кнопки — только в модалке: на странице игры они уже стоят в шапке.
+          В один ряд 50/50, спокойный фон — цвет остаётся только у иконки. */}
+      {compact && (
       <div
         className={
           (Boolean(game.steamUrl) && isUrl(game.youtube)
@@ -165,6 +190,7 @@ export function GameDetails({ game, compact = false }) {
           </a>
         )}
       </div>
+      )}
 
       {/* Теги */}
       <div className="flex flex-wrap items-center gap-2">
@@ -205,8 +231,23 @@ export function GameDetails({ game, compact = false }) {
         )}
       </div>
 
+      {/* Впечатления Тиана: единственная колонка таблицы, которая не доходила до
+          посетителя (459/459 заполнено). Ставлю выше баров: это текст, ради которого
+          открывают страницу, а не приложение к шкалам. */}
+      {game.notes && (
+        <div className="rounded-btn bg-night-700/40 p-3.5">
+          <div className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-ink-faint">
+            <FiMessageCircle className="text-pastel-mint" aria-hidden="true" />
+            Впечатления Тиана
+          </div>
+          <p className="text-sm leading-relaxed text-ink-dim">{game.notes}</p>
+        </div>
+      )}
+
+      {/* Бары и мета — рядом: шкалы короткие (448 px), справа не пусто */}
+      <div className="grid gap-5 lg:grid-cols-2 lg:gap-8">
       {/* Бары */}
-      <div className="space-y-3">
+      <div className="max-w-md space-y-3">
         <Bar
           label="Оценка"
           icon={ratingIcon(parseNum(game.rating))}
@@ -233,9 +274,9 @@ export function GameDetails({ game, compact = false }) {
         />
       </div>
 
-      {/* Мета */}
-      <div className="space-y-2.5">
-        <MetaRow
+      {/* Мета: одна иконка у подписи, значения строго по одной вертикали */}
+      <div className="grid grid-cols-[112px_minmax(0,1fr)] items-center gap-x-3 gap-y-2 text-sm sm:grid-cols-[132px_minmax(0,1fr)]">
+        <MetaCell
           icon={FiTag}
           iconCls="text-pastel-purple"
           label="Жанр"
@@ -245,11 +286,9 @@ export function GameDetails({ game, compact = false }) {
             )
           }
         >
-          <span className="inline-flex items-center gap-1">
-            <FiTag className="text-pastel-purple" /> {game.genre}
-          </span>
-        </MetaRow>
-        <MetaRow
+          {game.genre}
+        </MetaCell>
+        <MetaCell
           icon={FiGlobe}
           iconCls="text-pastel-blue"
           label="Сеттинг"
@@ -257,40 +296,19 @@ export function GameDetails({ game, compact = false }) {
             navigate(`/catalog?q=${encodeURIComponent(game.setting || "")}`)
           }
         >
-          <span className="inline-flex items-center gap-1">
-            <FiGlobe className="text-pastel-blue" /> {game.setting}
-          </span>
-        </MetaRow>
-        <MetaRow icon={FiClock} iconCls="text-pastel-amber" label="Наиграно">
-          <span className="inline-flex items-center gap-1">
-            <FiClock className="text-pastel-amber" />{" "}
-            {parseNum(game.hours) ? `${parseNum(game.hours)} ч.` : ""}
-          </span>
-        </MetaRow>
-        <MetaRow icon={FiCalendar} iconCls="text-pastel-mint" label="Выход">
-          <span className="inline-flex items-center gap-1">
-            <FiCalendar className="text-pastel-mint" /> {game.releaseDate}
-          </span>
-        </MetaRow>
-        <MetaRow icon={FiCalendar} iconCls="text-pastel-pink" label="Играл">
-          <span className="inline-flex items-center gap-1">
-            <FiCalendar className="text-pastel-pink" /> {game.playedDate}
-          </span>
-        </MetaRow>
+          {game.setting}
+        </MetaCell>
+        <MetaCell icon={FiClock} iconCls="text-pastel-amber" label="Наиграно">
+          {parseNum(game.hours) ? `${parseNum(game.hours)} ч.` : ""}
+        </MetaCell>
+        <MetaCell icon={FiCalendar} iconCls="text-pastel-mint" label="Выход">
+          {game.releaseDate}
+        </MetaCell>
+        <MetaCell icon={FiCalendar} iconCls="text-pastel-pink" label="Играл">
+          {game.playedDate}
+        </MetaCell>
       </div>
-
-      {/* Впечатления Тиана: единственная колонка таблицы, которая не доходила до
-          посетителя (459/459 заполнено, а показывалась лишь обрезкой в meta).
-          Медиана 103 символа — весь текст влезает в 2–3 строки, резать не нужно. */}
-      {game.notes && (
-        <div className="rounded-btn bg-night-700/40 p-3.5">
-          <div className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-ink-faint">
-            <FiMessageCircle className="text-pastel-mint" aria-hidden="true" />
-            Впечатления Тиана
-          </div>
-          <p className="text-sm leading-relaxed text-ink-dim">{game.notes}</p>
-        </div>
-      )}
+      </div>
 
       {game.features && (
         <div className="flex max-w-full flex-wrap gap-1.5">

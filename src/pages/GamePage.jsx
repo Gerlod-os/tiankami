@@ -143,128 +143,140 @@ export function GamePage() {
 
   return (
     <div className="space-y-8">
-      {/* HERO 100vh: обложка на фон */}
-      <header className="card relative flex min-h-screen flex-col overflow-hidden">
-        {game.image && (
-          <img
-            src={game.image}
-            alt=""
-            aria-hidden="true"
-            className="absolute inset-0 z-0 h-full w-full object-cover"
-            style={{
-              maskImage:
-                "linear-gradient(to bottom, rgba(0,0,0,0.3) 30%, transparent 100%)",
-              WebkitMaskImage:
-                "linear-gradient(to bottom, rgba(0,0,0,0.3) 30%, transparent 100%)",
-            }}
-          />
-        )}
-        <div className="relative z-10 mx-auto mt-12 w-[80%] max-w-lg">
-          {game.image ? (
-            <img
-              src={game.image}
-              alt={`Обложка ${game.title}`}
-              width={460}
-              height={215}
-              className="w-full rounded-card border-4 border-white object-cover shadow-sticker"
-            />
-          ) : (
-            <div className="flex w-full flex-col items-center justify-center gap-3 rounded-card border-4 border-dashed border-white/15 bg-gradient-to-br from-night-700 to-night-600 py-16">
-              <span className="text-6xl" aria-hidden="true">
-                🥐
-              </span>
-              <span className="text-sm text-ink-dim">
-                Обложки нет — но игра уже в истории канала
-              </span>
-            </div>
-          )}
-        </div>
-        <div className="absolute inset-x-0 bottom-0 z-10 h-1/2 bg-gradient-to-t from-night-900 via-night-900/80 to-transparent" />
-        <div className="relative z-20 mx-auto mb-10 max-w-4xl px-6">
-          <nav
-            className="flex flex-wrap items-center gap-1 text-sm text-ink-dim"
-            aria-label="Хлебные крошки"
-          >
-            <Link
-              className="inline-flex min-h-6 items-center rounded-btn px-1 transition hover:text-pastel-pink"
-              to="/"
-            >
-              Главная
-            </Link>
-            <FiChevronRight />
-            <Link
-              className="inline-flex min-h-6 items-center rounded-btn px-1 transition hover:text-pastel-pink"
-              to="/catalog"
-            >
-              Каталог
-            </Link>
-            <FiChevronRight />
-            <span className="font-semibold text-ink">{game.title}</span>
-          </nav>
-          <h1
-            className={
-              "mt-3 text-4xl font-black text-ink md:text-6xl " +
-              (hardcore ? "death-title" : "font-display")
-            }
-          >
-            {game.title}
-          </h1>
-          <p className="mt-3 text-base text-ink-dim md:text-xl">
-            {game.genre}
-            {game.setting ? ` · ${game.setting}` : ""}
-          </p>
-          {hasMI(game) && (
-            <div className="mt-4 flex items-center gap-3">
-              <MITrophy size="md" />
-              <span className="chip border-2 border-pastel-amber/50 bg-pastel-amber/15 font-extrabold text-pastel-amber">
-                ⚡ Участник «Мастер Игорей»
-              </span>
-            </div>
-          )}
-          <div className="mt-6 flex flex-wrap gap-3">
-            {game.steamUrl && (
-              <a
-                className="inline-flex items-center justify-center gap-2 rounded-btn px-6 py-3 font-display font-extrabold text-[#0E1621] transition duration-300 hover:scale-[1.02]"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(135deg,#66C0F4 0%,#3E8BC0 100%)",
-                  boxShadow: "0 10px 26px rgba(102,192,244,0.30)",
-                }}
-                href={game.steamUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaSteam className="text-xl" /> В Steam
-              </a>
-            )}
-            {game.youtube && (
-              <a
-                className="inline-flex items-center justify-center gap-2 rounded-btn px-6 py-3 font-display font-extrabold text-white transition duration-300 hover:scale-[1.02]"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(135deg,#FF2D2D 0%,#C40000 100%)",
-                  boxShadow: "0 10px 26px rgba(255,0,0,0.28)",
-                }}
-                href={game.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FiYoutube className="text-2xl" /> YouTube
-              </a>
+      {/* HERO: обложка слева, текст справа — как в Steam/Backloggd.
+          Было: обложка по центру на 100vh, текст прижат к её левому краю, оценка
+          висела справа отдельным блоком — три разных оси на одном экране. */}
+      <header className="card relative overflow-hidden">
+        {/* Фоновый арт убран: при высоте карточки 300 px он резал голову персонажа
+            сверху. Обложка слева и так даёт цвет, вторая копия не нужна. */}
+        <div className="relative z-10 grid gap-6 p-6 md:grid-cols-[260px_minmax(0,1fr)] md:items-start md:p-8 xl:grid-cols-[260px_minmax(0,1fr)_auto]">
+          <div>
+            {game.image ? (
+              <img
+                src={game.image}
+                alt={`Обложка ${game.title}`}
+                width={460}
+                height={215}
+                className="w-full rounded-card border border-white/15 object-cover shadow-card"
+              />
+            ) : (
+              <div className="flex aspect-[2/1] w-full flex-col items-center justify-center gap-2 rounded-card border border-dashed border-white/15 bg-gradient-to-br from-night-700 to-night-600">
+                <span className="text-4xl" aria-hidden="true">
+                  🥐
+                </span>
+                <span className="px-3 text-center text-xs text-ink-dim">
+                  Обложки нет — но игра уже в истории канала
+                </span>
+              </div>
             )}
           </div>
+
+          <div className="min-w-0">
+            <nav
+              className="flex flex-wrap items-center gap-1 text-sm text-ink-dim"
+              aria-label="Хлебные крошки"
+            >
+              <Link
+                className="inline-flex min-h-6 items-center rounded-btn px-1 transition hover:text-pastel-pink"
+                to="/"
+              >
+                Главная
+              </Link>
+              <FiChevronRight />
+              <Link
+                className="inline-flex min-h-6 items-center rounded-btn px-1 transition hover:text-pastel-pink"
+                to="/catalog"
+              >
+                Каталог
+              </Link>
+              <FiChevronRight />
+              <span className="font-semibold text-ink">{game.title}</span>
+            </nav>
+            <h1
+              className={
+                "mt-3 text-4xl font-black text-ink md:text-5xl " +
+                (hardcore ? "death-title" : "font-display")
+              }
+            >
+              {game.title}
+            </h1>
+            <p className="mt-2 text-base text-ink-dim md:text-lg">
+              {game.genre}
+              {game.setting ? ` · ${game.setting}` : ""}
+            </p>
+
+            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+              {parseNum(game.rating) > 0 && (
+                <span className="flex items-baseline gap-1.5 xl:hidden">
+                  <span
+                    className={
+                      "font-display text-4xl font-black " +
+                      ratingColor(game.rating)
+                    }
+                    style={{ textShadow: "0 0 24px rgba(159,226,185,0.35)" }}
+                  >
+                    {parseNum(game.rating)}
+                  </span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-ink-dim">
+                    /10 · оценка Тиана
+                  </span>
+                </span>
+              )}
+              {hasMI(game) && (
+                <span className="chip border-2 border-pastel-amber/50 bg-pastel-amber/15 font-extrabold text-pastel-amber">
+                  <MITrophy size="xs" /> Участник «Мастер Игорей»
+                </span>
+              )}
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-3">
+              {game.steamUrl && (
+                <a
+                  className="inline-flex items-center justify-center gap-2 rounded-btn px-4 py-2.5 text-sm font-display font-extrabold text-[#0E1621] transition duration-300 hover:scale-[1.02]"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(135deg,#66C0F4 0%,#3E8BC0 100%)",
+                    boxShadow: "0 10px 26px rgba(102,192,244,0.30)",
+                  }}
+                  href={game.steamUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <FaSteam className="text-lg" /> В Steam
+                </a>
+              )}
+              {game.youtube && (
+                <a
+                  className="inline-flex items-center justify-center gap-2 rounded-btn px-4 py-2.5 text-sm font-display font-extrabold text-white transition duration-300 hover:scale-[1.02]"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(135deg,#FF2D2D 0%,#C40000 100%)",
+                    boxShadow: "0 10px 26px rgba(255,0,0,0.28)",
+                  }}
+                  href={game.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <FiYoutube className="text-lg" /> YouTube
+                </a>
+              )}
+            </div>
+          </div>
+
+          {/* Оценка крупно в правом углу — как в дизайн.md: «оценку в углу выделить + больше».
+              На узких экранах она живёт в строке чипсов выше. */}
           {parseNum(game.rating) > 0 && (
-            <div className="mt-6 text-right">
+            <div className="hidden text-right xl:block">
               <div
                 className={
-                  "font-display text-7xl font-black md:text-8xl " +
+                  "font-display text-7xl font-black leading-none " +
                   ratingColor(game.rating)
                 }
-                style={{ textShadow: "0 0 30px rgba(159,226,185,0.45)" }}
+                style={{ textShadow: "0 0 30px rgba(159,226,185,0.35)" }}
               >
                 {parseNum(game.rating)}
               </div>
-              <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-ink-dim">
+              <div className="mt-2 text-[10px] font-bold uppercase tracking-widest text-ink-dim">
                 оценка Тиана / 10
               </div>
             </div>

@@ -65,19 +65,29 @@ export function GameModal({ game, onClose }) {
         ref={boxRef}
         className="relative max-h-[88vh] w-full max-w-[640px] animate-fadeUp overflow-y-auto rounded-card border border-white/10 bg-night-900/95 shadow-card"
       >
-        <div className="relative">
+        {/* Обложка 192×96 — ровно 2:1, как у Steam. Широкая полоса резала
+            верх арта: у игр с персонажем срезало голову (замечено 18.10.2026). */}
+        <div className="flex items-start gap-4 p-5 pb-0">
           {game.image ? (
             <img
               src={game.image}
               alt={`Обложка ${game.title}`}
               width={460}
               height={215}
-              className="h-[150px] w-full rounded-t-card object-cover"
+              className="h-[96px] w-[192px] shrink-0 rounded-btn border border-white/10 object-cover"
             />
           ) : (
-            <div className="h-[120px] w-full rounded-t-card bg-gradient-to-br from-night-700 to-night-600" />
+            <div className="h-[96px] w-[192px] shrink-0 rounded-btn border border-dashed border-white/15 bg-gradient-to-br from-night-700 to-night-600" />
           )}
-          <div className="pointer-events-none absolute inset-0 rounded-t-card bg-gradient-to-t from-night-900 via-night-900/30 to-transparent" />
+          <div className="min-w-0 flex-1 pr-9">
+            <h2 className="font-display text-lg font-black leading-tight text-ink">
+              {game.title}
+            </h2>
+            <p className="mt-1 line-clamp-2 text-xs text-ink-dim">
+              {game.genre}
+              {game.setting ? ` · ${game.setting}` : ""}
+            </p>
+          </div>
           <button
             ref={closeRef}
             type="button"
@@ -88,13 +98,8 @@ export function GameModal({ game, onClose }) {
             <FiX />
           </button>
         </div>
-        <div className="p-5">
-          <h2 className="font-display text-xl font-black text-ink">
-            {game.title}
-          </h2>
-          <div className="mt-3">
-            <GameDetails game={game} compact />
-          </div>
+        <div className="p-5 pt-4">
+          <GameDetails game={game} compact />
           <div className="mt-5 flex justify-end">
             <Link to={`/catalog/${game.slug}`} className="btn-primary text-sm">
               Страница игры <FiArrowRight />
