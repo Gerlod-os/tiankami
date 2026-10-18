@@ -141,14 +141,14 @@ export function Layout({ children }) {
               <span className="section-accent block font-display text-xl font-black tracking-wide">
                 TianKami
               </span>
-              <span className="block text-[11px] font-semibold uppercase tracking-widest text-ink-faint">
+              <span className="block whitespace-nowrap text-[11px] font-semibold uppercase tracking-widest text-ink-faint">
                 {BRAND.tagline} · рогалики
               </span>
             </span>
           </Link>
 
           <nav
-            className="mx-auto hidden gap-1 md:flex"
+            className="mx-auto hidden items-center gap-1 lg:flex"
             aria-label="Основная навигация"
           >
             {NAV.map(({ to, label, icon: Icon, end }) => {
@@ -168,12 +168,12 @@ export function Layout({ children }) {
                   to={to}
                   end={end}
                   className={({ isActive }) =>
-                    "nav-link group flex items-center gap-1.5 " +
+                    "nav-link group flex items-center gap-1 whitespace-nowrap " +
                     (isActive ? "nav-link-active" : "")
                   }
                 >
                   <span
-                    className={`transition-transform group-hover:scale-110 ${iconColor}`}
+                    className={`hidden transition-transform group-hover:scale-110 xl:inline-flex ${iconColor}`}
                   >
                     <Icon className="text-base" />
                   </span>
@@ -202,7 +202,7 @@ export function Layout({ children }) {
             </div>
             <button
               type="button"
-              className="btn-ghost !p-3 md:hidden"
+              className="btn-ghost !p-3 lg:hidden"
               onClick={() => setMenuOpen(true)}
               aria-label="Открыть меню"
               aria-expanded={menuOpen}
@@ -216,12 +216,12 @@ export function Layout({ children }) {
       {menuOpen && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-night-900/85 md:hidden"
+            className="fixed inset-0 z-40 bg-night-900/85 lg:hidden"
             onClick={() => setMenuOpen(false)}
           />
           <div
             ref={drawerRef}
-            className="drawer md:hidden"
+            className="drawer lg:hidden"
             role="dialog"
             aria-modal="true"
             aria-label="Меню"

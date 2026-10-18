@@ -288,7 +288,7 @@
     @apply h-full rounded-full bg-gradient-to-r from-pastel-amber via-[#F0A95C] to-pastel-pink;
   }
   .nav-link {
-    @apply relative rounded-btn px-3 py-2 font-display text-sm font-bold text-ink-dim transition-colors hover:text-ink;
+    @apply relative whitespace-nowrap rounded-btn px-2.5 py-2 font-display text-sm font-bold text-ink-dim transition-colors hover:text-ink;
   }
   .nav-link svg {
     @apply transition;
@@ -306,7 +306,7 @@
   }
   .nav-link-active::after {
     content: "";
-    @apply absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-gradient-to-r from-pastel-pink to-pastel-amber shadow-glow-pink;
+    @apply absolute inset-x-2.5 bottom-1 h-0.5 rounded-full bg-gradient-to-r from-pastel-pink to-pastel-amber shadow-glow-pink;
   }
 
   /* ── единая система motion: spring для «живого», ease-out для появления ── */
