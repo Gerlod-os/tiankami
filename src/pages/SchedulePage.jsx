@@ -94,7 +94,7 @@ export function SchedulePage() {
   return (
     <div className="mx-auto max-w-4xl space-y-8">
       <div>
-        <h1 className="section-title text-3xl md:text-4xl">
+        <h1 className="section-title min-h-[2lh] text-3xl md:min-h-0 md:text-4xl">
           <span className="h-marker">Расписание</span> <span className="section-accent">стримов</span>
         </h1>
         <p className="mt-2 text-sm text-ink-dim">
