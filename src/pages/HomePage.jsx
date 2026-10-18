@@ -10,7 +10,6 @@ import { BRAND } from "../config/branding";
 import { RarityEgg } from "../components/RarityEgg";
 import { CollectionIcon } from "../components/CollectionIcon";
 import { CoverFan } from "../components/CoverFan";
-import { MASCOTS } from "../config/mascots";
 import { computeStats, lastPlayedGame } from "../utils/stats";
 import { useCounter } from "../utils/useCounter";
 import { useCountdown, streamMoment } from "../utils/useCountdown";
@@ -66,8 +65,8 @@ export function HomePage() {
   );
 
   const maskStyle = {
-    maskImage: "linear-gradient(to right, rgba(0,0,0,0.5) 0%, transparent 100%)",
-    WebkitMaskImage: "linear-gradient(to right, rgba(0,0,0,0.5) 0%, transparent 100%)",
+    maskImage: "linear-gradient(to left, #000 45%, transparent 100%)",
+    WebkitMaskImage: "linear-gradient(to left, #000 45%, transparent 100%)",
   };
 
   return (
@@ -82,11 +81,11 @@ export function HomePage() {
             src={last.image}
             alt=""
             aria-hidden="true"
-            className="pointer-events-none absolute -top-[50px] right-[-100px] z-0 hidden w-[600px] max-w-none opacity-50 lg:block"
+            className="pointer-events-none absolute inset-y-0 right-0 z-0 hidden h-full w-[52%] object-cover xl:block"
             style={maskStyle}
           />
         )}
-        <div className="relative z-10 grid grid-cols-1 gap-8 p-6 md:p-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <div className="relative z-10 grid grid-cols-1 gap-8 p-6 md:p-10 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
           <div className="animate-fadeUp min-w-0">
             <div className="flex items-center gap-3">
               <h1 className="section-accent font-display text-2xl font-black tracking-wide">
@@ -130,15 +129,8 @@ export function HomePage() {
             </div>
           </div>
 
-          <div className="relative flex flex-col items-center gap-5">
+          <div className="relative flex flex-col justify-end gap-5">
             <div className="w-full"><TwitchWidgetInHero /></div>
-            <img
-              src={MASCOTS.logo}
-              alt="Аватар Tiankami с Twitch — кроассан-геймпад"
-              width={512}
-              height={512}
-              className="relative z-10 w-[240px] rounded-full border-4 border-white object-cover shadow-sticker md:w-[320px]"
-            />
           </div>
         </div>
       </section>
