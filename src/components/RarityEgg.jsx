@@ -61,17 +61,26 @@ export function RarityEgg({ rarity = "common", size = 22, className = "" }) {
       case "mythic":
         return (
           <>
-            <radialGradient id={`eg${uid}`} cx="35%" cy="30%" r="80%">
-              <stop offset="0%" stopColor="#201040" />
-              <stop offset="30%" stopColor="#402080" />
-              <stop offset="60%" stopColor="#2040a0" />
-              <stop offset="100%" stopColor="#0a0a2a" />
-            </radialGradient>
+            {/* Радужный перелив: шесть стопов разного оттенка по диагонали.
+                Однотонный сине-фиолетовый читался как тёмное эпическое — проверено 18.10.2026 */}
+            <linearGradient id={`eg${uid}`} x1="10%" y1="0%" x2="90%" y2="100%">
+              <stop offset="0%" stopColor="#ff4fa3" />
+              <stop offset="22%" stopColor="#a05cff" />
+              <stop offset="44%" stopColor="#3f8cff" />
+              <stop offset="62%" stopColor="#3fd8d0" />
+              <stop offset="80%" stopColor="#5fe08a" />
+              <stop offset="100%" stopColor="#ffd166" />
+            </linearGradient>
             <radialGradient id={`egN${uid}`} cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#ff60a0" stopOpacity="0.6" />
-              <stop offset="50%" stopColor="#60a0ff" stopOpacity="0.4" />
+              <stop offset="0%" stopColor="#ff60a0" stopOpacity="0.55" />
+              <stop offset="50%" stopColor="#60a0ff" stopOpacity="0.35" />
               <stop offset="100%" stopColor="#60ff90" stopOpacity="0" />
             </radialGradient>
+            <linearGradient id={`egR${uid}`} x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.55" />
+              <stop offset="50%" stopColor="#ffffff" stopOpacity="0.08" />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity="0.45" />
+            </linearGradient>
           </>
         );
       default:
