@@ -52,7 +52,7 @@ const SORTS = {
   title: (a, b) => a.title.localeCompare(b.title, "ru"),
 };
 
-function Chip({ active, onClick, children, title, disabled }) {
+function Chip({ active, onClick, children, title, disabled, className = "" }) {
   return (
     <button
       type="button"
@@ -61,6 +61,8 @@ function Chip({ active, onClick, children, title, disabled }) {
       disabled={disabled}
       className={
         "chip border px-4 py-2 transition duration-200 disabled:cursor-not-allowed disabled:opacity-40 " +
+        className +
+        " " +
         (active
           ? "border-transparent bg-gradient-to-r from-pastel-pink to-pastel-purple font-extrabold text-night-900 shadow-glow-pink"
           : "border-white/10 bg-white/5 text-ink-dim hover:border-pastel-purple/40 hover:text-ink")
@@ -490,9 +492,10 @@ export function CatalogPage() {
         </p>
       </div>
 
-      {/* Поиск и фильтры — одна строка: поле, «Фильтры», сортировка, направление.
-          Было две панели друг под другом (решение владельца 18.10.2026). */}
-      <div className="mx-auto w-full max-w-5xl">
+      {/* Поиск, фильтры и сортировка — одна строка во всю ширину страницы:
+          так она совпадает по ширине с панелью фильтров под ней (было 960 против
+          1152 px — замечание владельца 18.10.2026). */}
+      <div className="w-full">
         <div className="flex flex-wrap items-stretch gap-2" ref={filtersRef}>
         <div className="relative w-full min-w-0 sm:flex-1">
         <FiSearch className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-faint" />
@@ -511,14 +514,20 @@ export function CatalogPage() {
           onKeyDown={(e) => e.key === "Escape" && setDropOpen(false)}
           aria-label="Живой поиск по каталогу"
         />
-        {hasFilters && !qInput && (
+        {/* Единственная кнопка сброса на странице. Раньше их было три: в панели
+            фильтров, в баннере подборки и здесь; владелец просил одну — в поле
+            поиска. Показываем при любом активном фильтре, в том числе при введённом
+            запросе (раньше кнопка в этом случае исчезала). */}
+        {hasFilters && (
           <span className="absolute right-3 top-1/2 -translate-y-1/2">
             <button
               type="button"
               onClick={reset}
               className="btn-ghost !px-2 !py-1 text-xs"
+              aria-label="Сбросить фильтры и поиск"
+              title="Сбросить фильтры и поиск"
             >
-              <FiX /> Сбросить всё
+              <FiX /> Сбросить
             </button>
           </span>
         )}
@@ -675,75 +684,61 @@ export function CatalogPage() {
               </div>
             )}
           </div>
-          <button
-            type="button"
-            className="btn-ghost !px-3 !py-1.5 text-xs"
-            onClick={reset}
-          >
-            <FiX /> Сбросить
-          </button>
         </div>
       )}
 
-      {/* Панель фильтров: кнопка живёт в строке поиска, карточка — только когда открыта */}
+      {/* Панель фильтров: кнопка живёт в строке поиска, карточка — только когда открыта.
+          Слева жанры ровной сеткой в две колонки, справа остальные группы: раньше
+          четырнадцать чипсов шли вперемешку во всю ширину и ряд получался рваным
+          (замечание владельца 18.10.2026). */}
       {filtersOpen && (
-        <div className="card space-y-4 p-4" data-filters-panel>
-          <div className="flex flex-wrap items-center gap-3">
-            <label className="flex items-center gap-2 text-sm text-ink-dim">
-              <span className="switch">
-                <input
-                  type="checkbox"
-                  checked={miOnly}
-                  onChange={(e) => apply({ mi: e.target.checked ? "1" : null })}
-                  aria-label="Только с кубком МИ"
-                />
-                <span className="knob" />
-              </span>
-              Только с кубком МИ
-            </label>
-
-            <SelectMenu
-              label="Год выхода"
-              value={year}
-              icon={FiCalendar}
-              onChange={(v) => apply({ year: v })}
-              options={[
-                { v: "any", l: "Любой год" },
-                ...meta.years.map((y) => ({ v: String(y), l: String(y) })),
-              ]}
-            />
-
-            {hasFilters && (
-              <button
-                type="button"
-                onClick={reset}
-                className="btn-ghost ml-auto !border-pastel-pink/40 !px-3 !py-1.5 text-xs !text-pastel-pink"
-              >
-                <FiX /> Сбросить всё
-              </button>
-            )}
-          </div>
-
-          {/* Жанры — отдельной строкой во всю ширину: в узкой колонке 14 чипсов
-              складывались в столбик, а слово «закрыто» дописывалось к чипсу
-              (решение владельца 18.10.2026) */}
-          <div>
-            <div className="label">Жанр</div>
-            <div className="flex flex-wrap gap-1.5">
-              {meta.genres.slice(0, 14).map((x) => (
-                <Chip
-                  key={x}
-                  active={genresSel.has(x)}
-                  onClick={() => toggleGenre(x)}
-                  disabled={!genresSel.has(x) && genresSel.size >= MAX_GENRES}
-                >
-                  {x}
-                </Chip>
-              ))}
+        <div className="card p-4 md:p-5" data-filters-panel>
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] lg:gap-8">
+            <div className="lg:border-r lg:border-white/10 lg:pr-8">
+              <div className="label">Жанр</div>
+              <div className="grid grid-cols-2 gap-1.5">
+                {meta.genres.slice(0, 14).map((x) => (
+                  <Chip
+                    key={x}
+                    active={genresSel.has(x)}
+                    onClick={() => toggleGenre(x)}
+                    disabled={!genresSel.has(x) && genresSel.size >= MAX_GENRES}
+                    className="w-full justify-center"
+                  >
+                    {x}
+                  </Chip>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div className="grid animate-fadeUp gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="flex items-center gap-2 text-sm text-ink-dim">
+                  <span className="switch">
+                    <input
+                      type="checkbox"
+                      checked={miOnly}
+                      onChange={(e) => apply({ mi: e.target.checked ? "1" : null })}
+                      aria-label="Только с кубком МИ"
+                    />
+                    <span className="knob" />
+                  </span>
+                  Только с кубком МИ
+                </label>
+
+                <SelectMenu
+                  label="Год выхода"
+                  value={year}
+                  icon={FiCalendar}
+                  onChange={(v) => apply({ year: v })}
+                  options={[
+                    { v: "any", l: "Любой год" },
+                    ...meta.years.map((y) => ({ v: String(y), l: String(y) })),
+                  ]}
+                />
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               <div>
                 <div className="label">Статус</div>
                 <div className="flex flex-wrap gap-1.5">
@@ -840,6 +835,8 @@ export function CatalogPage() {
                   ))}
                 </div>
               </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -871,9 +868,9 @@ export function CatalogPage() {
               </div>
             ))}
           </div>
-          <button type="button" className="btn-primary" onClick={reset}>
-            Сбросить фильтры
-          </button>
+          <p className="text-xs text-ink-faint">
+            Сбросить всё — кнопкой в строке поиска.
+          </p>
         </div>
       ) : (
         <>
