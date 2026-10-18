@@ -39,6 +39,22 @@ export function todayUTC() {
   return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
 }
 
+// Названия держу массивами, а не через Intl: пререндер считает даты в Node,
+// браузер — в своём ICU, и расхождение даёт React #418 (уже ловили на сайте).
+const WEEKDAYS_SHORT = ["вс", "пн", "вт", "ср", "чт", "пт", "сб"];
+const MONTHS_GENITIVE = [
+  "января", "февраля", "марта", "апреля", "мая", "июня",
+  "июля", "августа", "сентября", "октября", "ноября", "декабря",
+];
+
+/** «сб, 6 сентября» — для расписания, где день недели важнее года. */
+export function formatRuDateLong(date) {
+  if (!date) return "";
+  return `${WEEKDAYS_SHORT[date.getUTCDay()]}, ${date.getUTCDate()} ${
+    MONTHS_GENITIVE[date.getUTCMonth()]
+  }`;
+}
+
 /**
  * Дата из ячейки таблицы → «дд.мм.гггг».
  * Понятную дату приводит, непонятную отдаёт как есть: молча переставить день

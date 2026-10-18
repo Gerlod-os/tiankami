@@ -1,7 +1,8 @@
 import { FiClock, FiCalendar } from "react-icons/fi";
 import { FaTwitch } from "react-icons/fa";
 import { useData } from "../components/DataProvider";
-import { parseRuDate, todayUTC } from "../utils/date";
+import { parseRuDate, todayUTC, formatRuDateLong } from "../utils/date";
+import { BRAND } from "../config/branding";
 import { usePageMeta } from "../utils/usePageMeta";
 
 // ICS для ближайшего стрима (клиентская генерация, МСК → UTC)
@@ -53,8 +54,10 @@ function StreamRow({ s, big }) {
         <div className={"font-display font-extrabold text-ink " + (big ? "text-xl" : "text-base")}>
           {s.game}
         </div>
-        <div className="mt-0.5 flex items-center gap-2 text-xs text-ink-dim">
+        <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-ink-dim">
           <FiClock /> {s.time} МСК
+          <span aria-hidden="true">·</span>
+          <span>{formatRuDateLong(parseRuDate(s.date))}</span>
         </div>
       </div>
       <a
@@ -117,18 +120,48 @@ export function SchedulePage() {
           ))}
         </section>
       ) : (
-        <div className="card p-8 text-center text-ink-dim">
-          Анонсов пока нет — загляни на канал <FaTwitch className="inline text-pastel-purple" />
+        <div className="card p-8 text-center">
+          <p className="font-display text-lg font-extrabold text-ink">
+            Ближайших стримов пока нет
+          </p>
+          <p className="mx-auto mt-2 max-w-md text-sm text-ink-dim">
+            Расписание и переносы пишу в Telegram и ВК — там же анонсы за день до стрима.
+          </p>
+          <div className="mt-4 flex flex-wrap justify-center gap-3">
+            <a
+              className="btn-primary text-sm"
+              href={BRAND.links.telegram}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Расписание в Telegram
+            </a>
+            <a
+              className="btn-ghost text-sm"
+              href={BRAND.links.vk}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Группа ВКонтакте
+            </a>
+          </div>
         </div>
       )}
 
       {past.length > 0 && (
-        <section className="space-y-3">
-          <h2 className="font-display text-lg font-extrabold text-ink">Прошедшие стримы</h2>
-          {past.map((s, i) => (
-            <StreamRow key={`${s.date}-p${i}`} s={s} />
-          ))}
-        </section>
+        <details className="group">
+          <summary className="flex min-h-8 cursor-pointer list-none items-center gap-2 font-display text-lg font-extrabold text-ink">
+            <span className="transition-transform group-open:rotate-90" aria-hidden="true">
+              ▸
+            </span>
+            Прошедшие стримы ({past.length})
+          </summary>
+          <div className="mt-3 space-y-3">
+            {past.map((s, i) => (
+              <StreamRow key={`${s.date}-p${i}`} s={s} />
+            ))}
+          </div>
+        </details>
       )}
 
       <p className="text-center text-xs text-ink-faint">

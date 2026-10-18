@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { parseRuDate, formatRuDate, normalizeDateCell } from "../date.js";
+import { parseRuDate, formatRuDate, normalizeDateCell, formatRuDateLong } from "../date.js";
 
 describe("parseRuDate", () => {
   test("DD.MM.YYYY", () => {
@@ -54,5 +54,21 @@ describe("normalizeDateCell", () => {
   });
   test("несуществующая дата не превращается в валидную", () => {
     expect(normalizeDateCell("2/30/2024")).toBe("2/30/2024");
+  });
+});
+
+describe("formatRuDateLong", () => {
+  // Дни недели сверены независимо — Date.toUTCString(): Sun 06 Sep 2026, Fri 01 Jan 2027.
+  test("воскресенье 6 сентября", () => {
+    expect(formatRuDateLong(parseRuDate("06.09.2026"))).toBe("вс, 6 сентября");
+  });
+  test("пятница 1 января", () => {
+    expect(formatRuDateLong(parseRuDate("01.01.2027"))).toBe("пт, 1 января");
+  });
+  test("суббота 9 мая", () => {
+    expect(formatRuDateLong(parseRuDate("09.05.2026"))).toBe("сб, 9 мая");
+  });
+  test("пустая дата — пустая строка", () => {
+    expect(formatRuDateLong(null)).toBe("");
   });
 });
