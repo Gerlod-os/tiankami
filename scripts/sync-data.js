@@ -17,6 +17,7 @@ const {
   isUrl,
 } = await import("../src/utils/normalize.js");
 const { linksFromSheetXlsx } = await import("../src/utils/xlsx.js");
+const { twitchSchedule, SCHEDULE_DAYS } = await import("./twitch-schedule.mjs");
 const { parseRuDate, formatRuDate } = await import("../src/utils/date.js");
 
 async function fetchText(url, tries = 3, timeoutMs = 15000) {
@@ -182,33 +183,43 @@ try {
   console.warn("  ⚠ Подборки не скачались:", e.message);
 }
 
-// ── 4. Расписание (CSV с заголовками) ────────────────────────────────────────
+// ── 4. Расписание: сначала календарь Twitch, таблица — запасной вариант ─────
+// Таблицу расписания никто не заполняет (слово владельца 18.10.2026), поэтому
+// основной источник — публичный календарь канала. Он отдаёт недельную сетку,
+// её разворачиваем в даты на неделю вперёд.
 let schedule = [];
 try {
-  console.log("▸ Скачиваю «Расписание»…");
-  const csv = await fetchText(DS.SCHEDULE_URL);
-  const rows = Papa.parse(csv, { header: true, skipEmptyLines: "greedy" }).data;
-  schedule = rows
-    .map((r) => {
-      const rawDate = String(r?.date || "").trim();
-      const game = String(r?.game || "").trim();
-      const d = parseRuDate(rawDate);
-      if (!d || !game) return null;
-      return {
-        date: formatRuDate(d),
-        time: String(r.time || "").trim(),
-        game,
-        streamLink: String(r.streamLink || "").trim(),
-      };
-    })
-    .filter(Boolean)
-    .sort(
-      (a, b) =>
-        (parseRuDate(a.date)?.getTime() || 0) - (parseRuDate(b.date)?.getTime() || 0)
-    );
-  console.log(`  ✔ стримов в расписании: ${schedule.length}`);
+  console.log("▸ Беру расписание из календаря Twitch…");
+  schedule = await twitchSchedule(fetchText, DS.TWITCH_ICS_URL);
+  console.log(`  ✔ стримов на ${SCHEDULE_DAYS} дней вперёд: ${schedule.length}`);
 } catch (e) {
-  console.warn("  ⚠ Расписание не скачалось:", e.message);
+  console.warn("  ⚠ Календарь Twitch не сработал:", e.message);
+  try {
+    console.log("▸ Запасной вариант: «Расписание» из таблицы…");
+    const csv = await fetchText(DS.SCHEDULE_URL);
+    const rows = Papa.parse(csv, { header: true, skipEmptyLines: "greedy" }).data;
+    schedule = rows
+      .map((r) => {
+        const rawDate = String(r?.date || "").trim();
+        const game = String(r?.game || "").trim();
+        const d = parseRuDate(rawDate);
+        if (!d || !game) return null;
+        return {
+          date: formatRuDate(d),
+          time: String(r.time || "").trim(),
+          game,
+          streamLink: String(r.streamLink || "").trim(),
+        };
+      })
+      .filter(Boolean)
+      .sort(
+        (a, b) =>
+          (parseRuDate(a.date)?.getTime() || 0) - (parseRuDate(b.date)?.getTime() || 0)
+      );
+    console.log(`  ✔ стримов из таблицы: ${schedule.length}`);
+  } catch (e2) {
+    console.warn("  ⚠ Расписание из таблицы тоже не скачалось:", e2.message);
+  }
 }
 
 // ── 5. Пишем JSON ────────────────────────────────────────────────────────────

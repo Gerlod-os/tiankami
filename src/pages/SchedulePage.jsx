@@ -1,7 +1,8 @@
+import { useEffect, useState } from "react";
 import { FiClock, FiCalendar } from "react-icons/fi";
 import { FaTwitch } from "react-icons/fa";
 import { useData } from "../components/DataProvider";
-import { parseRuDate, todayUTC, formatRuDateLong } from "../utils/date";
+import { parseRuDate, todayUTC, formatRuDate, formatRuDateLong } from "../utils/date";
 import { BRAND } from "../config/branding";
 import { usePageMeta } from "../utils/usePageMeta";
 
@@ -13,7 +14,15 @@ function addToCalendar(s) {
   const h = m ? parseInt(m[1], 10) : 12;
   const mi = m ? parseInt(m[2], 10) : 0;
   const start = new Date(d.getTime() + h * 3600e3 + mi * 60e3 - 3 * 3600e3);
-  const end = new Date(start.getTime() + 6 * 3600e3);
+  const end = (() => {
+    const em = String(s.endTime || "").match(/(\d{1,2}):(\d{2})/);
+    if (em) {
+      return new Date(
+        d.getTime() + parseInt(em[1], 10) * 3600e3 + parseInt(em[2], 10) * 60e3 - 3 * 3600e3
+      );
+    }
+    return new Date(start.getTime() + 6 * 3600e3);
+  })();
   const f = (x) => x.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z/, "Z");
   const ics = [
     "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Tiankami//Schedule//RU",
@@ -33,31 +42,31 @@ function addToCalendar(s) {
   URL.revokeObjectURL(a.href);
 }
 
-function StreamRow({ s, big }) {
+// Крупная карточка — только для ближайшего стрима.
+function NextStreamCard({ s, isToday }) {
   return (
     <div
       className={
-        "card flex flex-wrap items-center gap-4 " +
-        (big ? "border-pastel-pink/30 p-6 shadow-glow-pink" : "p-4")
+        "card flex flex-wrap items-center gap-4 border-pastel-pink/30 p-6 shadow-glow-pink" +
+        (isToday ? " ring-1 ring-pastel-pink/40" : "")
       }
     >
-      <div
-        className={
-          "flex flex-col items-center justify-center rounded-btn bg-gradient-to-br from-pastel-pink/20 to-pastel-purple/20 font-display font-black text-ink " +
-          (big ? "h-20 w-20 text-2xl" : "h-14 w-14 text-lg")
-        }
-      >
+      <div className="flex h-20 w-20 flex-col items-center justify-center rounded-btn bg-gradient-to-br from-pastel-pink/20 to-pastel-purple/20 font-display font-black text-ink text-2xl">
         <span>{s.date.slice(0, 5)}</span>
         <span className="text-[10px] font-bold text-ink-dim">{s.date.slice(6)}</span>
       </div>
       <div className="min-w-0 flex-1">
-        <div className={"font-display font-extrabold text-ink " + (big ? "text-xl" : "text-base")}>
-          {s.game}
-        </div>
+        <div className="font-display text-xl font-extrabold text-ink">{s.game}</div>
         <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-ink-dim">
-          <FiClock /> {s.time} МСК
+          <FiClock /> {s.time}
+          {s.endTime ? `–${s.endTime}` : ""} МСК
           <span aria-hidden="true">·</span>
           <span>{formatRuDateLong(parseRuDate(s.date))}</span>
+          {isToday && (
+            <span className="chip border border-pastel-pink/40 bg-pastel-pink/10 text-pastel-pink">
+              сегодня
+            </span>
+          )}
         </div>
       </div>
       <a
@@ -72,19 +81,60 @@ function StreamRow({ s, big }) {
   );
 }
 
+// Остальные дни — строками: семь одинаковых карточек подряд читать невозможно.
+// На телефоне строка складывается в две: день и время сверху, название под ними.
+function ScheduleLine({ s }) {
+  const weekday = formatRuDateLong(parseRuDate(s.date)).split(",")[0];
+  return (
+    <li className="flex flex-col gap-0.5 py-2.5 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-3">
+      <span className="flex items-baseline gap-2 sm:contents">
+        <span className="font-display text-sm font-extrabold text-ink">{weekday}</span>
+        <span className="font-display text-sm font-bold text-ink-dim">{s.date.slice(0, 5)}</span>
+        <span className="text-xs tabular-nums text-ink-dim">
+          {s.time}
+          {s.endTime ? `–${s.endTime}` : ""} МСК
+        </span>
+      </span>
+      <span className="text-sm text-ink sm:min-w-0 sm:flex-1 sm:truncate">{s.game}</span>
+    </li>
+  );
+}
+
 export function SchedulePage() {
   const { schedule } = useData();
   usePageMeta({
     title: "Расписание стримов — Tiankami",
     description:
-      "Расписание стримов Tiankami: ближайшие стримы и прошедшие. Стримы каждый день, кроме субботы.",
+      "Расписание стримов Tiankami: ближайшая неделя по календарю канала на Twitch. Стримы каждый день.",
   });
 
   const today = todayUTC();
+  const todayRu = formatRuDate(today);
+
+  // Текущее время по Москве считаем только в браузере: в пререндере его нет,
+  // иначе серверная разметка разойдётся с клиентской (React #418).
+  const [nowMsk, setNowMsk] = useState("");
+  useEffect(() => {
+    const tick = () => {
+      const n = new Date(Date.now() + 3 * 3600e3);
+      setNowMsk(`${String(n.getUTCHours()).padStart(2, "0")}:${String(n.getUTCMinutes()).padStart(2, "0")}`);
+    };
+    tick();
+    const id = setInterval(tick, 60000);
+    return () => clearInterval(id);
+  }, []);
+
   const list = [...(schedule || [])].sort(
     (a, b) => (parseRuDate(a.date)?.getTime() || 0) - (parseRuDate(b.date)?.getTime() || 0)
   );
-  const upcoming = list.filter((s) => (parseRuDate(s.date)?.getTime() || 0) >= today.getTime());
+  // Сегодняшний стрим, который уже закончился, в «ближайшие» не берём.
+  const isFinished = (s) => {
+    if (!nowMsk || s.date !== todayRu) return false;
+    return (s.endTime || s.time) < nowMsk;
+  };
+  const upcoming = list.filter(
+    (s) => (parseRuDate(s.date)?.getTime() || 0) >= today.getTime() && !isFinished(s)
+  );
   const past = list
     .filter((s) => (parseRuDate(s.date)?.getTime() || 0) < today.getTime())
     .slice(-5)
@@ -98,26 +148,39 @@ export function SchedulePage() {
           <span className="h-marker">Расписание</span> <span className="section-accent">стримов</span>
         </h1>
         <p className="mt-2 text-sm text-ink-dim">
-          Стримы каждый день, кроме субботы. Анонсы — в{" "}
-          <a className="text-pastel-pink underline decoration-pastel-pink/40 underline-offset-2" href="https://twitch.tv/tiankami" target="_blank" rel="noopener noreferrer">
-            группе Вконтакте
+          Стримы каждый день. Сетка берётся из{" "}
+          <a className="text-pastel-pink underline decoration-pastel-pink/40 underline-offset-2" href={BRAND.links.twitch} target="_blank" rel="noopener noreferrer">
+            календаря канала на Twitch
           </a>{" "}
-          и на канале. Окончание — почти всегда до позднего вечера.
+          и обновляется сама; анонсы и переносы — в Telegram и ВК.
         </p>
       </div>
 
       {next ? (
         <section className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="font-display text-lg font-extrabold text-ink">🔥 Ближайший стрим</h2>
+            <h2 className="font-display text-lg font-extrabold text-ink">
+              {next.date === todayRu && nowMsk && nowMsk >= next.time && nowMsk < (next.endTime || "23:59")
+                ? "🔴 Идёт сейчас"
+                : "🔥 Ближайший стрим"}
+            </h2>
             <button type="button" className="btn-ghost !px-3 !py-1.5 text-xs" onClick={() => addToCalendar(next)}>
               <FiCalendar /> В календарь
             </button>
           </div>
-          <StreamRow s={next} big />
-          {upcoming.slice(1, 4).map((s, i) => (
-            <StreamRow key={`${s.date}-${i}`} s={s} />
-          ))}
+          <NextStreamCard s={next} isToday={next.date === todayRu} />
+          {upcoming.length > 1 && (
+            <div className="pt-2">
+              <h3 className="mb-1 text-xs font-bold uppercase tracking-[2px] text-ink-dim opacity-70">
+                Дальше на неделе
+              </h3>
+              <ul className="divide-y divide-white/5">
+                {upcoming.slice(1).map((s, i) => (
+                  <ScheduleLine key={`${s.date}-${i}`} s={s} />
+                ))}
+              </ul>
+            </div>
+          )}
         </section>
       ) : (
         <div className="card p-8 text-center">
@@ -156,11 +219,11 @@ export function SchedulePage() {
             </span>
             Прошедшие стримы ({past.length})
           </summary>
-          <div className="mt-3 space-y-3">
+          <ul className="mt-1 divide-y divide-white/5">
             {past.map((s, i) => (
-              <StreamRow key={`${s.date}-p${i}`} s={s} />
+              <ScheduleLine key={`${s.date}-p${i}`} s={s} />
             ))}
-          </div>
+          </ul>
         </details>
       )}
 

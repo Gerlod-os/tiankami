@@ -28,3 +28,11 @@ export const SCHEDULE_URL =
 // Google Apps Script — приёмник формы расписания (проксируется через /api/schedule)
 export const SCHEDULE_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbyrQYM-AifKnglwo2P7-pDnjkmf2eNz9_0z_DEQ21Iht5mR_4Ipf3sfH3M_I6AqxfcY/exec";
+
+// Расписание стримов: публичный календарь канала на Twitch.
+// Отдаёт ICS без токена и без ключа — проверено 18.10.2026 (код 200, 2444 байта).
+// 95645837 — broadcaster_id канала tiankami.
+export const TWITCH_BROADCASTER_ID = "95645837";
+export const TWITCH_ICS_URL =
+  `https://api.twitch.tv/helix/schedule/icalendar?broadcaster_id=${TWITCH_BROADCASTER_ID}`;
+export const TWITCH_CHANNEL_URL = "https://twitch.tv/tiankami";
