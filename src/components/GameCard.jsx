@@ -9,16 +9,15 @@ import { RarityEgg } from "./RarityEgg";
 import { MITrophy } from "./MITrophy";
 import { Highlight } from "./Highlight";
 
-// Единая карточка v3: яйцо 40px СВЕРХУ справа над карточкой, hover поднимает ВСЮ
-// карточку и светится цветом редкости; обложка при hover НЕ увеличивается.
-// egg: "big" — яйцо 40px над карточкой (витрины), "inline" — 18px у названия (каталог)
+// Единая карточка v4: яйцо редкости — всегда слева от названия, как в каталоге
+// (решение владельца 18.10.2026: один вид на всех страницах). Кубок МИ живёт
+// под обложкой, над кнопкой «Обзор», а не на обложке.
 export const GameCard = memo(function GameCard({
   game,
   onQuickView,
   highlight = "",
   rarity = "common",
   delay = 0,
-  egg = "big",
 }) {
   const [broken, setBroken] = useState(false);
   const meta = statusMeta(game.status);
@@ -34,14 +33,6 @@ export const GameCard = memo(function GameCard({
         ["--glow"]: RARITY_GLOW[rarity] || RARITY_GLOW.common,
       }}
     >
-      {/* Яйцо слева: справа наверху живёт чип оценки — на right они сталкивались
-          (замер 18.10.2026: пересечение 406 px²) */}
-      {egg === "big" && (
-        <span className="absolute -top-5 left-4 z-10">
-          <RarityEgg rarity={rarity} size={40} />
-        </span>
-      )}
-
       <Link
         to={`/catalog/${game.slug}`}
         className="relative block aspect-[2/1] overflow-hidden rounded-t-card bg-night-900"
@@ -86,11 +77,6 @@ export const GameCard = memo(function GameCard({
         <span className={"chip absolute bottom-2 left-2 " + meta.cls}>
           {meta.icon && <meta.icon className="shrink-0" aria-hidden="true" />} {game.status || "—"}
         </span>
-        {hasMI(game) && (
-          <span className="absolute bottom-1.5 right-2">
-            <MITrophy size="sm" />
-          </span>
-        )}
       </Link>
 
       <div className="flex flex-1 flex-col gap-1 rounded-b-card bg-night-600/60 p-3 sm:p-4">
@@ -98,9 +84,7 @@ export const GameCard = memo(function GameCard({
           to={`/catalog/${game.slug}`}
           className="flex min-h-8 items-center gap-2 font-display text-sm font-extrabold text-ink transition hover:text-pastel-pink sm:text-base"
         >
-          {egg === "inline" && (
-            <RarityEgg rarity={rarity} size={18} className="shrink-0" />
-          )}
+          <RarityEgg rarity={rarity} size={18} className="shrink-0" />
           <span className="line-clamp-1">
             <Highlight text={game.title} q={highlight} />
           </span>
@@ -109,7 +93,7 @@ export const GameCard = memo(function GameCard({
           <Highlight text={game.genre || "Рогалик"} q={highlight} />
           {game.setting ? ` · ${game.setting}` : ""}
         </div>
-        <div className="mt-auto flex items-center justify-between pt-1">
+        <div className="mt-auto flex items-end justify-between gap-2 pt-1">
           <span className="flex items-center gap-2 text-xs text-ink-faint">
             <span className="flex items-center gap-1">
               <FiClock /> {parseNum(game.hours) || "—"} ч.
@@ -122,16 +106,23 @@ export const GameCard = memo(function GameCard({
               </span>
             )}
           </span>
-          {onQuickView && (
-            <button
-              type="button"
-              onClick={() => onQuickView(game)}
-              className="btn-ghost !min-h-8 !px-3 !py-1 text-xs"
-              title="Быстрый просмотр"
-            >
-              <FiEye /> Обзор
-            </button>
-          )}
+          <span className="flex flex-col items-end gap-1">
+            {hasMI(game) && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-pastel-amber">
+                <MITrophy size="xs" /> МИ
+              </span>
+            )}
+            {onQuickView && (
+              <button
+                type="button"
+                onClick={() => onQuickView(game)}
+                className="btn-ghost !min-h-8 !px-3 !py-1 text-xs"
+                title="Быстрый просмотр"
+              >
+                <FiEye /> Обзор
+              </button>
+            )}
+          </span>
         </div>
       </div>
     </article>

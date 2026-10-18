@@ -202,14 +202,10 @@ export function GameDetails({ game, compact = false }) {
 
       {/* Теги */}
       <div className="flex flex-wrap items-center gap-2">
-        <span
-          className="chip border border-white/10 bg-night-900/70 cursor-pointer"
-          onClick={() =>
-            navigate(
-              `/catalog?genre=${encodeURIComponent(String(game.genre).split(",")[0]?.trim() || "")}`,
-            )
-          }
-        >
+        {/* Яйцо — подпись редкости, а не кнопка: раньше клик уводил в каталог
+            с фильтром по первому жанру, и это читалось как случайный переход
+            (решение владельца 18.10.2026). */}
+        <span className="chip border border-white/10 bg-night-900/70">
           <RarityEgg rarity={rarity} size={24} />
         </span>
         <span className={"chip " + meta.cls}>
@@ -262,17 +258,12 @@ export function GameDetails({ game, compact = false }) {
           value={game.rating}
           max={10}
         />
-        <div>
-          <Bar
-            label="Сложность"
-            icon={cxIcon(parseNum(game.complexity))}
-            value={game.complexity}
-            max={10}
-          />
-          {parseNum(game.complexity) >= 7 && (
-            <div className="mt-1 text-xs text-pastel-rose"><span className="inline-flex items-center gap-1"><FaSkull aria-hidden="true" /> Попотеешь</span></div>
-          )}
-        </div>
+        <Bar
+          label="Сложность"
+          icon={cxIcon(parseNum(game.complexity))}
+          value={game.complexity}
+          max={10}
+        />
         <Bar
           label="Прогресс"
           icon={progIcon(parseNum(game.progress))}

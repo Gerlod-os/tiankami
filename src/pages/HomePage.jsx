@@ -14,7 +14,7 @@ import { computeStats, lastPlayedGame } from "../utils/stats";
 import { useCounter } from "../utils/useCounter";
 import { useCountdown, streamMoment } from "../utils/useCountdown";
 import { usePageMeta } from "../utils/usePageMeta";
-import { statusMeta, ratingColor, rankMedal } from "../utils/statusMeta";
+import { statusMeta, ratingColor } from "../utils/statusMeta";
 import { parseNum, isUrl } from "../utils/normalize";
 import { todayUTC, formatRuDate } from "../utils/date";
 import { splitSchedule, useMoscowTime } from "../utils/schedule";
@@ -93,7 +93,6 @@ export function HomePage() {
               <h1 className="section-accent font-hero text-2xl font-black tracking-wide">
                 TianKami · каталог рогаликов
               </h1>
-              <span className="chip border border-white/10 bg-white/5 text-ink-dim">{`Уютный хардкор · Рогалики`}</span>
             </div>
             <h2 className="mt-5 font-display text-4xl font-black leading-tight text-ink md:text-5xl">
               {last?.title || "Каталог рогаликов"}
@@ -216,14 +215,21 @@ export function HomePage() {
                 {golden ? (
                   <div className="mt-4"><CoverFan games={fanGames} /></div>
                 ) : (
-                  <ul className="mt-3 space-y-1 text-sm text-ink-dim">
-                    {c.games.slice(0, 3).map((g, i) => (
-                      <li key={`${g.name}-${i}`} className="flex items-center gap-2 truncate">
-                        <span>{rankMedal(g.rank) || `#${g.rank || i + 1}`}</span>
-                        <span className="truncate">{g.name}</span>
-                      </li>
+                  /* Превью игр вместо списка строк: обложки читаются быстрее названий
+                     (решение владельца 18.10.2026) */
+                  <div className="mt-3 grid grid-cols-3 gap-1.5">
+                    {fanGames.slice(0, 3).map((g) => (
+                      <img
+                        key={g.slug}
+                        src={g.image}
+                        alt=""
+                        width={460}
+                        height={215}
+                        loading="lazy"
+                        className="aspect-[2/1] w-full rounded-btn border border-white/10 object-cover"
+                      />
                     ))}
-                  </ul>
+                  </div>
                 )}
                 {c.description && <p className="mt-2 line-clamp-1 text-xs text-ink-dim">{c.description}</p>}
                 <span className="mt-auto pt-3 text-xs font-bold text-pastel-pink">{c.games.length} игр →</span>

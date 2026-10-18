@@ -5,7 +5,8 @@ import { RarityEgg } from "../components/RarityEgg";
 import { CoverFan } from "../components/CoverFan";
 import { CollectionIcon } from "../components/CollectionIcon";
 import { MASCOTS } from "../config/mascots";
-import { rankMedal } from "../utils/statusMeta";
+import { ratingColor } from "../utils/statusMeta";
+import { parseNum } from "../utils/normalize";
 import { usePageMeta } from "../utils/usePageMeta";
 
 export function CollectionsPage() {
@@ -46,6 +47,10 @@ export function CollectionsPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {(collections || []).map((c) => {
           const golden = /золотой/i.test(c.name);
+          const preview = c.games
+            .slice(0, 3)
+            .map((g) => byTitle.get(String(g.name).toLowerCase()))
+            .filter(Boolean);
           return (
             <Link
               key={c.slug}
@@ -76,8 +81,10 @@ export function CollectionsPage() {
                 </p>
               )}
               {/* Веер — только у золотой подборки: так требует дизайн.md
-                  («веер есть только на золотой подборке»). У остальных список игр. */}
-              {golden && (
+                  («веер есть только на золотой подборке»). Остальным — превью-карточки
+                  игр вместо списка строк: список текста читался как оглавление
+                  (решение владельца 18.10.2026). */}
+              {golden ? (
                 <div className="mt-4">
                   <CoverFan
                     games={c.games
@@ -85,29 +92,45 @@ export function CollectionsPage() {
                       .filter(Boolean)}
                   />
                 </div>
-              )}
-              <ul className="mt-3 space-y-1.5 text-sm text-ink-dim">
-                {c.games.slice(0, 4).map((g, i) => {
-                  const match = byTitle.get(String(g.name).toLowerCase());
-                  return (
-                    <li
-                      key={`${g.name}-${i}`}
-                      className="flex items-center gap-2"
+              ) : (
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  {preview.map((g) => (
+                    <span
+                      key={g.slug}
+                      className="overflow-hidden rounded-btn border border-white/10 bg-night-900/60"
                     >
-                      <span className="w-7 shrink-0 text-center">
-                        {rankMedal(g.rank) || (g.rank ? `#${g.rank}` : "•")}
+                      <img
+                        src={g.image}
+                        alt=""
+                        width={460}
+                        height={215}
+                        loading="lazy"
+                        className="aspect-[2/1] w-full object-cover"
+                      />
+                      <span className="block px-1.5 py-1">
+                        <span className="line-clamp-1 text-[11px] font-bold text-ink">
+                          {g.title}
+                        </span>
+                        <span className="mt-0.5 flex items-center justify-between gap-1">
+                          <RarityEgg
+                            rarity={bySlug?.[g.slug] || "common"}
+                            size={12}
+                          />
+                          {parseNum(g.rating) > 0 && (
+                            <span
+                              className={
+                                "text-[10px] font-bold " + ratingColor(g.rating)
+                              }
+                            >
+                              {parseNum(g.rating)}/10
+                            </span>
+                          )}
+                        </span>
                       </span>
-                      <span className="min-w-0 flex-1 truncate">{g.name}</span>
-                      {match && (
-                        <RarityEgg
-                          rarity={bySlug?.[match.slug] || "common"}
-                          size={14}
-                        />
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
+                    </span>
+                  ))}
+                </div>
+              )}
               <span className="mt-auto flex items-center gap-1 pt-4 text-xs font-bold text-pastel-pink">
                 {c.games.length} игр <FiArrowRight />
               </span>

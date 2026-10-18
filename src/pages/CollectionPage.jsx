@@ -94,6 +94,12 @@ export function CollectionPage() {
                   <span className="w-10 shrink-0 text-center font-display text-2xl font-black text-pastel-purple">
                     {rankMedal(g.rank) || `#${pos}`}
                   </span>
+                  {/* Яйцо — слева от названия, как в каталоге (решение владельца 18.10.2026) */}
+                  <RarityEgg
+                    rarity={bySlug?.[match.slug] || "common"}
+                    size={24}
+                    className="shrink-0"
+                  />
                   {/* Название */}
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-display text-lg font-extrabold text-ink"
@@ -108,8 +114,6 @@ export function CollectionPage() {
                       {match.genre || "Рогалик"}
                     </span>
                   </span>
-                  {/* Яйцо */}
-                  <RarityEgg rarity={bySlug?.[match.slug] || "common"} size={32} />
                   {/* Рейтинг: в золотом списке его нет — там «они все легенды», 10/10 ничего не решает */}
                   {!golden && parseNum(match.rating) > 0 && (
                     <span className="chip border border-white/10 bg-night-900/70 text-base">
