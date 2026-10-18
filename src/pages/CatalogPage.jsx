@@ -285,15 +285,18 @@ export function CatalogPage() {
   useEffect(() => {
     if (!filtersOpen) return undefined;
     const onKey = (e) => e.key === "Escape" && setFiltersOpen(false);
-    const onDown = (e) => {
+    // Закрываем на click, а не на mousedown: панель схлопывается на 310 px, и если
+    // это случится до отпускания кнопки, click уйдёт общему предку — карточка
+    // не откроется (проверено 18.10.2026). После click переход уже начался.
+    const onOutside = (e) => {
       if (filtersRef.current && !filtersRef.current.contains(e.target))
         setFiltersOpen(false);
     };
     document.addEventListener("keydown", onKey);
-    document.addEventListener("mousedown", onDown);
+    document.addEventListener("click", onOutside);
     return () => {
       document.removeEventListener("keydown", onKey);
-      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("click", onOutside);
     };
   }, [filtersOpen]);
 
