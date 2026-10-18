@@ -2,14 +2,13 @@ import { Link } from "react-router-dom";
 import { FiArrowRight } from "react-icons/fi";
 import { useData } from "../components/DataProvider";
 import { RarityEgg } from "../components/RarityEgg";
+import { CoverFan } from "../components/CoverFan";
 import { CollectionIcon } from "../components/CollectionIcon";
 import { MASCOTS } from "../config/mascots";
-import { ratingColor } from "../utils/statusMeta";
-import { parseNum } from "../utils/normalize";
 import { usePageMeta } from "../utils/usePageMeta";
 
 export function CollectionsPage() {
-  const { collections, bySlug, games } = useData();
+  const { collections, games } = useData();
   const byTitle = new Map(games.map((g) => [String(g.title).toLowerCase(), g]));
   usePageMeta({
     title: "Подборки от Тиана — Tiankami",
@@ -79,45 +78,11 @@ export function CollectionsPage() {
                   {c.description}
                 </p>
               )}
-              {/* Один вид у всех подборок: три превью-карточки игр. Веер оставлен
-                  только на главной — здесь он делал золотую непохожей на остальные
-                  (замечание владельца 18.10.2026). */}
-              <div className="mt-3 grid grid-cols-3 gap-2">
-                {preview.map((g) => (
-                  <span
-                    key={g.slug}
-                    className="block min-w-0 overflow-hidden rounded-btn border border-white/10 bg-night-900/60"
-                  >
-                    <img
-                      src={g.image}
-                      alt=""
-                      width={460}
-                      height={215}
-                      loading="lazy"
-                      className="aspect-[2/1] w-full object-cover"
-                    />
-                    <span className="block px-1.5 py-1">
-                      <span className="line-clamp-1 text-[11px] font-bold text-ink">
-                        {g.title}
-                      </span>
-                      <span className="mt-0.5 flex items-center justify-between gap-1">
-                        <RarityEgg
-                          rarity={bySlug?.[g.slug] || "common"}
-                          size={12}
-                        />
-                        {parseNum(g.rating) > 0 && (
-                          <span
-                            className={
-                              "text-[10px] font-bold " + ratingColor(g.rating)
-                            }
-                          >
-                            {parseNum(g.rating)}/10
-                          </span>
-                        )}
-                      </span>
-                    </span>
-                  </span>
-                ))}
+              {/* Веер обложек у каждой подборки — тот же вид, что у золотой на
+                  главной: владелец 18.10.2026 назвал прежние карточки «старыми»
+                  и попросил «везде как на золотом списке, красиво и живо». */}
+              <div className="mt-4">
+                <CoverFan games={preview} count={3} />
               </div>
               <span className="mt-auto flex items-center gap-1 pt-4 text-xs font-bold text-pastel-pink">
                 {c.games.length} игр <FiArrowRight />

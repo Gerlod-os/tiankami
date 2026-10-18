@@ -212,25 +212,11 @@ export function HomePage() {
                     {c.name}
                   </h3>
                 </div>
-                {golden ? (
-                  <div className="mt-4"><CoverFan games={fanGames} /></div>
-                ) : (
-                  /* Превью игр вместо списка строк: обложки читаются быстрее названий
-                     (решение владельца 18.10.2026) */
-                  <div className="mt-3 grid grid-cols-3 gap-1.5">
-                    {fanGames.slice(0, 3).map((g) => (
-                      <img
-                        key={g.slug}
-                        src={g.image}
-                        alt=""
-                        width={460}
-                        height={215}
-                        loading="lazy"
-                        className="aspect-[2/1] w-full rounded-btn border border-white/10 object-cover"
-                      />
-                    ))}
-                  </div>
-                )}
+                {/* Веер обложек у каждой подборки, как у золотой: один живой вид
+                    вместо двух разных (замечание владельца 18.10.2026) */}
+                <div className="mt-4">
+                  <CoverFan games={fanGames} count={3} />
+                </div>
                 {c.description && <p className="mt-2 line-clamp-1 text-xs text-ink-dim">{c.description}</p>}
                 <span className="mt-auto pt-3 text-xs font-bold text-pastel-pink">{c.games.length} игр →</span>
               </Link>
