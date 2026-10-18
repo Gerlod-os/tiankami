@@ -84,6 +84,8 @@ export function CollectionPage() {
                     <img
                       src={match.image}
                       alt={match.title}
+                      width={64}
+                      height={64}
                       className="h-16 w-16 shrink-0 rounded-card object-cover border border-white/10"
                       loading="lazy"
                     />
