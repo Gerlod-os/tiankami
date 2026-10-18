@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { pagesCount, pageSlice, pageNumbers } from "../utils/pagination";
 import {
@@ -9,6 +9,8 @@ import {
   FiStar,
   FiCalendar,
   FiArrowDown,
+  FiArrowUp,
+  FiCheck,
 } from "react-icons/fi";
 import { useData } from "../components/DataProvider";
 import { GameCard } from "../components/GameCard";
@@ -64,6 +66,121 @@ function Chip({ active, onClick, children, title, disabled }) {
   );
 }
 
+// Свой список вместо <select>: системный белый список не оформить (MDN <option> —
+// оформление зависит от ОС), клавиатура — по паттерну listbox WAI-ARIA APG.
+function SelectMenu({ label, value, options, onChange, icon: Icon }) {
+  const uid = useId().replace(/:/g, "");
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(0);
+  const boxRef = useRef(null);
+  const btnRef = useRef(null);
+  const listRef = useRef(null);
+  const current = options.find((o) => o.v === value) || options[0];
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onDown = (e) => {
+      if (boxRef.current && !boxRef.current.contains(e.target)) setOpen(false);
+    };
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        btnRef.current?.focus();
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (open) listRef.current?.focus();
+  }, [open]);
+
+  const choose = (v) => {
+    onChange(v);
+    setOpen(false);
+    btnRef.current?.focus();
+  };
+
+  const onListKey = (e) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActive((i) => Math.min(options.length - 1, i + 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActive((i) => Math.max(0, i - 1));
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      setActive(0);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      setActive(options.length - 1);
+    } else if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      choose(options[active].v);
+    }
+  };
+
+  return (
+    <span className="relative inline-block" ref={boxRef}>
+      <button
+        ref={btnRef}
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={label}
+        onClick={() => {
+          setOpen((o) => !o);
+          setActive(Math.max(0, options.findIndex((o) => o.v === value)));
+        }}
+        className="input flex !w-auto items-center gap-2 !py-2 pl-3 pr-8 text-xs font-semibold"
+      >
+        {Icon && <Icon className="shrink-0 text-pastel-purple" />}
+        <span className="whitespace-nowrap">{current?.l}</span>
+        <FiChevronDown
+          className={
+            "pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-pastel-purple transition " +
+            (open ? "rotate-180" : "")
+          }
+        />
+      </button>
+      {open && (
+        <ul
+          ref={listRef}
+          role="listbox"
+          aria-label={label}
+          tabIndex={-1}
+          aria-activedescendant={`${uid}-opt-${active}`}
+          onKeyDown={onListKey}
+          className="absolute right-0 z-40 mt-2 max-h-72 w-56 overflow-y-auto rounded-btn border border-white/10 bg-night-700 p-1 shadow-card focus:outline-none"
+        >
+          {options.map((o, i) => (
+            <li
+              key={o.v}
+              id={`${uid}-opt-${i}`}
+              role="option"
+              aria-selected={o.v === value}
+              onMouseEnter={() => setActive(i)}
+              onClick={() => choose(o.v)}
+              className={
+                "flex cursor-pointer items-center justify-between gap-2 rounded-btn px-3 py-2 text-xs " +
+                (i === active ? "bg-white/10 text-ink" : "text-ink-dim")
+              }
+            >
+              <span>{o.l}</span>
+              {o.v === value && <FiCheck className="shrink-0 text-pastel-pink" />}
+            </li>
+          ))}
+        </ul>
+      )}
+    </span>
+  );
+}
+
 export function CatalogPage() {
   const { games, collections, bySlug } = useData();
   // Адрес — единственный источник правды: фильтр, поиск, сортировка и страница
@@ -83,6 +200,12 @@ export function CatalogPage() {
   const hours = searchParams.get("hours") || "any";
   const miOnly = searchParams.get("mi") === "1";
   const sort = searchParams.get("sort") || "played-desc";
+  // Направление: у дат и чисел по умолчанию «сначала новые/большие», у алфавита — прямой.
+  // ?dir= не задан — работает прежнее поведение, старые ссылки не ломаются.
+  const dirDefault = sort === "title" ? "asc" : "desc";
+  const dirParam = searchParams.get("dir");
+  const dir = dirParam === "asc" || dirParam === "desc" ? dirParam : dirDefault;
+  const flip = dir === dirDefault ? 1 : -1;
   const collectionParam = searchParams.get("collection");
   const page = Math.max(1, Math.floor(Number(searchParams.get("page")) || 1));
 
@@ -250,7 +373,8 @@ export function CatalogPage() {
       if (miOnly && !hasMI(g)) return false;
       return true;
     });
-    return list.sort(SORTS[sort] || SORTS.title);
+    const cmp = SORTS[sort] || SORTS.title;
+    return list.sort((a, b) => flip * cmp(a, b));
   }, [
     games,
     q,
@@ -262,6 +386,7 @@ export function CatalogPage() {
     hours,
     miOnly,
     sort,
+    flip,
     collectionTitles,
   ]);
 
@@ -327,6 +452,7 @@ export function CatalogPage() {
       hours: null,
       mi: null,
       collection: null,
+      dir: null,
       page: null,
     });
   };
@@ -525,41 +651,53 @@ export function CatalogPage() {
               Только с кубком МИ
             </label>
 
-            <span className="select-wrap">
-              <select
-                value={year}
-                onChange={(e) => apply({ year: e.target.value })}
-                aria-label="Год выхода"
-              >
-                <option value="any">Любой год</option>
-                {meta.years.map((y) => (
-                  <option key={y} value={y}>
-                    {y}
-                  </option>
-                ))}
-              </select>
-              <FiCalendar className="sel-icon" />
-            </span>
+            <SelectMenu
+              label="Год выхода"
+              value={year}
+              icon={FiCalendar}
+              onChange={(v) => apply({ year: v })}
+              options={[
+                { v: "any", l: "Любой год" },
+                ...meta.years.map((y) => ({ v: String(y), l: String(y) })),
+              ]}
+            />
 
-            <span className="select-wrap">
-              <select
-                value={sort}
-                onChange={(e) =>
-                  apply({
-                    sort: e.target.value === "played-desc" ? null : e.target.value,
-                  })
-                }
-                aria-label="Сортировка"
-              >
-                <option value="played-desc">Сначала недавние</option>
-                <option value="rating-desc">По оценке Тиана</option>
-                <option value="hours-desc">По часам</option>
-                <option value="release-desc">По дате выхода</option>
-                <option value="progress-desc">По прогрессу</option>
-                <option value="title">По алфавиту</option>
-              </select>
-              <FiArrowDown className="sel-icon" />
-            </span>
+            <SelectMenu
+              label="Сортировка"
+              value={sort}
+              onChange={(v) =>
+                apply({
+                  sort: v === "played-desc" ? null : v,
+                  dir: null,
+                })
+              }
+              options={[
+                { v: "played-desc", l: "Сначала недавние" },
+                { v: "rating-desc", l: "По оценке Тиана" },
+                { v: "hours-desc", l: "По часам" },
+                { v: "release-desc", l: "По дате выхода" },
+                { v: "progress-desc", l: "По прогрессу" },
+                { v: "title", l: "По алфавиту" },
+              ]}
+            />
+
+            <button
+              type="button"
+              onClick={() => apply({ dir: dir === "asc" ? "desc" : "asc" })}
+              aria-label={
+                dir === "asc"
+                  ? "Направление сортировки: по возрастанию. Переключить на убывание"
+                  : "Направление сортировки: по убыванию. Переключить на возрастание"
+              }
+              title={dir === "asc" ? "По возрастанию" : "По убыванию"}
+              className="input flex !w-auto items-center justify-center !px-2.5 !py-2 text-ink-dim hover:border-pastel-purple/40 hover:text-ink"
+            >
+              {dir === "asc" ? (
+                <FiArrowUp className="text-pastel-mint" />
+              ) : (
+                <FiArrowDown className="text-pastel-mint" />
+              )}
+            </button>
           </div>
         </div>
 
