@@ -1,10 +1,28 @@
-import { useId } from "react";
+import { useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { RARITY_META } from "../utils/rarity";
 
 export function RarityEgg({ rarity = "common", size = 22, className = "" }) {
   const uid = useId().replace(/:/g, "");
   const meta = RARITY_META[rarity] || RARITY_META.common;
   const c = meta.color;
+  const anchorRef = useRef(null);
+  const [tip, setTip] = useState(null);
+
+  // Подсказка живёт в портале и позиционируется от яйца: карточки, модалка и
+  // списки обрезают `absolute`-подсказку своим overflow, и она резалась по краю
+  // (замечено владельцем 18.10.2026). Прижимаем к краям окна, чтобы не уезжала.
+  const TIP_W = 176;
+  const GAP = 8;
+  const showTip = () => {
+    const el = anchorRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const x = Math.max(GAP, Math.min(r.left + r.width / 2 - TIP_W / 2, window.innerWidth - TIP_W - GAP));
+    const above = r.top > 130;
+    setTip({ x, y: above ? r.top - GAP : r.bottom + GAP, above });
+  };
+  const hideTip = () => setTip(null);
 
   const renderDefs = () => {
     switch (rarity) {
@@ -159,8 +177,11 @@ export function RarityEgg({ rarity = "common", size = 22, className = "" }) {
 
   return (
     <span
+      ref={anchorRef}
       className={"group/egg relative inline-flex " + className}
       style={{ width: size, height: size }}
+      onMouseEnter={showTip}
+      onMouseLeave={hideTip}
     >
       <svg
         viewBox="0 0 64 64"
@@ -178,14 +199,26 @@ export function RarityEgg({ rarity = "common", size = 22, className = "" }) {
         <defs>{renderDefs()}</defs>
         {renderBody()}
       </svg>
-      <span className="egg-tip pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 hidden w-44 -translate-x-1/2 rounded-btn border border-white/10 bg-night-900/95 p-2 text-center shadow-card group-hover/egg:block">
-        <span className="block font-display text-xs font-extrabold" style={{ color: c }}>
-          {meta.ru}
-        </span>
-        <span className="mt-0.5 block text-[10px] leading-snug text-ink-dim">
-          {meta.desc}
-        </span>
-      </span>
+      {tip &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <span
+            className="egg-tip pointer-events-none fixed z-[80] w-44 rounded-btn border border-white/10 bg-night-900/95 p-2 text-center shadow-card"
+            style={{
+              left: tip.x,
+              top: tip.y,
+              transform: tip.above ? "translateY(-100%)" : "none",
+            }}
+          >
+            <span className="block font-display text-xs font-extrabold" style={{ color: c }}>
+              {meta.ru}
+            </span>
+            <span className="mt-0.5 block text-[10px] leading-snug text-ink-dim">
+              {meta.desc}
+            </span>
+          </span>,
+          document.body,
+        )}
     </span>
   );
 }

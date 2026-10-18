@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { FiX, FiArrowRight } from "react-icons/fi";
 import { GameDetails } from "./GameDetails";
@@ -40,9 +41,12 @@ export function GameModal({ game, onClose }) {
     };
   }, [game, onClose]);
 
-  if (!game) return null;
+  // Порталом в body: у обёртки страницы `overflow-x: clip`, а он делает её
+  // содержащим блоком для `position: fixed` — оверлей начинался ниже шапки
+  // и не закрывал верхние 24 px (замер 18.10.2026). В портале предков нет.
+  if (!game || typeof document === "undefined") return null;
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6"
       role="dialog"
@@ -107,6 +111,7 @@ export function GameModal({ game, onClose }) {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
