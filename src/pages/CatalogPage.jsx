@@ -484,7 +484,7 @@ export function CatalogPage() {
         <FiSearch className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-faint" />
         <input
           ref={searchRef}
-          className="input glass !h-16 !rounded-card border-2 !border-transparent !pl-12 !text-base transition focus:!border-pastel-pink/60 focus:shadow-glow-pink"
+          className="input !h-16 !rounded-card !border-white/10 !bg-night-600/80 !pl-12 !text-base transition focus:!border-pastel-pink/60 focus:shadow-glow-pink"
           placeholder="Введите название, жанр, сеттинг…"
           value={qInput}
           onChange={(e) => {
@@ -498,13 +498,15 @@ export function CatalogPage() {
           aria-label="Живой поиск по каталогу"
         />
         {hasFilters && !qInput && (
-          <button
-            type="button"
-            onClick={reset}
-            className="absolute right-4 top-1/2 -translate-y-1/2 btn-ghost !px-2 !py-1 text-xs"
-          >
-            <FiX /> Сбросить всё
-          </button>
+          <span className="absolute right-3 top-1/2 -translate-y-1/2">
+            <button
+              type="button"
+              onClick={reset}
+              className="btn-ghost !px-2 !py-1 text-xs"
+            >
+              <FiX /> Сбросить всё
+            </button>
+          </span>
         )}
         {dropOpen && sugg && (
           <div className="card absolute inset-x-0 top-full z-30 mt-2 max-h-96 overflow-y-auto p-4 text-left shadow-glow-purple">
@@ -702,10 +704,11 @@ export function CatalogPage() {
         </div>
 
         {filtersOpen && (
+          <>
           <div className="grid animate-fadeUp gap-4 md:grid-cols-2">
             <div>
               <div className="label">Жанр (макс. 2) — работает по ИЛИ</div>
-              <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+              <div className="flex flex-wrap gap-1.5">
                 {meta.genres.slice(0, 14).map((x) => (
                   <Chip
                     key={x}
@@ -809,15 +812,22 @@ export function CatalogPage() {
                       {l}
                     </Chip>
                   ))}
-                  {hasFilters && (
-                    <Chip onClick={reset}>
-                      <FiX /> Сбросить всё
-                    </Chip>
-                  )}
                 </div>
               </div>
             </div>
           </div>
+          {hasFilters && (
+            <div className="flex justify-end border-t border-white/10 pt-3">
+              <button
+                type="button"
+                onClick={reset}
+                className="btn-ghost !border-pastel-pink/40 !px-3 !py-1.5 text-xs !text-pastel-pink"
+              >
+                <FiX /> Сбросить всё
+              </button>
+            </div>
+          )}
+          </>
         )}
       </div>
 
