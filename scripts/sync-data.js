@@ -17,6 +17,7 @@ const {
   isUrl,
 } = await import("../src/utils/normalize.js");
 const { linksFromSheetXlsx } = await import("../src/utils/xlsx.js");
+const { fillYouTubeFromPlaylists } = await import("../src/utils/playlists.js");
 const { twitchSchedule, SCHEDULE_DAYS } = await import("./twitch-schedule.mjs");
 const { twitchRecentStreams } = await import("./twitch-recent.mjs");
 const { parseRuDate, formatRuDate } = await import("../src/utils/date.js");
@@ -132,6 +133,24 @@ if (games.length) {
     );
   } catch (e) {
     console.warn("  ⚠ Ссылки из xlsx не скачались:", e.message);
+  }
+}
+
+// ── 2.4. Плейлисты YouTube канала: добор ссылок, которых нет в таблице ───────
+// Плейлисты называются по названию игры. Заполняем только пустые поля: ссылка из
+// таблицы главнее. Список плейлистов лежит в данных и обновляется скриптом
+// scripts/yt-playlists.mjs (нужен браузер — страница Twitch подгружается скриптом).
+const PLAYLISTS = path.join(DATA_DIR, "youtube-playlists.json");
+if (games.length && fs.existsSync(PLAYLISTS)) {
+  try {
+    const playlists = JSON.parse(fs.readFileSync(PLAYLISTS, "utf8"));
+    const { games: filled, filled: names } = fillYouTubeFromPlaylists(games, playlists);
+    if (names.length) {
+      games = filled;
+      console.log(`  ✔ ссылки из плейлистов канала: ${names.length} (${names.slice(0, 5).join(", ")}${names.length > 5 ? "…" : ""})`);
+    }
+  } catch (e) {
+    console.warn("  ⚠ Список плейлистов не прочитался:", e.message);
   }
 }
 
