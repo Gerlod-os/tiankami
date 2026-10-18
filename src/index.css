@@ -144,12 +144,17 @@
     transform: rotate(calc(var(--rot) * 1.8)) translateY(-6px);
     left: calc(var(--i) * 34px);
   }
-  /* волны (3 слоя, bob 10s) */
+  /* волны (3 слоя, bob 10s). Ширина 300 % и путь из трёх периодов: сдвиг на треть
+     ширины равен ровно одному периоду, а края слоя всегда за пределами карточки —
+     щели на стыке не бывает. will-change уводит слой на композитор: при перезапуске
+     анимации браузер не перерисовывает волну заново (мигание, замечено владельцем). */
   .wave-l1,
   .wave-l2,
   .wave-l3 {
-    @apply absolute bottom-0 left-0 h-full w-[200%];
-    animation: waveMove 16s linear infinite;
+    @apply absolute bottom-0 left-0 h-full w-[300%];
+    animation: waveMove3 16s linear infinite;
+    will-change: transform;
+    backface-visibility: hidden;
   }
   .wave-l2 {
     animation-duration: 11s;
@@ -388,6 +393,16 @@
   }
   to {
     transform: translateX(-50%);
+  }
+}
+/* Сдвиг на треть ширины: слой шириной 300 % проходит ровно один период пути.
+   translate3d — чтобы слой шёл по композитору, а не перерисовывался каждый кадр. */
+@keyframes waveMove3 {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-33.3333%, 0, 0);
   }
 }
 @keyframes flipY {

@@ -103,17 +103,18 @@ export function CatchOfDay() {
         className="wave-bob pointer-events-none absolute inset-x-0 bottom-0 h-40"
         aria-hidden="true"
       >
-        <svg className="wave-l1" viewBox="0 0 1200 100" preserveAspectRatio="none">
-          <path d="M0 55 Q150 15 300 55 T600 55 T900 55 T1200 55 V100 H0Z" fill="#123a6b" opacity=".55" />
+        <svg className="wave-l1" viewBox="0 0 1800 100" preserveAspectRatio="none">
+          <path d="M0 55 Q150 15 300 55 T600 55 T900 55 T1200 55 T1500 55 T1800 55 V100 H0Z" fill="#123a6b" opacity=".55" />
         </svg>
-        <svg className="wave-l2" viewBox="0 0 1200 100" preserveAspectRatio="none">
-          <path d="M0 65 Q150 35 300 65 T600 65 T900 65 T1200 65 V100 H0Z" fill="#2a6fb0" opacity=".4" />
+        <svg className="wave-l2" viewBox="0 0 1800 100" preserveAspectRatio="none">
+          <path d="M0 65 Q150 35 300 65 T600 65 T900 65 T1200 65 T1500 65 T1800 65 V100 H0Z" fill="#2a6fb0" opacity=".4" />
         </svg>
-        <svg className="wave-l3" viewBox="0 0 1200 100" preserveAspectRatio="none">
-          {/* Период 600 единиц, как у двух верхних слоёв: сдвиг на -50% равен
-              двум полным периодам, и стык не виден. Прежний путь (300 + 600 + 300)
-              давал разные половины кадра — раз в 8 с волна прыгала. */}
-          <path d="M0 75 Q150 50 300 75 T600 75 T900 75 T1200 75 V100 H0Z" fill="#A0C4FF" opacity=".3" />
+        <svg className="wave-l3" viewBox="0 0 1800 100" preserveAspectRatio="none">
+          {/* Три периода по 600 единиц на ширине 300 %: сдвиг на треть ширины —
+              ровно один период, половины кадра совпадают, а края слоя всегда
+              за пределами карточки. Прежний путь (300 + 600 + 300) давал разные
+              половины — раз в 8 с волна прыгала. */}
+          <path d="M0 75 Q150 50 300 75 T600 75 T900 75 T1200 75 T1500 75 T1800 75 V100 H0Z" fill="#A0C4FF" opacity=".3" />
         </svg>
       </div>
 
