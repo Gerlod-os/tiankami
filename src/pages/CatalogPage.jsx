@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { pagesCount, visibleFor, pageNumbers } from "../utils/pagination";
+import { pagesCount, pageSlice, pageNumbers } from "../utils/pagination";
 import {
   FiSearch,
   FiX,
@@ -45,14 +45,15 @@ const SORTS = {
   title: (a, b) => a.title.localeCompare(b.title, "ru"),
 };
 
-function Chip({ active, onClick, children, title }) {
+function Chip({ active, onClick, children, title, disabled }) {
   return (
     <button
       type="button"
       onClick={onClick}
       title={title}
+      disabled={disabled}
       className={
-        "chip border px-4 py-2 transition duration-200 " +
+        "chip border px-4 py-2 transition duration-200 disabled:cursor-not-allowed disabled:opacity-40 " +
         (active
           ? "border-transparent bg-gradient-to-r from-pastel-pink to-pastel-purple font-extrabold text-night-900 shadow-glow-pink"
           : "border-white/10 bg-white/5 text-ink-dim hover:border-pastel-purple/40 hover:text-ink")
@@ -65,44 +66,38 @@ function Chip({ active, onClick, children, title }) {
 
 export function CatalogPage() {
   const { games, collections, bySlug } = useData();
-  const [searchParams] = useSearchParams();
+  // Адрес — единственный источник правды: фильтр, поиск, сортировка и страница
+  // живут в ?query. Перезагрузка, «назад» и ссылка в чат дают одно и то же.
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const collectionParam = searchParams.get("collection");
-  const genreParam = searchParams.get("genre");
 
-  const [q, setQ] = useState(searchParams.get("q") || "");
-  // Страница каталога живёт в адресе: /catalog?page=3 открывается напрямую
-  // и переживает перезагрузку. Ссылку можно скинуть в чат.
+  const q = searchParams.get("q") || "";
+  const genresSel = useMemo(
+    () => new Set(searchParams.getAll("genre")),
+    [searchParams],
+  );
+  const status = searchParams.get("status") || "any";
+  const year = searchParams.get("year") || "any";
+  const ratingMin = Number(searchParams.get("rating")) || 0;
+  const complexity = searchParams.get("complexity") || "any";
+  const hours = searchParams.get("hours") || "any";
+  const miOnly = searchParams.get("mi") === "1";
+  const sort = searchParams.get("sort") || "played-desc";
+  const collectionParam = searchParams.get("collection");
   const page = Math.max(1, Math.floor(Number(searchParams.get("page")) || 1));
-  const goToPage = useCallback(
-    (n) => {
-      const clean = Math.max(1, Math.floor(Number(n) || 1));
-      const next = new URLSearchParams(searchParams);
-      if (clean <= 1) next.delete("page");
-      else next.set("page", String(clean));
-      navigate({ search: next.toString() });
-      window.scrollTo({ top: 0 });
-    },
-    [navigate, searchParams]
-  );
+
+  // Поле поиска держит своё значение, чтобы ввод не ждал навигации;
+  // из адреса оно подтягивается при сбросе и кнопке «назад».
+  const [qInput, setQInput] = useState(q);
+  useEffect(() => setQInput(q), [q]);
+
   const [dropOpen, setDropOpen] = useState(false);
-  const [genresSel, setGenresSel] = useState(
-    () => new Set(genreParam ? [genreParam] : []),
-  );
-  const MAX_GENRES = 2;
-  const [status, setStatus] = useState("any");
-  const [year, setYear] = useState("any");
-  const [ratingMin, setRatingMin] = useState(0);
-  const [complexity, setComplexity] = useState("any");
-  const [hours, setHours] = useState("any");
-  const [miOnly, setMiOnly] = useState(false);
-  const [sort, setSort] = useState("played-desc");
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [visible, setVisible] = useState(PAGE);
   const [modal, setModal] = useState(null);
   const [emptyPhrase, setEmptyPhrase] = useState(EMPTY_PHRASES[0]);
   const searchRef = useRef(null);
   const filtersRef = useRef(null);
+  const MAX_GENRES = 2;
 
   usePageMeta({
     title: "Каталог рогаликов — Tiankami",
@@ -110,26 +105,32 @@ export function CatalogPage() {
       "Все рогалики стримера Tiankami: мгновенный поиск, фильтры-чипсы по жанру, статусу, оценке, сложности, часам и году.",
   });
 
-  // Синк URL-параметров (?genre=, ?q=) даже при уже смонтированном каталоге
-  useEffect(() => {
-    const g = searchParams.get("genre");
-    if (g) setGenresSel((s) => new Set(s).add(g));
-    const qq = searchParams.get("q");
-    if (qq) {
-      setQ(qq);
-      window.scrollTo({ top: 0 });
-    }
-  }, [searchParams]);
+  // Собрать новый адрес: ключ со значением null удаляется, пустое и «any» тоже.
+  const searchWith = useCallback(
+    (patch) => {
+      const next = new URLSearchParams(searchParams);
+      for (const [key, value] of Object.entries(patch)) {
+        next.delete(key);
+        if (value == null) continue;
+        if (Array.isArray(value)) value.forEach((v) => next.append(key, String(v)));
+        else if (value !== "" && value !== "any" && value !== 0 && value !== false)
+          next.set(key, String(value));
+      }
+      // Любая правка фильтра возвращает на первую страницу.
+      if (!("page" in patch)) next.delete("page");
+      return next.toString();
+    },
+    [searchParams],
+  );
 
-  // Новый поиск начинается с первой страницы, а не с той, где человек был.
-  const prevQ = useRef(q);
-  useEffect(() => {
-    if (prevQ.current !== q && q) {
-      prevQ.current = q;
-      if (page > 1) goToPage(1);
-    }
-    prevQ.current = q;
-  }, [q, page, goToPage]);
+  const apply = useCallback(
+    (patch, replace = false) => {
+      const search = searchWith(patch);
+      if (search === searchParams.toString()) return;
+      setSearchParams(new URLSearchParams(search), { replace });
+    },
+    [searchWith, searchParams, setSearchParams],
+  );
 
   // «/» — фокус на поиск
   useEffect(() => {
@@ -231,7 +232,8 @@ export function CatalogPage() {
         const gset = String(g.genre)
           .split(",")
           .map((s) => s.trim());
-        if (![...genresSel].every((x) => gset.includes(x))) return false;
+        // Жанры — по «ИЛИ», как написано в подписи: два жанра дают объединение.
+        if (![...genresSel].some((x) => gset.includes(x))) return false;
       }
       if (status !== "any" && g.status !== status) return false;
       if (year !== "any" && !String(g.releaseDate).includes(year)) return false;
@@ -264,19 +266,14 @@ export function CatalogPage() {
   ]);
 
   // Сколько всего страниц и какая открыта. Если фильтры сократили список и
-  // открытой страницы больше нет (был ?page=7, стал 2) — показываем первую,
-  // а адрес один раз подчищаем. Условие именно «страницы нет», иначе клик по
-  // любой странице сбрасывал бы человека на первую.
+  // открытой страницы больше нет — показываем первую, а адрес подчищаем.
   const pages = pagesCount(filtered.length, PAGE);
   const safePage = Math.min(page, pages || 1);
+  const pageItems = pageSlice(filtered, safePage, PAGE);
 
   useEffect(() => {
-    setVisible(visibleFor(safePage, filtered.length, PAGE));
-  }, [safePage, filtered.length]);
-
-  useEffect(() => {
-    if (pages > 0 && page > pages) goToPage(1);
-  }, [page, pages, goToPage]);
+    if (pages > 0 && page > pages) apply({ page: null }, true);
+  }, [page, pages, apply]);
 
   const sugg = useMemo(() => {
     const query = q.trim().toLowerCase();
@@ -315,18 +312,30 @@ export function CatalogPage() {
     complexity !== "any" ||
     hours !== "any" ||
     miOnly ||
-    collectionParam ||
-    genreParam;
+    collectionParam;
 
+  // Сброс чистит и состояние, и адрес: иначе ?collection= остаётся и фильтр живёт.
   const reset = () => {
-    setQ("");
-    setGenresSel(new Set());
-    setStatus("any");
-    setYear("any");
-    setRatingMin(0);
-    setComplexity("any");
-    setHours("any");
-    setMiOnly(false);
+    setQInput("");
+    apply({
+      q: null,
+      genre: null,
+      status: null,
+      year: null,
+      rating: null,
+      complexity: null,
+      hours: null,
+      mi: null,
+      collection: null,
+      page: null,
+    });
+  };
+
+  const toggleGenre = (x) => {
+    const next = new Set(genresSel);
+    if (next.has(x)) next.delete(x);
+    else if (next.size < MAX_GENRES) next.add(x);
+    apply({ genre: [...next] });
   };
 
   return (
@@ -351,17 +360,18 @@ export function CatalogPage() {
           ref={searchRef}
           className="input glass !h-16 !rounded-card border-2 !border-transparent !pl-12 !text-base transition focus:!border-pastel-pink/60 focus:shadow-glow-pink"
           placeholder="Введите название, жанр, сеттинг…"
-          value={q}
+          value={qInput}
           onChange={(e) => {
-            setQ(e.target.value);
+            setQInput(e.target.value);
             setDropOpen(true);
+            apply({ q: e.target.value || null }, true);
           }}
           onFocus={() => setDropOpen(true)}
           onBlur={() => setTimeout(() => setDropOpen(false), 150)}
           onKeyDown={(e) => e.key === "Escape" && setDropOpen(false)}
           aria-label="Живой поиск по каталогу"
         />
-        {hasFilters && !q && (
+        {hasFilters && !qInput && (
           <button
             type="button"
             onClick={reset}
@@ -411,8 +421,8 @@ export function CatalogPage() {
                     <Chip
                       key={x}
                       onClick={() => {
-                        setGenresSel((s) => new Set(s).add(x));
-                        setQ("");
+                        setQInput("");
+                        apply({ q: null, genre: [...new Set([...genresSel, x])].slice(0, MAX_GENRES) });
                       }}
                     >
                       <Highlight text={x} q={q} /> ({genreCounts.get(x) || 0})
@@ -426,7 +436,13 @@ export function CatalogPage() {
                 <div className="label">🏛️ Сеттинги</div>
                 <div className="flex flex-wrap gap-1.5">
                   {sugg.settings.map((x) => (
-                    <Chip key={x} onClick={() => setQ(x)}>
+                    <Chip
+                      key={x}
+                      onClick={() => {
+                        setQInput(x);
+                        apply({ q: x }, true);
+                      }}
+                    >
                       <Highlight text={x} q={q} />
                     </Chip>
                   ))}
@@ -438,7 +454,13 @@ export function CatalogPage() {
                 <div className="label">✨ Особенности</div>
                 <div className="flex flex-wrap gap-1.5">
                   {sugg.features.map((x) => (
-                    <Chip key={x} onClick={() => setQ(x)}>
+                    <Chip
+                      key={x}
+                      onClick={() => {
+                        setQInput(x);
+                        apply({ q: x }, true);
+                      }}
+                    >
                       <Highlight text={x} q={q} />
                     </Chip>
                   ))}
@@ -464,13 +486,13 @@ export function CatalogPage() {
               </div>
             )}
           </div>
-          <Link
-            to="/catalog"
+          <button
+            type="button"
             className="btn-ghost !px-3 !py-1.5 text-xs"
             onClick={reset}
           >
             <FiX /> Сбросить
-          </Link>
+          </button>
         </div>
       )}
 
@@ -495,7 +517,7 @@ export function CatalogPage() {
                 <input
                   type="checkbox"
                   checked={miOnly}
-                  onChange={(e) => setMiOnly(e.target.checked)}
+                  onChange={(e) => apply({ mi: e.target.checked ? "1" : null })}
                   aria-label="Только с кубком МИ"
                 />
                 <span className="knob" />
@@ -506,7 +528,7 @@ export function CatalogPage() {
             <span className="select-wrap">
               <select
                 value={year}
-                onChange={(e) => setYear(e.target.value)}
+                onChange={(e) => apply({ year: e.target.value })}
                 aria-label="Год выхода"
               >
                 <option value="any">Любой год</option>
@@ -522,7 +544,11 @@ export function CatalogPage() {
             <span className="select-wrap">
               <select
                 value={sort}
-                onChange={(e) => setSort(e.target.value)}
+                onChange={(e) =>
+                  apply({
+                    sort: e.target.value === "played-desc" ? null : e.target.value,
+                  })
+                }
                 aria-label="Сортировка"
               >
                 <option value="played-desc">Сначала недавние</option>
@@ -546,14 +572,7 @@ export function CatalogPage() {
                   <Chip
                     key={x}
                     active={genresSel.has(x)}
-                    onClick={() =>
-                      setGenresSel((s) => {
-                        const n = new Set(s);
-                        if (n.has(x)) n.delete(x);
-                        else if (n.size < MAX_GENRES) n.add(x);
-                        return n;
-                      })
-                    }
+                    onClick={() => toggleGenre(x)}
                     disabled={!genresSel.has(x) && genresSel.size >= MAX_GENRES}
                   >
                     {x}
@@ -570,7 +589,7 @@ export function CatalogPage() {
                 <div className="flex flex-wrap gap-1.5">
                   <Chip
                     active={status === "any"}
-                    onClick={() => setStatus("any")}
+                    onClick={() => apply({ status: null })}
                   >
                     Любой
                   </Chip>
@@ -578,7 +597,7 @@ export function CatalogPage() {
                     <Chip
                       key={s}
                       active={status === s}
-                      onClick={() => setStatus(status === s ? "any" : s)}
+                      onClick={() => apply({ status: status === s ? null : s })}
                     >
                       {s}
                     </Chip>
@@ -592,7 +611,7 @@ export function CatalogPage() {
                     <Chip
                       key={r}
                       active={ratingMin === r}
-                      onClick={() => setRatingMin(ratingMin === r ? 0 : r)}
+                      onClick={() => apply({ rating: ratingMin === r ? null : r })}
                     >
                       {r === 0 ? "Любая" : `⭐ ${r}+`}
                     </Chip>
@@ -604,14 +623,14 @@ export function CatalogPage() {
                 <div className="flex flex-wrap gap-1.5">
                   <Chip
                     active={complexity === "any"}
-                    onClick={() => setComplexity("any")}
+                    onClick={() => apply({ complexity: null })}
                   >
                     Любая
                   </Chip>
                   <Chip
                     active={complexity === "low"}
                     onClick={() =>
-                      setComplexity(complexity === "low" ? "any" : "low")
+                      apply({ complexity: complexity === "low" ? null : "low" })
                     }
                   >
                     💀 Лёгкие
@@ -619,7 +638,7 @@ export function CatalogPage() {
                   <Chip
                     active={complexity === "mid"}
                     onClick={() =>
-                      setComplexity(complexity === "mid" ? "any" : "mid")
+                      apply({ complexity: complexity === "mid" ? null : "mid" })
                     }
                   >
                     💀💀 Средне
@@ -627,7 +646,7 @@ export function CatalogPage() {
                   <Chip
                     active={complexity === "high"}
                     onClick={() =>
-                      setComplexity(complexity === "high" ? "any" : "high")
+                      apply({ complexity: complexity === "high" ? null : "high" })
                     }
                   >
                     💀💀💀 Хардкор
@@ -647,7 +666,7 @@ export function CatalogPage() {
                     <Chip
                       key={v}
                       active={hours === v}
-                      onClick={() => setHours(hours === v ? "any" : v)}
+                      onClick={() => apply({ hours: hours === v ? null : v })}
                     >
                       {l}
                     </Chip>
@@ -699,7 +718,7 @@ export function CatalogPage() {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-6 lg:grid-cols-3 xl:grid-cols-4">
-            {filtered.slice(0, visible).map((g, i) => (
+            {pageItems.map((g, i) => (
               <GameCard
                 key={g.slug}
                 game={g}
@@ -711,17 +730,6 @@ export function CatalogPage() {
               />
             ))}
           </div>
-          {visible < filtered.length && (
-            <div className="flex justify-center">
-              <button
-                type="button"
-                className="btn-ghost"
-                onClick={() => goToPage(safePage + 1)}
-              >
-                <FiChevronDown /> Показать ещё ({filtered.length - visible})
-              </button>
-            </div>
-          )}
           {pages > 1 && (
             <nav
               aria-label="Страницы каталога"
@@ -733,21 +741,21 @@ export function CatalogPage() {
                     …
                   </span>
                 ) : (
-                  <button
+                  // Ссылка, а не кнопка: краулер ходит только по <a href>.
+                  <Link
                     key={n}
-                    type="button"
-                    onClick={() => goToPage(n)}
+                    to={{ search: searchWith({ page: n === 1 ? null : n }) }}
                     aria-current={n === safePage ? "page" : undefined}
                     className={
-                      "min-w-9 rounded-btn px-2.5 py-1.5 font-display font-bold transition " +
+                      "min-w-9 rounded-btn px-2.5 py-1.5 text-center font-display font-bold transition " +
                       (n === safePage
                         ? "bg-pastel-purple/25 text-ink"
                         : "text-ink-dim hover:bg-white/5 hover:text-ink")
                     }
                   >
                     {n}
-                  </button>
-                )
+                  </Link>
+                ),
               )}
             </nav>
           )}

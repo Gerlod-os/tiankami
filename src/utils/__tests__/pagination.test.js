@@ -1,5 +1,7 @@
 import { describe, test, expect } from "vitest";
-import { pagesCount, visibleFor, pageNumbers } from "../pagination.js";
+import { pagesCount, pageSlice, pageNumbers } from "../pagination.js";
+
+const LIST = Array.from({ length: 459 }, (_, i) => i);
 
 describe("pagesCount", () => {
   test("округляет вверх", () => {
@@ -13,19 +15,30 @@ describe("pagesCount", () => {
   });
 });
 
-describe("visibleFor", () => {
-  test("страница 1 показывает первую двадцатьчетверку", () => {
-    expect(visibleFor(1, 459, 24)).toBe(24);
+describe("pageSlice", () => {
+  test("первая страница — первые 24 карточки", () => {
+    const page = pageSlice(LIST, 1, 24);
+    expect(page).toHaveLength(24);
+    expect(page[0]).toBe(0);
   });
-  test("последняя страница не вылезает за список", () => {
-    expect(visibleFor(20, 459, 24)).toBe(459);
+  test("вторая страница начинается с 25-й карточки, а не с первой", () => {
+    const page = pageSlice(LIST, 2, 24);
+    expect(page).toHaveLength(24);
+    expect(page[0]).toBe(24);
+    expect(page).not.toContain(0);
   });
-  test("страница за пределами работает как последняя", () => {
-    expect(visibleFor(99, 459, 24)).toBe(459);
+  test("последняя страница — остаток, а не полный шаг", () => {
+    expect(pageSlice(LIST, 20, 24)).toHaveLength(3);
+  });
+  test("страница за пределами — последняя", () => {
+    expect(pageSlice(LIST, 99, 24)).toHaveLength(3);
   });
   test("нулевая и мусорная страница — первая", () => {
-    expect(visibleFor(0, 459, 24)).toBe(24);
-    expect(visibleFor("", 459, 24)).toBe(24);
+    expect(pageSlice(LIST, 0, 24)[0]).toBe(0);
+    expect(pageSlice(LIST, "", 24)[0]).toBe(0);
+  });
+  test("пустой список — пусто", () => {
+    expect(pageSlice([], 1, 24)).toEqual([]);
   });
 });
 

@@ -6,15 +6,19 @@ export function pagesCount(total, perPage) {
   return Math.ceil(total / perPage);
 }
 
-// Сколько карточек показать на странице `page` из `total`.
-// Страница за пределами списка ведёт себя как последняя, мусорная — как первая.
-export function visibleFor(page, total, perPage) {
-  const pages = pagesCount(total, perPage);
-  if (!pages) return 0;
+// Карточки одной страницы: берём порцию со смещением, а не «первые N».
+// Именно здесь была ошибка: slice(0, page * perPage) показывал на второй
+// странице первые 48 карточек, то есть первые 24 повторялись.
+export function pageSlice(list, page, perPage) {
+  const items = Array.isArray(list) ? list : [];
+  if (!(perPage > 0)) return [];
+  const pages = pagesCount(items.length, perPage);
+  if (!pages) return [];
   const n = Number(page);
   const safe = Number.isFinite(n) && n >= 1 ? Math.floor(n) : 1;
-  // Последняя страница показывает ровно столько, сколько осталось, а не полный шаг.
-  return Math.min(Math.min(safe, pages) * perPage, total);
+  const current = Math.min(safe, pages);
+  const start = (current - 1) * perPage;
+  return items.slice(start, start + perPage);
 }
 
 // Номера страниц для полосы навигации: первая, последняя, по два номера вокруг текущей.
