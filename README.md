@@ -44,6 +44,7 @@ npm run dev          # http://localhost:5173
 npm run lint         # oxlint — должен быть чистым
 npm test             # vitest
 npm run test:data    # гейт: формат и полнота src/data
+npm run test:links   # гейт: битые внутренние ссылки по собранному dist/
 npm run audit        # замер 8 страниц × 2 ширины; по умолчанию меряет ЖИВОЙ сайт
 npm run audit -- --base http://localhost:4173/tiankami   # меряет локальную сборку
 ```
@@ -92,6 +93,7 @@ node scripts/prerender.mjs
 | `npm run lint` | oxlint |
 | `npm test` | vitest |
 | `npm run test:data` | Гейт данных: заполненность полей, ссылки, форматы |
+| `npm run test:links` | Гейт ссылок: обход 472 HTML в `dist/`, битые внутренние адреса → код 1 |
 | `npm run audit` | Браузерный аудит 8 страниц × 2 ширины: LCP/CLS, битые картинки, тап-таргеты, консоль. По умолчанию меряет живой сайт, локальную сборку — через `--base` |
 
 ---
@@ -130,7 +132,7 @@ src/
 scripts/       sync-data.js, prerender.mjs, steam-covers.mjs, fix-covers.mjs,
                twitch-recent.mjs, twitch-schedule.mjs, yt-playlists.mjs,
                cut-white-bg.mjs (вырезание светлого фона из маскотов, флаг --cream),
-               check-data.mjs, audit.mjs
+               check-data.mjs, check-links.mjs, audit.mjs
 ```
 
 Формы расписания на сайте нет: таблицу-приёмник расписания владелец не заполняет, расписание собирается из календаря и истории трансляций Twitch.
