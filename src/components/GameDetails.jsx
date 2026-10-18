@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FiClock,
@@ -11,7 +10,6 @@ import {
 import { FaSteam } from "react-icons/fa";
 import { parseNum, isUrl, hasMI } from "../utils/normalize";
 import { statusMeta, ratingColor } from "../utils/statusMeta";
-import { checkYouTubeUrlSafe } from "../utils/youtubeSafe";
 import { parseYouTubeUrl } from "../utils/youtube";
 import { moodOf } from "../utils/recommend";
 import { RarityEgg } from "./RarityEgg";
@@ -74,22 +72,11 @@ export function GameDetails({ game }) {
   const { bySlug } = useData();
   const rarity = bySlug?.[game.slug] || "common";
   const meta = statusMeta(game.status);
-  const [ytState, setYtState] = useState("loading");
+  // Авторство проверено на сборке (sync-data.js → youtubeOwners.js):
+  // youtubeOwn === false — ролик чужой, плеер не показываем. Не проверено
+  // (undefined) — показываем: молча спрятать рабочий плеер хуже.
   const yt = parseYouTubeUrl(game.youtube);
-
-  useEffect(() => {
-    let alive = true;
-    if (!game.youtube || !yt) {
-      setYtState("hide");
-      return undefined;
-    }
-    checkYouTubeUrlSafe(game.youtube).then((res) => {
-      if (alive) setYtState(res === "mismatch" ? "hide" : "show");
-    });
-    return () => {
-      alive = false;
-    };
-  }, [game.youtube]);
+  const showPlayer = Boolean(yt?.embedUrl) && game.youtubeOwn !== false;
 
   return (
     <div className="space-y-5">
@@ -97,7 +84,7 @@ export function GameDetails({ game }) {
           Третья копия на том же экране — дубль (план, Б17). */}
 
       {/* YouTube под обложкой */}
-      {game.youtube && ytState === "show" && yt?.embedUrl && (
+      {showPlayer && (
         <div className="overflow-hidden rounded-card border border-white/10 shadow-card">
           <iframe
             className="aspect-video w-full"

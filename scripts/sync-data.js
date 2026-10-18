@@ -21,6 +21,8 @@ const { fillYouTubeFromPlaylists } = await import("../src/utils/playlists.js");
 const { fillMissingCovers } = await import("./steam-covers.mjs");
 const { twitchSchedule, SCHEDULE_DAYS } = await import("./twitch-schedule.mjs");
 const { twitchRecentStreams } = await import("./twitch-recent.mjs");
+const { markYoutubeOwners } = await import("../src/utils/youtubeOwners.js");
+const { BRAND } = await import("../src/config/branding.js");
 const { parseRuDate, formatRuDate } = await import("../src/utils/date.js");
 
 async function fetchText(url, tries = 3, timeoutMs = 15000) {
@@ -295,6 +297,29 @@ if (finalGames.length) {
     if (!count) console.log("  ✔ обложки есть у всех игр");
   } catch (e) {
     console.warn("  ⚠ Steam недоступен, обложки не обновлены:", e.message);
+  }
+}
+
+// ── 5.2. Авторство ссылок YouTube: один раз на сборке ────────────────────────
+// Раньше это делал браузер перед каждым показом плеера: запрос к noembed.com
+// и +294 мс к появлению iframe на каждой странице игры. Ответ не меняется —
+// проверяем здесь, результат кладём в youtubeOwn, кэш — youtube-owners.json.
+if (finalGames.length) {
+  try {
+    const owners = await markYoutubeOwners(finalGames, {
+      cachePath: path.join(DATA_DIR, "youtube-owners.json"),
+      channelName: BRAND.youtubeChannelName,
+    });
+    console.log(
+      `  ✔ авторство YouTube: своих ${owners.own}, чужих ${owners.foreign}, не проверить ${owners.unknown}, из кэша ${owners.cached}`
+    );
+    if (owners.foreign) {
+      console.warn(
+        "  ⚠ есть чужие ролики — плеер на этих страницах не покажется, проверь ссылку в таблице"
+      );
+    }
+  } catch (e) {
+    console.warn("  ⚠ авторство YouTube не проверилось:", e.message);
   }
 }
 
