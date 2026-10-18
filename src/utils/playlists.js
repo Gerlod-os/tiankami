@@ -18,18 +18,33 @@ export function playlistsByTitle(playlists) {
 }
 
 /**
- * Дополняет пустые `youtube` у игр, которым нашёлся одноимённый плейлист.
- * Возвращает { games, filled } — filled это названия, которым поставили ссылку.
+ * Дополняет пустые `youtube` у игр: сначала одноимённый плейлист, потом видео
+ * канала (плейлиста может не быть вовсе — MINOS на канале пятью видео).
+ * `videos` — [{ game, url }] из scripts/yt-videos.mjs.
+ * Возвращает { games, filled, fromVideos }.
  */
-export function fillYouTubeFromPlaylists(games, playlists) {
+export function fillYouTubeFromPlaylists(games, playlists, videos = []) {
   const map = playlistsByTitle(playlists);
+  const videoMap = new Map(
+    (videos || [])
+      .filter((v) => v?.game && v?.url)
+      .map((v) => [norm(v.game), v.url]),
+  );
   const filled = [];
+  const fromVideos = [];
   const out = (games || []).map((g) => {
     if (g.youtube || !g.title) return g;
     const url = map.get(norm(g.title));
-    if (!url) return g;
-    filled.push(g.title);
-    return { ...g, youtube: url };
+    if (url) {
+      filled.push(g.title);
+      return { ...g, youtube: url };
+    }
+    const video = videoMap.get(norm(g.title));
+    if (video) {
+      fromVideos.push(g.title);
+      return { ...g, youtube: video };
+    }
+    return g;
   });
-  return { games: out, filled };
+  return { games: out, filled, fromVideos };
 }

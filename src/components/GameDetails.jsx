@@ -184,7 +184,8 @@ export function GameDetails({ game, compact = false }) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <FiYoutube className="text-lg text-[#FF2D2D]" /> YouTube плейлист
+            <FiYoutube className="text-lg text-[#FF2D2D]" />{" "}
+            {/list=/.test(game.youtube) ? "YouTube плейлист" : "YouTube"}
           </a>
         )}
         {hasMI(game) && isUrl(game.miVideo) && (

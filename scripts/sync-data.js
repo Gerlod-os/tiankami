@@ -139,18 +139,32 @@ if (games.length) {
   }
 }
 
-// ── 2.4. Плейлисты YouTube канала: добор ссылок, которых нет в таблице ───────
+// ── 2.4. Плейлисты и видео YouTube канала: добор ссылок, которых нет в таблице ─
 // Плейлисты называются по названию игры. Заполняем только пустые поля: ссылка из
-// таблицы главнее. Список плейлистов лежит в данных и обновляется скриптом
-// scripts/yt-playlists.mjs (нужен браузер — страница Twitch подгружается скриптом).
+// таблицы главнее. Списки лежат в данных и обновляются скриптами
+// scripts/yt-playlists.mjs и scripts/yt-videos.mjs (нужен браузер).
+// Видео — запасной вариант: плейлиста у игры может не быть (MINOS).
 const PLAYLISTS = path.join(DATA_DIR, "youtube-playlists.json");
+const VIDEOS = path.join(DATA_DIR, "youtube-videos.json");
 if (games.length && fs.existsSync(PLAYLISTS)) {
   try {
     const playlists = JSON.parse(fs.readFileSync(PLAYLISTS, "utf8"));
-    const { games: filled, filled: names } = fillYouTubeFromPlaylists(games, playlists);
-    if (names.length) {
+    const videos = fs.existsSync(VIDEOS)
+      ? JSON.parse(fs.readFileSync(VIDEOS, "utf8"))
+      : [];
+    const { games: filled, filled: names, fromVideos } = fillYouTubeFromPlaylists(
+      games,
+      playlists,
+      videos,
+    );
+    if (names.length || fromVideos.length) {
       games = filled;
-      console.log(`  ✔ ссылки из плейлистов канала: ${names.length} (${names.slice(0, 5).join(", ")}${names.length > 5 ? "…" : ""})`);
+      if (names.length) {
+        console.log(`  ✔ ссылки из плейлистов канала: ${names.length} (${names.slice(0, 5).join(", ")}${names.length > 5 ? "…" : ""})`);
+      }
+      if (fromVideos.length) {
+        console.log(`  ✔ ссылки из видео канала: ${fromVideos.length} (${fromVideos.slice(0, 5).join(", ")}${fromVideos.length > 5 ? "…" : ""})`);
+      }
     }
   } catch (e) {
     console.warn("  ⚠ Список плейлистов не прочитался:", e.message);
