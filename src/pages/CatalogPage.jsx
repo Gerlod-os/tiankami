@@ -11,7 +11,6 @@ import {
   FiArrowDown,
   FiArrowUp,
   FiCheck,
-  FiTrendingUp,
   FiTag,
   FiGlobe,
   FiZap,
@@ -132,7 +131,7 @@ function SelectMenu({ label, value, options, onChange, icon: Icon }) {
   };
 
   return (
-    <span className="relative inline-block" ref={boxRef}>
+    <span className="relative inline-block shrink-0" ref={boxRef}>
       <button
         ref={btnRef}
         type="button"
@@ -143,7 +142,7 @@ function SelectMenu({ label, value, options, onChange, icon: Icon }) {
           setOpen((o) => !o);
           setActive(Math.max(0, options.findIndex((o) => o.v === value)));
         }}
-        className="input flex !w-auto items-center gap-2 !py-2 pl-3 pr-8 text-xs font-semibold"
+        className="input flex !h-12 !w-auto items-center gap-2 !py-2 pl-3 pr-8 text-xs font-semibold"
       >
         {Icon && <Icon className="shrink-0 text-pastel-purple" />}
         <span className="whitespace-nowrap">{current?.l}</span>
@@ -295,8 +294,11 @@ export function CatalogPage() {
     // это случится до отпускания кнопки, click уйдёт общему предку — карточка
     // не откроется (проверено 18.10.2026). После click переход уже начался.
     const onOutside = (e) => {
-      if (filtersRef.current && !filtersRef.current.contains(e.target))
-        setFiltersOpen(false);
+      if (filtersRef.current && filtersRef.current.contains(e.target)) return;
+      // Панель фильтров теперь отдельная карточка под строкой поиска: без этой
+      // проверки клик по чипсу считался «вне» и схлопывал панель.
+      if (e.target.closest && e.target.closest("[data-filters-panel]")) return;
+      setFiltersOpen(false);
     };
     document.addEventListener("keydown", onKey);
     document.addEventListener("click", onOutside);
@@ -488,12 +490,15 @@ export function CatalogPage() {
         </p>
       </div>
 
-      {/* Поиск + сброс — единая панель */}
-      <div className="relative mx-auto w-full max-w-3xl">
+      {/* Поиск и фильтры — одна строка: поле, «Фильтры», сортировка, направление.
+          Было две панели друг под другом (решение владельца 18.10.2026). */}
+      <div className="mx-auto w-full max-w-5xl">
+        <div className="flex flex-wrap items-stretch gap-2" ref={filtersRef}>
+        <div className="relative w-full min-w-0 sm:flex-1">
         <FiSearch className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-faint" />
         <input
           ref={searchRef}
-          className="input !h-16 !rounded-card !border-white/10 !bg-night-600/80 !pl-12 !text-base transition focus:!border-pastel-pink/60 focus:shadow-glow-pink"
+          className="input !h-12 !rounded-card !border-white/10 !bg-night-600/80 !pl-12 !pr-28 !text-base transition focus:!border-pastel-pink/60 focus:shadow-glow-pink"
           placeholder="Введите название, жанр, сеттинг…"
           value={qInput}
           onChange={(e) => {
@@ -518,94 +523,143 @@ export function CatalogPage() {
           </span>
         )}
         {dropOpen && sugg && (
-          <div className="card absolute inset-x-0 top-full z-30 mt-2 max-h-96 overflow-y-auto p-4 text-left shadow-glow-purple">
-            {sugg.g.length > 0 && (
-              <div className="mb-3">
-                <div className="label flex items-center gap-1.5"><FiTrendingUp aria-hidden="true" /> Популярные</div>
-                {sugg.g.map((g) => (
-                  <button
-                    key={g.slug}
-                    type="button"
-                    className="flex w-full items-center gap-2 rounded-btn px-2 py-1.5 text-left text-sm text-ink transition hover:bg-white/5"
-                    onMouseDown={() => navigate(`/catalog/${g.slug}`)}
+          /* Непрозрачная панель и один список без заголовков и отступов между
+             группами: на просвечивающем фоне подсказки не читались, а четыре
+             блока с заголовками дробили список (решение владельца 18.10.2026). */
+          <div className="absolute inset-x-0 top-full z-30 mt-2 max-h-96 overflow-y-auto rounded-card border border-white/15 bg-night-700 p-1.5 text-left shadow-card">
+            {sugg.g.map((g) => (
+              <button
+                key={g.slug}
+                type="button"
+                className="flex w-full items-center gap-2 rounded-btn px-2 py-1.5 text-left text-sm text-ink transition hover:bg-white/10"
+                onMouseDown={() => navigate(`/catalog/${g.slug}`)}
+              >
+                <RarityEgg rarity={bySlug?.[g.slug] || "common"} size={16} />
+                <span className="min-w-0 flex-1 truncate">
+                  <Highlight text={g.title} q={q} />
+                </span>
+                {parseNum(g.rating) > 0 && (
+                  <span
+                    className={
+                      "flex shrink-0 items-center gap-1 text-xs " +
+                      ratingColor(g.rating)
+                    }
                   >
-                    <RarityEgg
-                      rarity={bySlug?.[g.slug] || "common"}
-                      size={16}
-                    />
-                    <span className="min-w-0 flex-1 truncate">
-                      <Highlight text={g.title} q={q} />
-                    </span>
-                    {parseNum(g.rating) > 0 && (
-                      <span
-                        className={
-                          "flex items-center gap-1 text-xs " +
-                          ratingColor(g.rating)
-                        }
-                      >
-                        <FiStar /> {parseNum(g.rating)}/10
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-            {sugg.genres.length > 0 && (
-              <div className="mb-3">
-                <div className="label flex items-center gap-1.5"><FiTag aria-hidden="true" /> Жанры</div>
-                <div className="flex flex-wrap gap-1.5">
-                  {sugg.genres.map((x) => (
-                    <Chip
-                      key={x}
-                      onClick={() => {
-                        setQInput("");
-                        apply({ q: null, genre: [...new Set([...genresSel, x])].slice(0, MAX_GENRES) });
-                      }}
-                    >
-                      <Highlight text={x} q={q} /> ({genreCounts.get(x) || 0})
-                    </Chip>
-                  ))}
-                </div>
-              </div>
-            )}
-            {sugg.settings.length > 0 && (
-              <div className="mb-3">
-                <div className="label flex items-center gap-1.5"><FiGlobe aria-hidden="true" /> Сеттинги</div>
-                <div className="flex flex-wrap gap-1.5">
-                  {sugg.settings.map((x) => (
-                    <Chip
-                      key={x}
-                      onClick={() => {
-                        setQInput(x);
-                        apply({ q: x }, true);
-                      }}
-                    >
-                      <Highlight text={x} q={q} />
-                    </Chip>
-                  ))}
-                </div>
-              </div>
-            )}
-            {sugg.features.length > 0 && (
-              <div>
-                <div className="label flex items-center gap-1.5"><FiZap aria-hidden="true" /> Особенности</div>
-                <div className="flex flex-wrap gap-1.5">
-                  {sugg.features.map((x) => (
-                    <Chip
-                      key={x}
-                      onClick={() => {
-                        setQInput(x);
-                        apply({ q: x }, true);
-                      }}
-                    >
-                      <Highlight text={x} q={q} />
-                    </Chip>
-                  ))}
-                </div>
-              </div>
-            )}
+                    <FiStar /> {parseNum(g.rating)}/10
+                  </span>
+                )}
+              </button>
+            ))}
+            {sugg.genres.map((x) => (
+              <button
+                key={`genre-${x}`}
+                type="button"
+                onMouseDown={() => {
+                  setQInput("");
+                  apply({
+                    q: null,
+                    genre: [...new Set([...genresSel, x])].slice(0, MAX_GENRES),
+                  });
+                }}
+                className="flex w-full items-center gap-2 rounded-btn px-2 py-1.5 text-left text-sm text-ink-dim transition hover:bg-white/10 hover:text-ink"
+              >
+                <FiTag aria-hidden="true" className="shrink-0 text-pastel-purple" />
+                <span className="min-w-0 flex-1 truncate">
+                  <Highlight text={x} q={q} />
+                </span>
+                <span className="shrink-0 text-xs text-ink-faint">
+                  {genreCounts.get(x) || 0}
+                </span>
+              </button>
+            ))}
+            {sugg.settings.map((x) => (
+              <button
+                key={`setting-${x}`}
+                type="button"
+                onMouseDown={() => {
+                  setQInput(x);
+                  apply({ q: x }, true);
+                }}
+                className="flex w-full items-center gap-2 rounded-btn px-2 py-1.5 text-left text-sm text-ink-dim transition hover:bg-white/10 hover:text-ink"
+              >
+                <FiGlobe aria-hidden="true" className="shrink-0 text-pastel-blue" />
+                <span className="min-w-0 flex-1 truncate">
+                  <Highlight text={x} q={q} />
+                </span>
+              </button>
+            ))}
+            {sugg.features.map((x) => (
+              <button
+                key={`feature-${x}`}
+                type="button"
+                onMouseDown={() => {
+                  setQInput(x);
+                  apply({ q: x }, true);
+                }}
+                className="flex w-full items-center gap-2 rounded-btn px-2 py-1.5 text-left text-sm text-ink-dim transition hover:bg-white/10 hover:text-ink"
+              >
+                <FiZap aria-hidden="true" className="shrink-0 text-pastel-amber" />
+                <span className="min-w-0 flex-1 truncate">
+                  <Highlight text={x} q={q} />
+                </span>
+              </button>
+            ))}
           </div>
         )}
+        </div>
+
+        <button
+          type="button"
+          className={
+            "btn-ghost h-12 shrink-0 text-sm " +
+            (filtersOpen ? "!border-pastel-purple/50 !text-ink" : "")
+          }
+          onClick={() => setFiltersOpen((v) => !v)}
+          aria-expanded={filtersOpen}
+        >
+          <FiFilter /> Фильтры
+          <FiChevronDown
+            className={filtersOpen ? "rotate-180 transition" : "transition"}
+          />
+        </button>
+
+        <SelectMenu
+          label="Сортировка"
+          value={sort}
+          onChange={(v) =>
+            apply({
+              sort: v === "played-desc" ? null : v,
+              dir: null,
+            })
+          }
+          options={[
+            { v: "played-desc", l: "Сначала недавние" },
+            { v: "rating-desc", l: "По оценке Тиана" },
+            { v: "hours-desc", l: "По часам" },
+            { v: "release-desc", l: "По дате выхода" },
+            { v: "progress-desc", l: "По прогрессу" },
+            { v: "title", l: "По алфавиту" },
+          ]}
+        />
+
+        <button
+          type="button"
+          onClick={() => apply({ dir: dir === "asc" ? "desc" : "asc" })}
+          aria-label={
+            dir === "asc"
+              ? "Направление сортировки: по возрастанию. Переключить на убывание"
+              : "Направление сортировки: по убыванию. Переключить на возрастание"
+          }
+          title={dir === "asc" ? "По возрастанию" : "По убыванию"}
+          className="input flex !h-12 !w-auto shrink-0 items-center justify-center !px-2.5 !py-2 text-ink-dim hover:border-pastel-purple/40 hover:text-ink"
+        >
+          {dir === "asc" ? (
+            <FiArrowUp className="text-pastel-mint" />
+          ) : (
+            <FiArrowDown className="text-pastel-mint" />
+          )}
+        </button>
+        </div>
       </div>
 
       {collection && (
@@ -631,21 +685,9 @@ export function CatalogPage() {
         </div>
       )}
 
-      {/* Панель фильтров */}
-      <div className="card space-y-4 p-4" ref={filtersRef}>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <button
-            type="button"
-            className="btn-ghost text-sm"
-            onClick={() => setFiltersOpen((v) => !v)}
-            aria-expanded={filtersOpen}
-          >
-            <FiFilter /> Фильтры
-            <FiChevronDown
-              className={filtersOpen ? "rotate-180 transition" : "transition"}
-            />
-          </button>
-
+      {/* Панель фильтров: кнопка живёт в строке поиска, карточка — только когда открыта */}
+      {filtersOpen && (
+        <div className="card space-y-4 p-4" data-filters-panel>
           <div className="flex flex-wrap items-center gap-3">
             <label className="flex items-center gap-2 text-sm text-ink-dim">
               <span className="switch">
@@ -671,67 +713,37 @@ export function CatalogPage() {
               ]}
             />
 
-            <SelectMenu
-              label="Сортировка"
-              value={sort}
-              onChange={(v) =>
-                apply({
-                  sort: v === "played-desc" ? null : v,
-                  dir: null,
-                })
-              }
-              options={[
-                { v: "played-desc", l: "Сначала недавние" },
-                { v: "rating-desc", l: "По оценке Тиана" },
-                { v: "hours-desc", l: "По часам" },
-                { v: "release-desc", l: "По дате выхода" },
-                { v: "progress-desc", l: "По прогрессу" },
-                { v: "title", l: "По алфавиту" },
-              ]}
-            />
-
-            <button
-              type="button"
-              onClick={() => apply({ dir: dir === "asc" ? "desc" : "asc" })}
-              aria-label={
-                dir === "asc"
-                  ? "Направление сортировки: по возрастанию. Переключить на убывание"
-                  : "Направление сортировки: по убыванию. Переключить на возрастание"
-              }
-              title={dir === "asc" ? "По возрастанию" : "По убыванию"}
-              className="input flex !w-auto items-center justify-center !px-2.5 !py-2 text-ink-dim hover:border-pastel-purple/40 hover:text-ink"
-            >
-              {dir === "asc" ? (
-                <FiArrowUp className="text-pastel-mint" />
-              ) : (
-                <FiArrowDown className="text-pastel-mint" />
-              )}
-            </button>
+            {hasFilters && (
+              <button
+                type="button"
+                onClick={reset}
+                className="btn-ghost ml-auto !border-pastel-pink/40 !px-3 !py-1.5 text-xs !text-pastel-pink"
+              >
+                <FiX /> Сбросить всё
+              </button>
+            )}
           </div>
-        </div>
 
-        {filtersOpen && (
-          <>
-          <div className="grid animate-fadeUp gap-4 md:grid-cols-2">
-            <div>
-              <div className="label">Жанр (макс. 2) — работает по ИЛИ</div>
-              <div className="flex flex-wrap gap-1.5">
-                {meta.genres.slice(0, 14).map((x) => (
-                  <Chip
-                    key={x}
-                    active={genresSel.has(x)}
-                    onClick={() => toggleGenre(x)}
-                    disabled={!genresSel.has(x) && genresSel.size >= MAX_GENRES}
-                  >
-                    {x}
-                    {!genresSel.has(x) && genresSel.size >= MAX_GENRES
-                      ? " закрыто"
-                      : ""}
-                  </Chip>
-                ))}
-              </div>
+          {/* Жанры — отдельной строкой во всю ширину: в узкой колонке 14 чипсов
+              складывались в столбик, а слово «закрыто» дописывалось к чипсу
+              (решение владельца 18.10.2026) */}
+          <div>
+            <div className="label">Жанр</div>
+            <div className="flex flex-wrap gap-1.5">
+              {meta.genres.slice(0, 14).map((x) => (
+                <Chip
+                  key={x}
+                  active={genresSel.has(x)}
+                  onClick={() => toggleGenre(x)}
+                  disabled={!genresSel.has(x) && genresSel.size >= MAX_GENRES}
+                >
+                  {x}
+                </Chip>
+              ))}
             </div>
-            <div className="space-y-4">
+          </div>
+
+          <div className="grid animate-fadeUp gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div>
                 <div className="label">Статус</div>
                 <div className="flex flex-wrap gap-1.5">
@@ -828,22 +840,9 @@ export function CatalogPage() {
                   ))}
                 </div>
               </div>
-            </div>
           </div>
-          {hasFilters && (
-            <div className="flex justify-end border-t border-white/10 pt-3">
-              <button
-                type="button"
-                onClick={reset}
-                className="btn-ghost !border-pastel-pink/40 !px-3 !py-1.5 text-xs !text-pastel-pink"
-              >
-                <FiX /> Сбросить всё
-              </button>
-            </div>
-          )}
-          </>
-        )}
-      </div>
+        </div>
+      )}
 
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center gap-8 py-16 text-center">
@@ -868,7 +867,6 @@ export function CatalogPage() {
                   game={g}
                   rarity={bySlug?.[g.slug] || "common"}
                   delay={i}
-                  egg="inline"
                 />
               </div>
             ))}
@@ -888,7 +886,6 @@ export function CatalogPage() {
                 highlight={q}
                 rarity={bySlug?.[g.slug] || "common"}
                 delay={i % PAGE}
-                egg="inline"
               />
             ))}
           </div>
