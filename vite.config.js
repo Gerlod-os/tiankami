@@ -20,7 +20,6 @@ export default defineConfig({
             return "react";
           if (id.includes("react-router")) return "router";
           if (id.includes("react-icons")) return "icons";
-          if (id.includes("papaparse")) return "papa";
           return "vendor";
         },
       },
