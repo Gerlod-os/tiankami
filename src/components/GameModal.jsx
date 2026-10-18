@@ -63,27 +63,43 @@ export function GameModal({ game, onClose }) {
       />
       <div
         ref={boxRef}
-        className="relative max-h-[88vh] w-full max-w-4xl animate-fadeUp overflow-y-auto rounded-card border border-white/10 bg-night-900/95 p-5 sm:p-7 shadow-card"
+        className="relative max-h-[88vh] w-full max-w-[640px] animate-fadeUp overflow-y-auto rounded-card border border-white/10 bg-night-900/95 shadow-card"
       >
-        <div className="mb-4 flex items-start justify-between gap-4">
-          <h2 className="font-display text-2xl font-black text-ink">
-            {game.title}
-          </h2>
+        <div className="relative">
+          {game.image ? (
+            <img
+              src={game.image}
+              alt={`Обложка ${game.title}`}
+              width={460}
+              height={215}
+              className="h-[150px] w-full rounded-t-card object-cover"
+            />
+          ) : (
+            <div className="h-[120px] w-full rounded-t-card bg-gradient-to-br from-night-700 to-night-600" />
+          )}
+          <div className="pointer-events-none absolute inset-0 rounded-t-card bg-gradient-to-t from-night-900 via-night-900/30 to-transparent" />
           <button
             ref={closeRef}
             type="button"
             onClick={onClose}
-            className="btn-ghost !p-3 text-ink-dim hover:text-ink"
+            className="absolute right-3 top-3 z-10 rounded-full border border-white/15 bg-night-900/80 p-2 text-ink-dim backdrop-blur transition hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pastel-pink/70"
             aria-label="Закрыть"
           >
             <FiX />
           </button>
         </div>
-        <GameDetails game={game} />
-        <div className="mt-6 flex justify-end">
-          <Link to={`/catalog/${game.slug}`} className="btn-primary text-sm">
-            Страница игры <FiArrowRight />
-          </Link>
+        <div className="p-5">
+          <h2 className="font-display text-xl font-black text-ink">
+            {game.title}
+          </h2>
+          <div className="mt-3">
+            <GameDetails game={game} compact />
+          </div>
+          <div className="mt-5 flex justify-end">
+            <Link to={`/catalog/${game.slug}`} className="btn-primary text-sm">
+              Страница игры <FiArrowRight />
+            </Link>
+          </div>
         </div>
       </div>
     </div>

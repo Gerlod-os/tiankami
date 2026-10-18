@@ -70,7 +70,7 @@ function MetaRow({ icon: Icon, iconCls, label, children, onGo }) {
   );
 }
 
-export function GameDetails({ game }) {
+export function GameDetails({ game, compact = false }) {
   const navigate = useNavigate();
   const { bySlug } = useData();
   const rarity = bySlug?.[game.slug] || "common";
@@ -88,12 +88,13 @@ export function GameDetails({ game }) {
     : "";
 
   return (
-    <div className="space-y-5">
+    <div className={compact ? "space-y-4" : "space-y-5"}>
       {/* Обложки здесь нет: в шапке страницы она уже стоит дважды (фон + видимая).
           Третья копия на том же экране — дубль (план, Б17). */}
 
-      {/* YouTube под обложкой: сначала постер, плеер — по клику */}
-      {showPlayer && (
+      {/* YouTube под обложкой: сначала постер, плеер — по клику.
+          В модалке плеера нет: там место занимает обложка, а смотреть — на странице игры. */}
+      {showPlayer && !compact && (
         <div className="overflow-hidden rounded-card border border-white/10 shadow-card">
           {playing ? (
             <iframe
@@ -125,41 +126,37 @@ export function GameDetails({ game }) {
         </div>
       )}
 
-      {/* Кнопки */}
-      <div className="flex flex-wrap gap-2">
+      {/* Кнопки: в один ряд 50/50, спокойный фон — цвет остаётся только у иконки */}
+      <div
+        className={
+          (Boolean(game.steamUrl) && isUrl(game.youtube)
+            ? "grid grid-cols-2 "
+            : "flex flex-wrap ") + "gap-2"
+        }
+      >
         {game.steamUrl && (
           <a
-            className="inline-flex w-full items-center justify-center gap-2 rounded-btn px-4 py-3 font-display font-extrabold text-[#0E1621] transition duration-300 hover:scale-[1.02]"
-            style={{
-              backgroundImage:
-                "linear-gradient(135deg,#66C0F4 0%,#3E8BC0 100%)",
-              boxShadow: "0 10px 26px rgba(102,192,244,0.30)",
-            }}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-btn border border-white/10 bg-white/5 px-3 py-2.5 font-display font-bold text-ink transition duration-300 hover:border-white/25 hover:bg-white/10"
             href={game.steamUrl}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <FaSteam className="text-xl" /> В Steam
+            <FaSteam className="text-lg text-[#66C0F4]" /> В Steam
           </a>
         )}
         {isUrl(game.youtube) && (
           <a
-            className="inline-flex w-full items-center justify-center gap-2 rounded-btn px-4 py-3 font-display font-extrabold text-white transition duration-300 hover:scale-[1.02]"
-            style={{
-              backgroundImage:
-                "linear-gradient(135deg,#FF2D2D 0%,#C40000 100%)",
-              boxShadow: "0 10px 26px rgba(255,0,0,0.28)",
-            }}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-btn border border-white/10 bg-white/5 px-3 py-2.5 font-display font-bold text-ink transition duration-300 hover:border-white/25 hover:bg-white/10"
             href={game.youtube}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <FiYoutube className="text-2xl" /> YouTube плейлист
+            <FiYoutube className="text-lg text-[#FF2D2D]" /> YouTube плейлист
           </a>
         )}
         {hasMI(game) && isUrl(game.miVideo) && (
           <a
-            className="btn-ghost text-sm"
+            className="btn-ghost col-span-2 text-sm"
             href={game.miVideo}
             target="_blank"
             rel="noopener noreferrer"
