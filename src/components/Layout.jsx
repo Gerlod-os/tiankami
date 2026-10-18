@@ -284,68 +284,55 @@ export function Layout({ children }) {
         {children}
       </main>
 
+      {/* Подвал — справочник одной строкой, а не три колонки: на ПК 258 → ~110 px,
+          на телефоне 542 → ~140 px (замер 18.10.2026, решение владельца). */}
       <footer className="border-t border-white/5 bg-night-900/60">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 md:grid-cols-3">
-          <div>
-            <div className="flex items-center gap-3">
-              <img
-                src={MASCOTS.logo}
-                alt=""
-                width={512}
-                height={512}
-                className="h-9 w-9 rounded-full border border-pastel-purple/60 object-cover"
-                loading="lazy"
-              />
-              <span className="section-accent font-display text-lg font-black">
-                TianKami
-              </span>
-            </div>
-            <p className="mt-3 text-sm text-ink-dim">
-              Уютный хардкор: рогалики, новинки в первые дни релиза, МИ и
-              ламповое коммьюнити. {BRAND.footerText}
-            </p>
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between md:py-3">
+          <div className="flex items-center gap-2">
+            <img
+              src={MASCOTS.logo}
+              alt=""
+              width={512}
+              height={512}
+              className="h-7 w-7 rounded-full border border-pastel-purple/60 object-cover"
+              loading="lazy"
+            />
+            <span className="section-accent font-display text-base font-black">
+              TianKami
+            </span>
+            <span className="hidden text-xs text-ink-faint lg:inline">
+              {BRAND.footerText}
+            </span>
           </div>
-          <div className="text-sm">
-            <h3 className="font-display font-extrabold text-ink">Разделы</h3>
-            <ul className="mt-3 grid grid-cols-2 gap-2 text-ink-dim">
-              {NAV.map(({ to, label }) => (
-                <li key={to}>
-                  <Link
-                    className="inline-flex min-h-8 items-center transition hover:text-pastel-pink"
-                    to={to}
-                  >
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="text-sm">
-            <h3 className="font-display font-extrabold text-ink">
-              Соцсети и данные
-            </h3>
-            <div className="mt-3 flex gap-2">
-              {SOCIALS.map(({ href, icon: Icon, cls, label }) => (
-                <a
-                  key={href}
-                  className={"soc " + cls}
-                  href={BRAND.links[href]}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                >
-                  <Icon />
-                </a>
-              ))}
-            </div>
-            <p className="mt-4 text-xs text-ink-faint">
-              Данные обновлены: {buildDate() || "при последней сборке"}
-            </p>
+          <nav className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-dim" aria-label="Разделы сайта">
+            {NAV.map(({ to, label }) => (
+              <Link
+                key={to}
+                className="inline-flex min-h-8 items-center transition hover:text-pastel-pink"
+                to={to}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+          <div className="flex items-center gap-2">
+            {SOCIALS.map(({ href, icon: Icon, cls, label }) => (
+              <a
+                key={href}
+                className={"soc " + cls}
+                href={BRAND.links[href]}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+              >
+                <Icon />
+              </a>
+            ))}
           </div>
         </div>
-        <div className="border-t border-white/5 py-4 text-center text-xs text-ink-faint">
-          © {new Date().getFullYear()} {BRAND.name} · {BRAND.footerText} ·
-          сделано с 🥐 и любовью
+        <div className="border-t border-white/5 py-2 text-center text-[11px] text-ink-faint">
+          © {new Date().getFullYear()} {BRAND.name} · {BRAND.footerText} · сделано с 🥐 и
+          любовью · данные: {buildDate() || "при последней сборке"}
         </div>
       </footer>
     </div>
