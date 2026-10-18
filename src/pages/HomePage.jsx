@@ -81,6 +81,8 @@ export function HomePage() {
             src={last.image}
             alt=""
             aria-hidden="true"
+            width={460}
+            height={215}
             className="pointer-events-none absolute inset-y-0 right-0 z-0 hidden h-full w-[52%] object-cover xl:block"
             style={maskStyle}
           />

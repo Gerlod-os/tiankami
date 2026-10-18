@@ -131,6 +131,8 @@ export function GameDetails({ game, compact = false }) {
                   src={poster}
                   alt=""
                   aria-hidden="true"
+                  width={1280}
+                  height={720}
                   className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-300 group-hover:scale-[1.02] group-hover:opacity-90"
                   onError={(e) => {
                     if (posterFallback && e.currentTarget.src !== posterFallback)

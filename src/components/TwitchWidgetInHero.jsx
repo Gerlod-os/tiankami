@@ -71,6 +71,8 @@ export function TwitchWidgetInHero() {
       <img
         src={avatar}
         alt="Аватар канала Tiankami"
+        width={300}
+        height={300}
         className="h-14 w-14 rounded-full border-2 border-pastel-pink object-cover shadow-glow-pink"
         loading="lazy"
       />
