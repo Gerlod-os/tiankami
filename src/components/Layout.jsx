@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import {
   FaTwitch,
@@ -65,27 +65,52 @@ export function Layout({ children }) {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [flip, setFlip] = useState(0);
-
-  // Закрытие меню по Esc — на телефоне единственный способ не тянуться к крестику.
-  useEffect(() => {
-    if (!menuOpen) return undefined;
-    const onKey = (e) => {
-      if (e.key === "Escape") setMenuOpen(false);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [menuOpen]);
+  const drawerRef = useRef(null);
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
     setMenuOpen(false);
   }, [location.pathname]);
 
+  // Меню — модальное состояние: фон не прокручивается, Tab ходит по панели,
+  // Escape закрывает, фокус возвращается на кнопку. Без этого панель — просто
+  // выехавший справа блок, а страница под ним едет (замер 18.10.2026: 1200 px).
   useEffect(() => {
     if (!menuOpen) return undefined;
-    const onKey = (e) => e.key === "Escape" && setMenuOpen(false);
+    const prevFocus = document.activeElement;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const focusables = () =>
+      drawerRef.current
+        ? [...drawerRef.current.querySelectorAll(
+            'a[href], button, [tabindex]:not([tabindex="-1"])',
+          )]
+        : [];
+    focusables()[0]?.focus();
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        setMenuOpen(false);
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const els = focusables();
+      if (!els.length) return;
+      const first = els[0];
+      const last = els[els.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+      prevFocus?.focus?.();
+    };
   }, [menuOpen]);
 
   return (
@@ -195,6 +220,7 @@ export function Layout({ children }) {
             onClick={() => setMenuOpen(false)}
           />
           <div
+            ref={drawerRef}
             className="drawer md:hidden"
             role="dialog"
             aria-modal="true"
