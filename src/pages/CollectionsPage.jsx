@@ -75,14 +75,17 @@ export function CollectionsPage() {
                   {c.description}
                 </p>
               )}
-              <div className="mt-4">
-                <CoverFan
-                  games={c.games
-                    .map((g) => byTitle.get(String(g.name).toLowerCase()))
-                    .filter(Boolean)}
-                  size={golden ? 48 : 40}
-                />
-              </div>
+              {/* Веер — только у золотой подборки: так требует дизайн.md
+                  («веер есть только на золотой подборке»). У остальных список игр. */}
+              {golden && (
+                <div className="mt-4">
+                  <CoverFan
+                    games={c.games
+                      .map((g) => byTitle.get(String(g.name).toLowerCase()))
+                      .filter(Boolean)}
+                  />
+                </div>
+              )}
               <ul className="mt-3 space-y-1.5 text-sm text-ink-dim">
                 {c.games.slice(0, 4).map((g, i) => {
                   const match = byTitle.get(String(g.name).toLowerCase());
