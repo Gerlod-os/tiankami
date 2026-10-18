@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { FiExternalLink, FiYoutube, FiUsers, FiBookOpen, FiInfo } from "react-icons/fi";
+import { FiExternalLink, FiYoutube, FiUsers, FiBookOpen, FiInfo, FiAward, FiFilm } from "react-icons/fi";
+import { FaGamepad } from "react-icons/fa";
 import { useData } from "../components/DataProvider";
 import { GameCard } from "../components/GameCard";
 import { GameModal } from "../components/GameModal";
@@ -37,10 +38,10 @@ export function MIPage() {
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <span className="chip border-2 border-pastel-amber/50 bg-pastel-amber/15 font-extrabold text-pastel-amber text-base">
-            🎮 Тиан — участник
+            <FaGamepad className="inline" aria-hidden="true" /> Тиан — участник
           </span>
           <span className="chip border border-white/10 bg-white/5 text-ink-dim">
-            🏆 {miGames.length} игр прошло
+            <FiAward className="inline" aria-hidden="true" /> {miGames.length} игр прошло
           </span>
         </div>
       </header>
@@ -80,7 +81,7 @@ export function MIPage() {
         </div>
         <div className="flex flex-wrap gap-3">
           <span className="chip border-2 border-pastel-amber/50 bg-pastel-amber/15 text-pastel-amber">
-            🎮 Tiankami
+            <FaGamepad className="inline" aria-hidden="true" /> Tiankami
           </span>
           <span className="chip border border-white/10 bg-white/5 text-ink-dim">
             Другие стримеры — состав в каждом выпуске
@@ -91,7 +92,7 @@ export function MIPage() {
       {/* Игры */}
       <section>
         <h2 className="section-title mb-2 text-2xl">
-          🏆 Игры <span className="text-ink-dim text-base">({miGames.length})</span>
+          <FiAward className="inline" aria-hidden="true" /> Игры <span className="text-ink-dim text-base">({miGames.length})</span>
         </h2>
         <p className="mb-4 text-sm text-ink-dim">
           Все игры, участвовавшие в Мастер Игорей — с датами, статусами и кубками.
@@ -114,7 +115,7 @@ export function MIPage() {
         <section className="card p-6 md:p-8">
           <div className="flex items-center gap-2 mb-4">
             <FiYoutube className="text-red-300" />
-            <h2 className="section-title text-xl">🎬 Выпуски</h2>
+            <h2 className="section-title text-xl"><FiFilm className="inline" aria-hidden="true" /> Выпуски</h2>
           </div>
           <ul className="grid gap-2 sm:grid-cols-2">
             {episodes.map((g) => (

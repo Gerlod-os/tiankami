@@ -1,5 +1,6 @@
 import { FaTwitch, FaYoutube, FaDiscord } from "react-icons/fa";
-import { FiCalendar, FiMessageSquare } from "react-icons/fi";
+import { FiCalendar, FiMessageSquare, FiAward } from "react-icons/fi";
+import { FaGamepad } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { BRAND } from "../config/branding";
 import { MASCOTS } from "../config/mascots";
@@ -35,21 +36,21 @@ export function AboutPage() {
             </p>
             <ul className="mt-4 space-y-3 text-sm text-ink-dim">
               <li className="flex gap-2">
-                <span>🎮</span>
+                <FaGamepad aria-hidden="true" />
                 <span>
                   <b className="text-ink">Какие игры на стримах?</b> Всевозможные{" "}
                   <b className="text-pastel-pink">новинки-рогалики</b> в первые дни релиза!
                 </span>
               </li>
               <li className="flex gap-2">
-                <span>📅</span>
+                <FiCalendar aria-hidden="true" />
                 <span>
                   <b className="text-ink">Стримлю КАЖДЫЙ ДЕНЬ</b>.{" "}
                   {BRAND.about.scheduleNote}
                 </span>
               </li>
               <li className="flex gap-2">
-                <span>🏆</span>
+                <FiAward aria-hidden="true" />
                 <span>
                   На этом сайте я веду <b className="text-ink">базу всех рогаликов</b>:
                   оценки, часы, статусы и заметки — всё честно, даже боль.

@@ -1,4 +1,4 @@
-import { FiClock, FiCalendar } from "react-icons/fi";
+import { FiClock, FiCalendar, FiZap, FiTrendingUp } from "react-icons/fi";
 import { FaTwitch } from "react-icons/fa";
 import { useData } from "../components/DataProvider";
 import { parseRuDate, todayUTC, formatRuDate, formatRuDateLong } from "../utils/date";
@@ -114,8 +114,8 @@ export function SchedulePage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="font-display text-lg font-extrabold text-ink">
               {next.date === todayRu && nowMsk && nowMsk >= next.time && nowMsk < (next.endTime || "23:59")
-                ? "🔴 Идёт сейчас"
-                : "🔥 Ближайший стрим"}
+                ? <FiTrendingUp className="inline" aria-hidden="true" />
+                : <FiZap className="inline" aria-hidden="true" />}
             </h2>
             <button type="button" className="btn-ghost !px-3 !py-1.5 text-xs" onClick={() => addToCalendar(next)}>
               <FiCalendar /> В календарь

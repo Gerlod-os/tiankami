@@ -11,7 +11,13 @@ import {
   FiArrowDown,
   FiArrowUp,
   FiCheck,
+  FiTrendingUp,
+  FiTag,
+  FiGlobe,
+  FiZap,
+  FiPackage,
 } from "react-icons/fi";
+import { FaSkull } from "react-icons/fa";
 import { useData } from "../components/DataProvider";
 import { GameCard } from "../components/GameCard";
 import { GameModal } from "../components/GameModal";
@@ -515,7 +521,7 @@ export function CatalogPage() {
           <div className="card absolute inset-x-0 top-full z-30 mt-2 max-h-96 overflow-y-auto p-4 text-left shadow-glow-purple">
             {sugg.g.length > 0 && (
               <div className="mb-3">
-                <div className="label">🔥 Популярные</div>
+                <div className="label flex items-center gap-1.5"><FiTrendingUp aria-hidden="true" /> Популярные</div>
                 {sugg.g.map((g) => (
                   <button
                     key={g.slug}
@@ -546,7 +552,7 @@ export function CatalogPage() {
             )}
             {sugg.genres.length > 0 && (
               <div className="mb-3">
-                <div className="label">⚔️ Жанры</div>
+                <div className="label flex items-center gap-1.5"><FiTag aria-hidden="true" /> Жанры</div>
                 <div className="flex flex-wrap gap-1.5">
                   {sugg.genres.map((x) => (
                     <Chip
@@ -564,7 +570,7 @@ export function CatalogPage() {
             )}
             {sugg.settings.length > 0 && (
               <div className="mb-3">
-                <div className="label">🏛️ Сеттинги</div>
+                <div className="label flex items-center gap-1.5"><FiGlobe aria-hidden="true" /> Сеттинги</div>
                 <div className="flex flex-wrap gap-1.5">
                   {sugg.settings.map((x) => (
                     <Chip
@@ -582,7 +588,7 @@ export function CatalogPage() {
             )}
             {sugg.features.length > 0 && (
               <div>
-                <div className="label">✨ Особенности</div>
+                <div className="label flex items-center gap-1.5"><FiZap aria-hidden="true" /> Особенности</div>
                 <div className="flex flex-wrap gap-1.5">
                   {sugg.features.map((x) => (
                     <Chip
@@ -604,9 +610,7 @@ export function CatalogPage() {
 
       {collection && (
         <div className="card flex flex-wrap items-center gap-3 border-pastel-purple/30 p-4">
-          <span className="text-2xl" aria-hidden="true">
-            📦
-          </span>
+          <FiPackage className="shrink-0 text-2xl text-pastel-purple" aria-hidden="true" />
           <div className="min-w-0 flex-1">
             <div className="font-display font-extrabold text-ink">
               Подборка: {collection.name}
@@ -721,7 +725,7 @@ export function CatalogPage() {
                   >
                     {x}
                     {!genresSel.has(x) && genresSel.size >= MAX_GENRES
-                      ? " 🔒"
+                      ? " закрыто"
                       : ""}
                   </Chip>
                 ))}
@@ -777,7 +781,7 @@ export function CatalogPage() {
                       apply({ complexity: complexity === "low" ? null : "low" })
                     }
                   >
-                    💀 Лёгкие
+                    <FaSkull className="inline" aria-hidden="true" /> Лёгкие
                   </Chip>
                   <Chip
                     active={complexity === "mid"}
@@ -785,7 +789,7 @@ export function CatalogPage() {
                       apply({ complexity: complexity === "mid" ? null : "mid" })
                     }
                   >
-                    💀💀 Средне
+                    <FaSkull className="inline" aria-hidden="true" /><FaSkull className="inline" aria-hidden="true" /> Средне
                   </Chip>
                   <Chip
                     active={complexity === "high"}
@@ -793,7 +797,7 @@ export function CatalogPage() {
                       apply({ complexity: complexity === "high" ? null : "high" })
                     }
                   >
-                    💀💀💀 Хардкор
+                    <FaSkull className="inline" aria-hidden="true" /><FaSkull className="inline" aria-hidden="true" /><FaSkull className="inline" aria-hidden="true" /> Хардкор
                   </Chip>
                 </div>
               </div>

@@ -184,7 +184,7 @@ export function CatchOfDay() {
                     className="chip border border-pastel-mint/25 bg-pastel-mint/10 text-pastel-mint"
                     title="Почему клюнуло: настроение забега"
                   >
-                    {moodOf(caught).emoji} {moodOf(caught).label}
+                    {(() => { const M = moodOf(caught); const MI = M.icon; return <>{MI && <MI className="shrink-0" aria-hidden="true" />} {M.label}</>; })()}
                   </span>
                   <span className="truncate">
                     {caught.genre || "Рогалик"}

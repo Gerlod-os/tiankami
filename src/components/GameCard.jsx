@@ -1,6 +1,7 @@
 import { memo, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiClock, FiEye, FiStar } from "react-icons/fi";
+import { FaSkull } from "react-icons/fa";
 import { parseNum, hasMI } from "../utils/normalize";
 import { statusMeta, ratingColor } from "../utils/statusMeta";
 import { RARITY_GLOW } from "../utils/rarity";
@@ -83,7 +84,7 @@ export const GameCard = memo(function GameCard({
           </span>
         )}
         <span className={"chip absolute bottom-2 left-2 " + meta.cls}>
-          {meta.emoji} {game.status || "—"}
+          {meta.icon && <meta.icon className="shrink-0" aria-hidden="true" />} {game.status || "—"}
         </span>
         {hasMI(game) && (
           <span className="absolute bottom-1.5 right-2">
@@ -116,9 +117,7 @@ export const GameCard = memo(function GameCard({
             {skulls > 0 && (
               <span className="flex" title={`Сложность ${cx}/10`}>
                 {Array.from({ length: skulls }, (_, i) => (
-                  <span key={i} className="skull">
-                    💀
-                  </span>
+                  <FaSkull key={i} className="skull" aria-hidden="true" />
                 ))}
               </span>
             )}

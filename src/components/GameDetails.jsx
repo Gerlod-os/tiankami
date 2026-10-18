@@ -9,8 +9,12 @@ import {
   FiYoutube,
   FiPlay,
   FiMessageCircle,
+  FiStar,
+  FiActivity,
+  FiFeather,
+  FiFlag,
 } from "react-icons/fi";
-import { FaSteam } from "react-icons/fa";
+import { FaSkull, FaSteam } from "react-icons/fa";
 import { parseNum, isUrl, hasMI } from "../utils/normalize";
 import { statusMeta, ratingColor } from "../utils/statusMeta";
 import { parseYouTubeUrl } from "../utils/youtube";
@@ -19,17 +23,19 @@ import { RarityEgg } from "./RarityEgg";
 import { MITrophy } from "./MITrophy";
 import { useData } from "./DataProvider";
 
-const ratingIcon = (r) => (r >= 9 ? "💫" : r >= 6 ? "🌟" : "⭐");
-const cxIcon = (c) => (c >= 7 ? "💀" : c >= 4 ? "😐" : "😌");
-const progIcon = (p) => (p >= 100 ? "🌳" : p > 50 ? "🌿" : "🌱");
+// Иконки шкал: один шрифт на всех устройствах, цвет из палитры. Эмодзи (💫💀🌳)
+// рисовала система, и на iPhone, и на Windows это были разные значки.
+const ratingIcon = () => FiStar;
+const cxIcon = (c) => (c >= 7 ? FaSkull : c >= 4 ? FiActivity : FiFeather);
+const progIcon = () => FiFlag;
 
-function Bar({ label, icon, value, max, suffix }) {
+function Bar({ label, icon: Icon, value, max, suffix }) {
   const v = parseNum(value);
   return (
     <div>
       <div className="mb-1 flex items-center justify-between text-xs">
         <span className="flex items-center gap-1.5 font-semibold uppercase tracking-wider text-ink-dim">
-          <span aria-hidden="true">{icon}</span> {label}
+          {Icon && <Icon className="shrink-0" aria-hidden="true" />} {label}
         </span>
         <span className="font-display font-bold text-ink">
           {v > 0 ? `${v}${suffix || `/${max}`}` : "—"}
@@ -205,13 +211,13 @@ export function GameDetails({ game, compact = false }) {
           <RarityEgg rarity={rarity} size={24} />
         </span>
         <span className={"chip " + meta.cls}>
-          {meta.emoji} {game.status || "—"}
+          {meta.icon && <meta.icon className="shrink-0" aria-hidden="true" />} {game.status || "—"}
         </span>
         <span
           className="chip border border-pastel-mint/25 bg-pastel-mint/10 text-pastel-mint"
           title="Настроение забега"
         >
-          {moodOf(game).emoji} {moodOf(game).label}
+          {(() => { const M = moodOf(game); const MI = M.icon; return <>{MI && <MI className="shrink-0" aria-hidden="true" />} {M.label}</>; })()}
         </span>
         {hasMI(game) && (
           <span className="chip border border-pastel-amber/30 bg-pastel-amber/15 text-pastel-amber">
@@ -262,7 +268,7 @@ export function GameDetails({ game, compact = false }) {
             max={10}
           />
           {parseNum(game.complexity) >= 7 && (
-            <div className="mt-1 text-xs text-pastel-rose">Попотеешь 💀</div>
+            <div className="mt-1 text-xs text-pastel-rose"><span className="inline-flex items-center gap-1"><FaSkull aria-hidden="true" /> Попотеешь</span></div>
           )}
         </div>
         <Bar

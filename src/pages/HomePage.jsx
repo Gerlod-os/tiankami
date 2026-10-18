@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { FiArrowRight, FiCalendar } from "react-icons/fi";
+import { FiArrowRight, FiCalendar, FiZap } from "react-icons/fi";
 import { FaYoutube } from "react-icons/fa";
 import { useData } from "../components/DataProvider";
 import { TwitchWidgetInHero } from "../components/TwitchWidgetInHero";
@@ -109,7 +109,15 @@ export function HomePage() {
                   </span>
                 </span>
               )}
-              {last && <span className={"chip " + statusMeta(last.status).cls}>{statusMeta(last.status).emoji} {last.status}</span>}
+              {last && (() => {
+                const st = statusMeta(last.status);
+                const StIcon = st.icon;
+                return (
+                  <span className={"chip " + st.cls}>
+                    {StIcon && <StIcon className="shrink-0" aria-hidden="true" />} {last.status}
+                  </span>
+                );
+              })()}
               <span className="chip border border-pastel-pink/30 bg-pastel-pink/10 text-pastel-pink">
                 Последний забег · {last?.playedDate || "—"}
               </span>
@@ -156,7 +164,7 @@ export function HomePage() {
         className="card card-hover flex flex-wrap items-center gap-4 border-pastel-purple/30 p-4 animate-fadeUp"
         style={{ animationDelay: "120ms" }}
       >
-        <span className="text-3xl" aria-hidden="true">🐶</span>
+        <FiZap className="shrink-0 text-3xl text-pastel-purple" aria-hidden="true" />
         <div className="min-w-0 flex-1">
           <div className="font-display font-extrabold text-pastel-purple">MEME ALERTS</div>
           <div className="text-xs text-ink-dim">Отправь мемас на стрим — заходи в Discord и кидай в специальное место! 🐱</div>
@@ -167,7 +175,7 @@ export function HomePage() {
       {/* БЛИЖАЙШИЙ СТРИМ */}
       {nextStream && (
         <section className="card card-hover flex flex-wrap items-center gap-4 border-pastel-blue/20 p-5 animate-fadeUp" style={{ animationDelay: "150ms" }}>
-          <span className="text-3xl" aria-hidden="true">📅</span>
+          <FiCalendar className="shrink-0 text-3xl text-pastel-blue" aria-hidden="true" />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2 font-display text-lg font-extrabold text-ink">
               Ближайший стрим: {nextStream.date} в {nextStream.time}

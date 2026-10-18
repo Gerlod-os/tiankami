@@ -5,6 +5,7 @@ import {
   FiChevronRight,
   FiChevronLeft,
   FiYoutube,
+  FiCpu,
 } from "react-icons/fi";
 import { FaSteam } from "react-icons/fa";
 import { useData } from "../components/DataProvider";
@@ -334,7 +335,7 @@ export function GamePage() {
       {recs.length > 0 && (
         <section>
           <h2 className="section-title mb-1 text-xl md:text-2xl">
-            🤖 Похожие игры
+            <span className="inline-flex items-center gap-2"><FiCpu aria-hidden="true" /> Похожие игры</span>
           </h2>
           <p className="mb-2 text-xs text-ink-dim">
             Рекомендации по особенностям, жанру и сеттингу — как будто советует

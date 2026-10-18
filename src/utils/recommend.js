@@ -1,5 +1,7 @@
 // AI-сфера: рекомендации. Приоритет: особенности → жанр → сеттинг.
 import { parseNum } from "./normalize.js";
+import { FaFire } from "react-icons/fa";
+import { FiCoffee, FiZap, FiLayers, FiTarget } from "react-icons/fi";
 
 const splitList = (s) =>
   String(s || "")
@@ -36,11 +38,11 @@ export function recommendSimilar(game, games, n = 4) {
 
 // Настроение (AI-теги): 5 уровней — chill / intense / mindfuck / casual / hardcore
 export const MOODS = {
-  chill: { key: "chill", emoji: "🧘", label: "Chill", desc: "расслабляющая" },
-  intense: { key: "intense", emoji: "⚡", label: "Intense", desc: "напряжённая" },
-  mindfuck: { key: "mindfuck", emoji: "🧠", label: "Mindfuck", desc: "сложная" },
-  casual: { key: "casual", emoji: "🎯", label: "Casual", desc: "казуальная" },
-  hardcore: { key: "hardcore", emoji: "🔥", label: "Hardcore", desc: "хардкорная" },
+  chill: { key: "chill", icon: FiCoffee, label: "Chill", desc: "расслабляющая" },
+  intense: { key: "intense", icon: FiZap, label: "Intense", desc: "напряжённая" },
+  mindfuck: { key: "mindfuck", icon: FiLayers, label: "Mindfuck", desc: "сложная" },
+  casual: { key: "casual", icon: FiTarget, label: "Casual", desc: "казуальная" },
+  hardcore: { key: "hardcore", icon: FaFire, label: "Hardcore", desc: "хардкорная" },
 };
 
 export function moodOf(game) {
