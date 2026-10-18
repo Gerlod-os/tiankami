@@ -312,8 +312,11 @@
   .wave-fast {
     animation: waveMove 9s linear infinite reverse;
   }
+  /* «Опасный» заголовок: тёплое свечение и трекинг. Шрифт — общий для сайта
+     (Unbounded/Nunito): антиква Georgia выбивалась и стояла на 109 страницах
+     (МИ + 108 игр со сложностью 8+), проверено 18.10.2026. */
   .death-title {
-    @apply font-gothic tracking-wide;
+    @apply tracking-wide;
     text-shadow:
       0 0 18px rgba(255, 143, 163, 0.45),
       0 2px 0 rgba(0, 0, 0, 0.6);

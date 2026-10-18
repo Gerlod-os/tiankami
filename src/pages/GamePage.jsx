@@ -167,7 +167,7 @@ export function GamePage() {
         <div className="text-5xl" aria-hidden="true">
           🥐
         </div>
-        <h1 className="mt-4 font-display text-2xl font-extrabold text-ink">
+        <h1 className="font-hero mt-4 text-2xl font-extrabold text-ink">
           Игра съедена кроассаном
         </h1>
         <p className="mt-2 text-sm text-ink-dim">
@@ -234,9 +234,11 @@ export function GamePage() {
               <span className="font-semibold text-ink">{game.title}</span>
             </nav>
             <h1
-              className={
-                "mt-3 text-4xl font-black text-ink md:text-5xl " +
-                (hardcore ? "death-title" : "font-display")
+              className="font-hero mt-3 text-4xl font-black text-ink md:text-5xl"
+              style={
+                hardcore
+                  ? { textShadow: "0 0 18px rgba(255,143,163,0.45), 0 2px 0 rgba(0,0,0,0.6)" }
+                  : undefined
               }
             >
               {game.title}

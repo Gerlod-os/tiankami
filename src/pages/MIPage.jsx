@@ -25,7 +25,10 @@ export function MIPage() {
       {/* Hero */}
       <header className="card mi-bg relative overflow-hidden p-8 text-center md:p-14">
         <MITrophy size="lg" className="mx-auto" />
-        <h1 className="death-title mt-4 font-gothic text-4xl font-bold text-pastel-amber md:text-6xl">
+        <h1
+          className="font-hero mt-4 text-4xl font-black text-pastel-amber md:text-6xl"
+          style={{ textShadow: "0 0 24px rgba(255,217,160,0.35)" }}
+        >
           Мастер Игорей
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-lg text-ink-dim">

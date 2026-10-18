@@ -88,7 +88,7 @@ export function HomePage() {
         <div className="relative z-10 grid grid-cols-1 gap-8 p-6 md:p-10 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
           <div className="animate-fadeUp min-w-0">
             <div className="flex items-center gap-3">
-              <h1 className="section-accent font-display text-2xl font-black tracking-wide">
+              <h1 className="section-accent font-hero text-2xl font-black tracking-wide">
                 TianKami · каталог рогаликов
               </h1>
               <span className="chip border border-white/10 bg-white/5 text-ink-dim">{`Уютный хардкор · Рогалики`}</span>
@@ -199,7 +199,7 @@ export function HomePage() {
               >
                 <div className="flex items-center gap-3">
                   {golden ? <RarityEgg rarity="legendary" size={30} /> : <CollectionIcon name={c.name} />}
-                  <h3 className={"line-clamp-1 font-display text-lg font-extrabold " + (golden ? "font-gothic text-pastel-amber" : "text-ink")}>
+                  <h3 className={"line-clamp-1 font-display text-lg font-extrabold " + (golden ? "text-pastel-amber" : "text-ink")}>
                     {c.name}
                   </h3>
                 </div>

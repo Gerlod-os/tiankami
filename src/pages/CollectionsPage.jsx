@@ -64,7 +64,7 @@ export function CollectionsPage() {
                 <h2
                   className={
                     "line-clamp-1 font-display text-xl font-extrabold " +
-                    (golden ? "font-gothic text-pastel-amber" : "text-ink")
+                    (golden ? "text-pastel-amber" : "text-ink")
                   }
                 >
                   {c.name}
