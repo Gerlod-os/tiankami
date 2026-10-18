@@ -5,7 +5,6 @@ import {
   FiChevronRight,
   FiChevronLeft,
   FiYoutube,
-  FiCpu,
 } from "react-icons/fi";
 import { FaSteam } from "react-icons/fa";
 import { useData } from "../components/DataProvider";
@@ -166,14 +165,10 @@ export function GamePage() {
       : { title: "Игра не найдена — Tiankami" },
   );
 
-  // Рекомендации: SSR — детерминированно, после маунта — лёгкий шuffles по критериям
-  const [recs, setRecs] = useState(() =>
-    game ? recommendSimilar(game, games, 6) : [],
-  );
-  useEffect(() => {
-    if (!game) return;
-    setRecs((r) => [...r].sort(() => Math.random() - 0.5));
-  }, [game?.slug]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Рекомендации считаются одинаково на сервере и в браузере: порядок по весам
+  // (жанр → сеттинг → теги) больше не перемешивается после маунта — иначе
+  // «лучшая» игра оказывалась третьей (решение владельца 18.10.2026).
+  const recs = game ? recommendSimilar(game, games, 6) : [];
 
   if (!game) {
     return (
@@ -348,11 +343,10 @@ export function GamePage() {
       {recs.length > 0 && (
         <section>
           <h2 className="section-title mb-1 text-xl md:text-2xl">
-            <span className="inline-flex items-center gap-2"><FiCpu aria-hidden="true" /> Похожие игры</span>
+            Похожие игры
           </h2>
           <p className="mb-2 text-xs text-ink-dim">
-            Рекомендации по особенностям, жанру и сеттингу — как будто советует
-            ИИ, но это опыт Тиана.
+            Рекомендации по жанру, сеттингу и особенностям.
           </p>
           <SimilarCarousel
             items={recs}
