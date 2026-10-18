@@ -58,7 +58,6 @@ const FONT_PRELOAD_PREFIXES = [
   "nunito-latin-wght-",
   "inter-latin-wght-",
   "unbounded-latin-wght-",
-  "cinzel-latin-700-",
 ];
 const fontPreloads = fs
   .readdirSync(path.join(DIST, "assets"))

@@ -28,7 +28,9 @@ export default {
         },
       },
       fontFamily: {
-        gothic: ["Cinzel", "Georgia", "serif"],
+        // Cinzel убран: латиница без кириллицы, на русских заголовках не рисовался.
+        // Стек остался тем же, что браузер и так выбирал, — Georgia.
+        gothic: ["Georgia", "serif"],
         // Героический дисплей — заголовки с характером (кириллица)
         hero: [
           '"Unbounded Variable"',

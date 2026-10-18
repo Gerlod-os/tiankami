@@ -2,7 +2,8 @@
 import "@fontsource-variable/nunito";
 import "@fontsource-variable/inter";
 import "@fontsource-variable/unbounded";
-import "@fontsource/cinzel/700.css";
+// Cinzel убран 18.10.2026: латиница без кириллицы — на русских заголовках он не рисовался,
+// браузер брал Georgia из стека. Файл грузился и ничего не менял.
 import "./index.css";
 import { StrictMode } from "react";
 import { hydrateRoot, createRoot } from "react-dom/client";

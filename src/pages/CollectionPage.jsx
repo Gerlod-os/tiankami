@@ -33,7 +33,10 @@ export function CollectionPage() {
     );
   }
 
-  const byTitle = new Map(games.map((g) => [String(g.name).toLowerCase(), g]));
+  // Ключ — название игры (title), а не name: у игры из каталога поля name нет,
+  // и раньше карта схлопывалась в один ключ «undefined» — все строки подборки
+  // оставались без ссылки, обложки и оценки (найдено 18.10.2026).
+  const byTitle = new Map(games.map((g) => [String(g.title).toLowerCase(), g]));
   const golden = /золотой/i.test(collection.name);
 
   return (
@@ -105,8 +108,8 @@ export function CollectionPage() {
                   </span>
                   {/* Яйцо */}
                   <RarityEgg rarity={bySlug?.[match.slug] || "common"} size={32} />
-                  {/* Рейтинг */}
-                  {parseNum(match.rating) > 0 && (
+                  {/* Рейтинг: в золотом списке его нет — там «они все легенды», 10/10 ничего не решает */}
+                  {!golden && parseNum(match.rating) > 0 && (
                     <span className="chip border border-white/10 bg-night-900/70 text-base">
                       <FiStar className={ratingColor(match.rating)} />
                       <span className={ratingColor(match.rating) + " font-display font-extrabold"}>

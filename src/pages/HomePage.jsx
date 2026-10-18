@@ -1,10 +1,8 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { FiArrowRight, FiCalendar } from "react-icons/fi";
 import { FaYoutube } from "react-icons/fa";
 import { useData } from "../components/DataProvider";
-import { GameCard } from "../components/GameCard";
-import { GameModal } from "../components/GameModal";
 import { TwitchWidgetInHero } from "../components/TwitchWidgetInHero";
 import { CatchOfDay } from "../components/CatchOfDay";
 import { LiveBanner } from "../components/LiveBanner";
@@ -13,7 +11,7 @@ import { RarityEgg } from "../components/RarityEgg";
 import { CollectionIcon } from "../components/CollectionIcon";
 import { CoverFan } from "../components/CoverFan";
 import { MASCOTS } from "../config/mascots";
-import { computeStats, lastPlayedGame, topRated } from "../utils/stats";
+import { computeStats, lastPlayedGame } from "../utils/stats";
 import { useCounter } from "../utils/useCounter";
 import { useCountdown, streamMoment } from "../utils/useCountdown";
 import { usePageMeta } from "../utils/usePageMeta";
@@ -48,8 +46,7 @@ function Countdown({ date, time }) {
 }
 
 export function HomePage() {
-  const { games, collections, schedule, bySlug } = useData();
-  const [modal, setModal] = useState(null);
+  const { games, collections, schedule } = useData();
   usePageMeta({
     title: "Tiankami — каталог рогаликов",
     description:
@@ -58,7 +55,6 @@ export function HomePage() {
 
   const stats = computeStats(games, collections);
   const last = lastPlayedGame(games);
-  const top = topRated(games, 8);
   const today = todayUTC();
   const nextStream = (schedule || []).find(
     (s) => (parseRuDate(s.date)?.getTime() || 0) >= today.getTime()
@@ -233,21 +229,6 @@ export function HomePage() {
           })}
         </div>
       </section>
-
-      {/* ТОП ИГР */}
-      <section className="animate-fadeUp" style={{ animationDelay: "200ms" }}>
-        <div className="mb-6 flex items-end justify-between gap-4">
-          <h2 className="section-title"><span className="h-marker">Топ</span> <span className="section-accent">по оценкам</span></h2>
-          <Link to="/catalog" className="btn-ghost text-sm">Каталог <FiArrowRight /></Link>
-        </div>
-        <div className="grid gap-x-4 gap-y-10 pt-5 sm:grid-cols-2 lg:grid-cols-4">
-          {top.map((g, i) => (
-            <GameCard key={g.slug} game={g} onQuickView={setModal} rarity={bySlug?.[g.slug] || "common"} delay={i} />
-          ))}
-        </div>
-      </section>
-
-      <GameModal game={modal} onClose={() => setModal(null)} />
     </div>
   );
 }

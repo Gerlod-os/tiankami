@@ -93,17 +93,8 @@ export function GameDetails({ game }) {
 
   return (
     <div className="space-y-5">
-      {/* Обложка сверху */}
-      {game.image && (
-        <img
-          src={game.image}
-          alt={`Обложка ${game.title}`}
-          width={460}
-          height={215}
-          className="w-full rounded-card border border-white/10 object-cover shadow-sticker"
-          loading="lazy"
-        />
-      )}
+      {/* Обложки здесь нет: в шапке страницы она уже стоит дважды (фон + видимая).
+          Третья копия на том же экране — дубль (план, Б17). */}
 
       {/* YouTube под обложкой */}
       {game.youtube && ytState === "show" && yt?.embedUrl && (
