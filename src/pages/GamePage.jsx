@@ -19,13 +19,52 @@ import { ratingColor } from "../utils/statusMeta";
 import { recommendSimilar } from "../utils/recommend";
 
 // Карусель «похожих» в стиле PlayStation: стрелки, клавиатура, глубина.
+// Круг: набор повторяется трижды, старт — в средней копии. У края средней копии
+// scrollLeft перескакивает на ширину одного набора, поэтому листать можно в обе
+// стороны без конца и стрелки никогда не упираются (замер 18.10.2026).
 function SimilarCarousel({ items, bySlug, onQuickView }) {
   const ref = useRef(null);
   const [active, setActive] = useState(0);
 
-  const onScroll = () => {
+  // Мгновенный прыжок: при scroll-behavior: smooth браузер анимирует и запись,
+  // и нормализацию, и карусель гуляет между копиями (замер 18.10.2026).
+  const jumpTo = (x) => {
     const el = ref.current;
     if (!el) return;
+    const prev = el.style.scrollBehavior;
+    el.style.scrollBehavior = "auto";
+    el.scrollLeft = x;
+    el.style.scrollBehavior = prev;
+  };
+
+  // Края средней копии: от неё и считаем прыжок — одной шириной набора.
+  const bounds = () => {
+    const el = ref.current;
+    if (!el || !items.length) return null;
+    const first = el.children[0];
+    const middle = el.children[items.length];
+    if (!first || !middle) return null;
+    const start = middle.offsetLeft - first.offsetLeft;
+    return { start, width: start };
+  };
+
+  useEffect(() => {
+    const el = ref.current;
+    const b = bounds();
+    if (!el || !b || !items.length) return;
+    // Старт — начало средней копии. Карточка встаёт на свой внутренний отступ,
+    // первая не срезана: scroll-snap может докрутить на пару пикселей.
+    jumpTo(b.start - 8);
+  }, [items.map((g) => g.slug).join(",")]);
+
+  const onScroll = () => {
+    const el = ref.current;
+    const b = bounds();
+    if (!el || !b) return;
+    // Держим окно внутри средней копии: ушли к краю — перескакиваем на набор.
+    if (el.scrollLeft < b.start - b.width * 0.5) jumpTo(el.scrollLeft + b.width);
+    else if (el.scrollLeft > b.start + b.width * 0.5) jumpTo(el.scrollLeft - b.width);
+
     const cards = [...el.children];
     const center = el.scrollLeft + el.clientWidth / 2;
     let best = 0;
@@ -38,11 +77,13 @@ function SimilarCarousel({ items, bySlug, onQuickView }) {
         best = i;
       }
     });
-    setActive(best);
+    setActive(best % items.length);
   };
 
   const go = (dir) =>
     ref.current?.scrollBy({ left: dir * 300, behavior: "smooth" });
+
+  const looped = [...items, ...items, ...items];
 
   return (
     <div className="relative">
@@ -71,15 +112,15 @@ function SimilarCarousel({ items, bySlug, onQuickView }) {
         }}
         tabIndex={0}
         role="region"
-        aria-label="Карусель похожих игр (стрелки влево/вправо)"
+        aria-label="Карусель похожих игр: шесть игр по кругу (стрелки влево/вправо)"
         className="flex snap-x gap-4 overflow-x-auto scroll-smooth px-2 py-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-pastel-pink"
       >
-        {items.map((g, i) => (
+        {looped.map((g, i) => (
           <div
-            key={g.slug}
+            key={`${g.slug}-${i}`}
             className={
               "car-item w-[260px] shrink-0 snap-start " +
-              (i === active ? "" : "car-dim")
+              (i % items.length === active ? "" : "car-dim")
             }
           >
             <GameCard

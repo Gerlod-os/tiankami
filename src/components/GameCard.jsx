@@ -33,8 +33,10 @@ export const GameCard = memo(function GameCard({
         ["--glow"]: RARITY_GLOW[rarity] || RARITY_GLOW.common,
       }}
     >
+      {/* Яйцо слева: справа наверху живёт чип оценки — на right они сталкивались
+          (замер 18.10.2026: пересечение 406 px²) */}
       {egg === "big" && (
-        <span className="absolute -top-5 right-5 z-10">
+        <span className="absolute -top-5 left-4 z-10">
           <RarityEgg rarity={rarity} size={40} />
         </span>
       )}
