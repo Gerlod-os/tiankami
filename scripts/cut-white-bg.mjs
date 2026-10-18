@@ -1,11 +1,14 @@
-// Вырезание белого фона из маскотов: у Сайтамы белый фон зашит в сам файл
-// (mascot-collections.webp, mascot-support.webp), CSS тут не помогает.
+// Вырезание светлого фона из маскотов: у Сайтамы он зашит в сам файл, CSS тут не помогает.
 //
-// Запуск:  node scripts/cut-white-bg.mjs [файл...]
-// По умолчанию обрабатывает оба файла выше. Идемпотентно: если фон уже прозрачный,
-// заливка от краёв никого не находит и файл перезапишется тем же содержимым.
+// Запуск:  node scripts/cut-white-bg.mjs [--cream] [файл...]
+//   без флага — белый фон (mascot-collections, mascot-support)
+//   --cream  — кремовый фон (mascot-fisher): крем отличается от белого одеяла по каналам,
+//              порог «r−g > 20 и g−b > 10», поэтому белое одеяло персонажа не срезается
 //
-// Заливка идёт от краёв по связным белым пикселям, а не порогом по всему кадру:
+// Идемпотентно: если фон уже прозрачный, заливка от краёв никого не находит и файл
+// перезапишется тем же содержимым.
+//
+// Заливка идёт от краёв по связным пикселям фона, а не порогом по всему кадру:
 // одежда Сайтамы светлая, и простой порог снёс бы части рисунка.
 //
 // Откат: git checkout <коммит> -- public/img/<файл> — файлы под гитом.
@@ -16,17 +19,16 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const files =
-  process.argv.slice(2).length > 0
-    ? process.argv.slice(2)
-    : ["mascot-collections.webp", "mascot-support.webp"];
+const cream = process.argv.includes("--cream");
+const extra = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+const files = extra.length > 0 ? extra : cream ? ["mascot-fisher.webp"] : ["mascot-collections.webp", "mascot-support.webp"];
 
 const cutOne = async (browser, file) => {
   const full = path.join(root, "public", "img", file);
   const buf = await readFile(full);
   const page = await browser.newPage();
   await page.goto("about:blank");
-  const res = await page.evaluate(async (base64) => {
+  const res = await page.evaluate(async ([base64, creamMode]) => {
     const img = new Image();
     await new Promise((ok, bad) => {
       img.onload = ok;
@@ -42,14 +44,16 @@ const cutOne = async (browser, file) => {
     const h = canvas.height;
     const data = ctx.getImageData(0, 0, w, h);
     const px = data.data;
-    const white = (i) => px[i] > 235 && px[i + 1] > 235 && px[i + 2] > 235;
+    const isBg = creamMode
+      ? (i) => px[i] > 235 && px[i + 1] > 225 && px[i + 2] > 200 && px[i] - px[i + 1] > 2
+      : (i) => px[i] > 235 && px[i + 1] > 235 && px[i + 2] > 235;
 
     // Заливка от краёв: только белое, связанное с фоном, становится прозрачным.
     const seen = new Uint8Array(w * h);
     const stack = [];
     const push = (x, y) => {
       const p = y * w + x;
-      if (!seen[p] && white(p * 4)) {
+      if (!seen[p] && isBg(p * 4)) {
         seen[p] = 1;
         stack.push(p);
       }
@@ -108,12 +112,18 @@ const cutOne = async (browser, file) => {
     let out = "";
     for (let i = 0; i < bytes.length; i++) out += String.fromCharCode(bytes[i]);
     return { base64: btoa(out), w, h, cleared, total: w * h };
-  }, buf.toString("base64"));
+  }, [buf.toString("base64"), cream]);
   await page.close();
 
   const out = Buffer.from(res.base64, "base64");
   const same = out.equals(buf);
-  if (!same) await writeFile(full, out);
+  const nothingToDo = res.cleared === 0;
+  // сообщение о повторном запуске: файл уже прозрачный, писать не нужно
+  if (!same && !nothingToDo) {
+    await writeFile(full, out);
+  } else if (nothingToDo) {
+    console.log(`  фон уже прозрачный — файл не тронут`);
+  }
   console.log(
     `${file}: ${res.w}×${res.h}, прозрачных пикселей ${res.cleared} из ${res.total} ` +
       `(${Math.round((res.cleared / res.total) * 100)}%), вес ${buf.length} → ${out.length} байт` +
