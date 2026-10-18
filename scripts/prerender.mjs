@@ -6,6 +6,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { build } from "vite";
 import { SITE_URL, BASE_PATH } from "../src/config/site.js";
 import { jsonLdFor } from "../src/utils/jsonld.js";
+import { parseRuDate } from "../src/utils/date.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -216,15 +217,30 @@ try {
 }
 
 // ── sitemap.xml + robots.txt ─────────────────────────────────────────────────
-// lastmod — дата сборки: данные пересобираются сборкой, это честнее даты правки в таблице.
-const lastmod = new Date().toISOString().slice(0, 10);
+// lastmod — не «всё изменилось сегодня»: одинаковая дата у 471 адреса поисковику
+// ничего не говорит и обесценивает тег. У страницы игры это дата прохождения —
+// данные о ней и есть содержимое страницы. У остальных страниц дата сборки:
+// они правда пересобираются из таблицы каждый день. Даты нет — тега нет.
+const BUILD_DATE = new Date().toISOString().slice(0, 10);
+const isoFromRu = (s) => {
+  const d = parseRuDate(s);
+  return d ? d.toISOString().slice(0, 10) : null;
+};
+function lastmodFor(route) {
+  if (route.startsWith("/catalog/")) {
+    const g = games.find((x) => `/catalog/${x.slug}` === route);
+    return isoFromRu(g?.playedDate);
+  }
+  return BUILD_DATE;
+}
 const sitemap = [
   '<?xml version="1.0" encoding="UTF-8"?>',
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-  ...routes.map(
-    (r) =>
-      `  <url><loc>${SITE}${r === "/" ? "/" : r + "/"}</loc><lastmod>${lastmod}</lastmod><changefreq>${r.startsWith("/catalog/") ? "weekly" : "daily"}</changefreq></url>`
-  ),
+  ...routes.map((r) => {
+    const lm = lastmodFor(r);
+    const lastmod = lm ? `<lastmod>${lm}</lastmod>` : "";
+    return `  <url><loc>${SITE}${r === "/" ? "/" : r + "/"}</loc>${lastmod}<changefreq>${r.startsWith("/catalog/") ? "weekly" : "daily"}</changefreq></url>`;
+  }),
   "</urlset>",
 ].join("\n");
 fs.writeFileSync(path.join(DIST, "sitemap.xml"), sitemap);
