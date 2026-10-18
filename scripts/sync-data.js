@@ -18,6 +18,7 @@ const {
 } = await import("../src/utils/normalize.js");
 const { linksFromSheetXlsx } = await import("../src/utils/xlsx.js");
 const { fillYouTubeFromPlaylists } = await import("../src/utils/playlists.js");
+const { fillMissingCovers } = await import("./steam-covers.mjs");
 const { twitchSchedule, SCHEDULE_DAYS } = await import("./twitch-schedule.mjs");
 const { twitchRecentStreams } = await import("./twitch-recent.mjs");
 const { parseRuDate, formatRuDate } = await import("../src/utils/date.js");
@@ -262,7 +263,42 @@ if (!schedule.length) {
 // Обложки Steam и ссылки добавляет только шаг «Копия» с ключом Sheets API.
 // Без ключа (сборка на GitHub) свежие данные вышли бы без картинок, поэтому
 // переносим их из уже сохранённого файла — иначе страницы теряют обложки и og:image.
-writeJson("games.json", applyOverrides(withRichFields(games)));
+const finalGames = applyOverrides(withRichFields(games));
+
+// ── 5.1. Обложки Steam для игр без картинки ──────────────────────────────────
+// Владелец добавляет игры в таблицу — обложка должна находиться сама, без
+// ручного overrides. Только по appId из таблицы и поиску с проверкой названия:
+// чужую игру подставить нельзя (проверено: «Against the Dark Moon» не лезет
+// к «Against the Moon»). Применяется после overrides — потому что там для
+// части игр стоит hide:true, а теперь обложку можно достать по-настоящему.
+// Псевдонимы — src/data/steam-name-aliases.json: опечатка в таблице
+// («The Baazar») не должна мешать найти игру в Steam («The Bazaar»).
+const ALIASES_PATH = path.join(DATA_DIR, "steam-name-aliases.json");
+let steamAliases = {};
+try {
+  if (fs.existsSync(ALIASES_PATH)) {
+    steamAliases = JSON.parse(fs.readFileSync(ALIASES_PATH, "utf8"));
+  }
+} catch (e) {
+  console.warn("  ⚠ Список псевдонимов Steam не прочитался:", e.message);
+}
+
+if (finalGames.length) {
+  try {
+    const count = await fillMissingCovers(finalGames, {
+      aliases: steamAliases,
+      onFound: (g, cover) =>
+        console.log(`  ✔ обложка: ${g.title} → ${cover.name || cover.appId}`),
+      onMiss: (g, e) =>
+        console.log(`  ⓘ без обложки остаётся: ${g.title}${e ? ` (${e.message})` : ""}`),
+    });
+    if (!count) console.log("  ✔ обложки есть у всех игр");
+  } catch (e) {
+    console.warn("  ⚠ Steam недоступен, обложки не обновлены:", e.message);
+  }
+}
+
+writeJson("games.json", finalGames);
 writeJson("collections.json", collections);
 writeJson("schedule.json", schedule);
 console.log("✅ Синхронизация завершена.");
