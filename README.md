@@ -1,22 +1,22 @@
 # 🥐 TianKami — каталог рогаликов
 
-Уютный хардкор: сайт-каталог рогаликов Twitch-канала **Tiankami** — база из ~441 игры
-с оценками, часами, статусами прохождений, подборками от Тиана и расписанием стримов.
+Уютный хардкор: сайт-каталог рогаликов Twitch-канала **Tiankami** — база более чем из 400 игр с оценками, часами, статусами прохождений, подборками от Тиана и расписанием стримов.
 
-Действующий оригинал: https://tiankami.vercel.app
+**Боевой сайт (продакшен):** https://gerlod-os.github.io/tiankami — собирается и выкладывается автоматически из ветки `main` через GitHub Actions (см. «Деплой»).
+
+Домен tiankami.vercel.app — бывший хостинг, с него ушли 17–18.10.2026; выкладка туда больше не идёт, версия на нём устаревшая.
 
 ---
 
 ## 📚 Документация
 
-| Файл                         | Для чего                                                            |
-| ---------------------------- | ------------------------------------------------------------------- |
-| `README.md`                  | Этот файл: быстрый старт, стек, архитектура, дизайн-система         |
-| `ПОЛНОЕ_ОПИСАНИЕ_ПРОЕКТА.md` | Полное техническое описание: все страницы, компоненты, утилиты, API |
-| `PLAN.md`                    | План задач с прогрессом (что сделано, что отложено)                 |
-| `CHANGELOG.md`               | Дневник изменений                                                   |
-| `дизайн.md`                  | Заметки дизайнера: базовый чек-лист улучшений                       |
-| `PROJECT_BRIEF.md`           | Сжатый бриф проекта на 1 страницу                                   |
+| Файл | Для чего |
+| --- | --- |
+| `README.md` | Этот файл: быстрый старт, стек, деплой, правила |
+| `CHANGELOG.md` | Дневник изменений |
+| `../ОПИСАНИЕ-ПРОЕКТА.md` | Полный справочник по проекту (лежит рядом с папкой сайта) |
+| `../ПЛАН-ДОРАБОТОК.md` | Журнал работ: что сделано, чем проверено |
+| `../документы/` | Списки дел владельца (например, игры без ссылок YouTube) |
 
 ---
 
@@ -25,8 +25,10 @@
 - **React 19 + Vite 8 (rolldown) + Tailwind CSS v3**
 - react-router-dom v7 (SPA + StaticRouter для пререндера)
 - PapaParse (TSV/CSV из Google Sheets)
-- vitest (49 тестов), oxlint
-- Vercel (хостинг + serverless `/api/schedule`)
+- vitest (больше сотни тестов), oxlint
+- **GitHub Pages** — хостинг; GitHub Actions — сборка и выкладка
+
+---
 
 ## Быстрый старт
 
@@ -35,153 +37,132 @@ npm install
 npm run dev          # http://localhost:5173
 ```
 
+Полный прогон проверок перед сдачей:
+
+```bash
+npm run lint         # oxlint — должен быть чистым
+npm test             # vitest
+npm run test:data    # гейт: формат и полнота src/data
+npm run audit        # браузерный аудит 16 страниц (собирает preview сам)
+```
+
+---
+
 ## Продакшен-сборка
 
 ```bash
 npm run build
-# = npm run sync      → Google Sheets → src/data/*.json
+# = npm run sync      → Google Sheets → src/data/*.json (+ обложки, авторство YouTube)
 # + vite build        → dist/
-# + prerender.mjs     → 450+ статичных SEO-страниц + sitemap.xml + robots.txt
+# + prerender.mjs     → статичные SEO-страницы + sitemap.xml + robots.txt
 npm run preview      # локальная проверка dist/
 ```
 
+**Локальная оговорка.** Защита среды от массового удаления (сторож: больше 50 удалённых файлов за сессию) останавливает локальный `npm run build` в двух местах — на чистке `dist/catalog` (сотни файлов) и `dist-server`. Обход: убрать старый каталог в сторону и брать оставшиеся шаги по отдельности:
+
+```bash
+mv dist dist-old          # или: mv dist-server dist-server-old
+npm run build:fast        # vite build
+node scripts/prerender.mjs
+```
+
+На GitHub сторожа нет, `npm run build` проходит одной командой.
+
+## Деплой
+
+`.github/workflows/deploy.yml`:
+
+- **push в `main`** → `npm ci` → `npm run build` → артефакт `dist` → `actions/deploy-pages@v4`.
+- Ветки `gh-pages` нет: Pages работает через окружение `github-pages`, источник — сам workflow.
+- Расписание `03:17 UTC` — суточная пересборка, чтобы данные из таблицы подтягивались без пуша. В публичном репозитории расписание само выключается после 60 дней без активности — если сайт перестал обновляться, запустить вручную (workflow_dispatch).
+- Автодеплой тянет ключи только из публичной таблицы: всё, что нужно синку, открыто без ключей.
+
+---
+
 ## Скрипты
 
-| Команда              | Что делает                                                                                                      |
-| -------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `npm run sync`       | Скачивает «Все рогалики» (TSV), гиперссылки из Копии (Sheets API), «Подборки», «Расписание» → `src/data/*.json` |
-| `npm run build`      | sync → vite build → SEO-пререндер                                                                               |
-| `npm run build:fast` | Быстрая сборка без sync (если данные уже есть)                                                                  |
-| `npm run lint`       | oxlint                                                                                                          |
-| `npm test`           | vitest, 49 тестов                                                                                               |
+| Команда | Что делает |
+| --- | --- |
+| `npm run sync` | Таблица → `src/data/*.json`: игры (TSV), ссылки Steam/YouTube/МИ (xlsx-гиперссылки), плейлисты канала, обложки Steam, проверка авторства YouTube |
+| `npm run build` | sync → vite build → SEO-пререндер |
+| `npm run build:fast` | Быстрая сборка без sync (если данные уже есть) |
+| `npm run lint` | oxlint |
+| `npm test` | vitest |
+| `npm run test:data` | Гейт данных: заполненность полей, ссылки, форматы |
+| `npm run audit` | Браузерный аудит: LCP/CLS, битые картинки, тап-таргеты, консоль |
+
+---
 
 ## Ключевые правила
 
-- **Steam API не дёргаем** — обложки только с CDN: `cdn.cloudflare.steamstatic.com/steam/apps/{appId}/header.jpg`.
-- **noembed ≤ 20 запросов за сессию** (проверка авторства YouTube), кэш бессрочный.
+- **Steam API не дёргаем ради обложек** — картинки берёт таблица; для игр без обложки `scripts/steam-covers.mjs` ищет страницу в Steam и **сверяет название** («Against the Dark Moon» не подставляется к «Against the Moon»). Псевдонимы — `src/data/steam-name-aliases.json`, споры решает `src/data/steam-overrides.json`.
+- **Авторство YouTube проверяется на сборке** (`youtubeOwners.js`, один раз, ответы кэшируются в `youtube-owners.json`); в браузере запрос к noembed не уходит. Плейер грузится **по клику**, а не автозагрузкой.
 - Twitch-статус — кэш 5 мин, аватар — 24 ч (decapi, без ключей).
-- Подборки парсятся **построчно** (колонки «гуляют»).
+- Подборки парсяются **построчно** (колонки «гуляют»).
 - Даты — только `parseRuDate` (DD.MM.YYYY / YYYY-MM-DD).
 - `manualChunks` — только функцией (Vite 8 = rolldown).
-- Google Fonts не используем: Nunito/Inter самохостятся через `@fontsource-variable` (работает в РФ).
+- Google Fonts не используем: Nunito/Inter/Unbounded самохостятся через `@fontsource-variable` (работает в РФ).
 - **SSR детерминирован** — рандом только после mount на клиенте.
+- Ссылки Steam/YouTube/МИ не зашиты в TSV (текст «Ссылка на плейлист»): выгрузка в TSV теряет гиперссылки, их берём из xlsx там же, без ключей.
+
+---
 
 ## Структура
 
 ```
 src/
   components/  Layout, GameCard, GameDetails, GameModal, FxPanel,
-               TwitchHeaderWidget, TwitchWidgetInHero, YandexMetrika,
-               ScheduleForm, ErrorBoundary, DataProvider,
-               CatchOfDay, RarityEgg, MITrophy, CollectionIcon, CoverFan, Highlight
-  config/      branding.js, dataSources.js, mascots.js
-  data/        games.json, collections.json, schedule.json (генерируются sync)
-  pages/       Home, Catalog, Collections, Collection, Game, About, Schedule, MI
+               TwitchHeaderWidget, TwitchWidgetInHero, LiveBanner,
+               YandexMetrika, ErrorBoundary, DataProvider, CatchOfDay,
+               RarityEgg, MITrophy, CollectionIcon, CoverFan, Highlight
+  config/      branding.js, dataSources.js, mascots.js, site.js
+  data/        games.json, collections.json, schedule.json (генерирует sync) +
+               steam-overrides.json, steam-name-aliases.json,
+               youtube-owners.json, youtube-playlists.json
+  pages/       Home, Catalog, Game, Collections, Collection, About, Schedule, MI
   utils/       loadData (SWR), normalize, date, slugify, storage, youtube,
-               useCounter, usePageMeta, stats, recommend, statusMeta, youtubeSafe
-api/           schedule.js — Vercel serverless-прокси формы расписания
-scripts/       sync-data.js, prerender.mjs
+               youtubeOwners, useCounter, usePageMeta, stats, recommend,
+               statusMeta, rarity, xlsx, playlists, ics, pagination,
+               schedule, steam, streams, idle, jsonld
+scripts/       sync-data.js, prerender.mjs, steam-covers.mjs, fix-covers.mjs,
+               twitch-recent.mjs, twitch-schedule.mjs, yt-playlists.mjs,
+               check-data.mjs, audit.mjs
 ```
 
-## Дизайн-система v2 «5 сфер» (единый стиль)
+Формы расписания на сайте нет: таблицу-приёмник расписания владелец не заполняет, расписание собирается из календаря и истории трансляций Twitch.
 
-Все «сферы» говорят на одном пастельном языке темы «уютный хардкор»:
+---
 
-| Сфера          | Выражение                                                                                                                               | Палитра             |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| 🔥 Антиматерия | частицы FxPanel: столкновение → вспышка → возрождение через 2с; репульсия от курсора; звёздная пыль с параллаксом                       | pink/purple/blue    |
-| 🔥 Драконы     | система редкости: 5 драконьих яиц (common→mythic) на карточках, в подборках и на странице игры; «ЗОЛОТОЙ СПИСОК» — gold-card с тёплым градиентом | amber (золото)      |
-| ⭐ Рыбалка     | «Улов дня»: кнопка подсечки, spring-анимация карточки, брызги, SVG-волны                                                                | blue                |
-| 💀 Смерть      | черепа сложности 💀/💀💀/💀💀💀; Cinzel + красное свечение только у хардкора (8+)                                                       | rose (семантически) |
-| 💡 ИИ          | рекомендации по особенностям→жанру→сеттингу; mood-теги 🧘/⚡/🧠; мгновенный поиск с категориями и подсветкой                            | mint                |
+## Дизайн-система «уютный хардкор»
 
-Единые правила: общие классы `.card/.chip/.btn-*`, одна spring-кривая
-`cubic-bezier(0.34,1.56,0.64,1)` для «живого», stagger 0.05s для сеток,
-всё отключается при `prefers-reduced-motion` и кнопкой ✨.
+Единый пастельный язык темы: общие классы `.card/.chip/.btn-*`, одна spring-кривая `cubic-bezier(0.34,1.56,0.64,1)` для «живого», stagger 0.05s для сеток, всё отключается при `prefers-reduced-motion` и кнопкой ✨.
 
-Фичи: чат-заметки «После забега | (типо чат)», кубок МИ 🏆 (только у
-участников), countdown до стрима,
-клавиша `/` — поиск, `Esc` — модалка, Konami code → 🥐 режим кроассана.
-Аватар в Twitch-виджете — точная копия с Twitch (decapi, кэш 24ч).
+- **Редкость**: 5 драконьих яиц (common→mythic) на карточках, в подборках и на странице игры; «ЗОЛОТОЙ СПИСОК» — gold-card с тёплым градиентом.
+- **Смерть**: черепа сложности 💀/💀💀/💀💀💀; красное свечение в заголовке у хардкора (8+).
+- **Рыбалка**: «Улов дня» — кнопка подсечки, spring-анимация, SVG-волны.
+- **ИИ**: рекомендации «похожих» по особенностям→жанру→сеттингу, mood-теги, поиск с подсветкой и категориями.
+- **Страница игры**: hero с обложкой, шкалы оценок/сложности/прогресса, блок «Впечатления Тиана» (колонка «Примечания» из таблицы), плеер YouTube по клику.
+- **Каталог**: фильтры и поиск живут в адресе страницы (ссылку на выборку можно переслать), номера страниц — настоящие ссылки.
 
-## Редизайн v3 (филигранный)
-
-- **Аватар** — точная копия с Twitch (webp 14КБ): шапка, hero 320px с белой
-  обводкой 4px, футер, favicon, og.
-- **Hero**: обложка последней игры справа на фоне, без blur, opacity 50%,
-  mask-gradient вправо; статистика — градиентные цифры с glow (4 палитры), glass.
-- **Карточки**: яйцо редкости 40px сверху справа над карточкой, hover поднимает
-  всю карточку и светится цветом редкости; обложка не зумится.
-- **Каталог**: поиск 64px glass, iOS-switch «кубок МИ», кастомные селекты с
-  иконками, жанры ≤2 в ряд, панель сворачивается по Esc/клику вне/скроллу,
-  пустое состояние — грустный чиби-Сайтама + рандомная фраза (client-only).
-- **Страница игры**: hero 70% — обложка в окне 80% + фон 120% с mask вниз;
-  Steam-кнопка во всю ширину (градиент #667eea→#764ba2); метаданные кликабельны
-  (жанр → `/catalog?genre=`, сеттинг → `/catalog?q=`); шкалы с shine и иконками
-  уровней (⭐🌟💫 / 😌😐💀 / 🌱🌿🌳); чат «После забега» в цвете редкости со
-  скроллом; карусель похожих со стрелками/клавиатурой и глубиной.
-- **Подборки**: веер реальных обложек (hover расходятся), SVG-иконки по типу,
-  золотой список — Cinzel + шиммер.
-- **/mi**: страница «Мастер Игорей» — CSS-3D кубок, игры с МИ из таблицы,
-  выпуски по ссылкам `miVideo`; состав участников не выдумывается.
-- **Motion**: warp-вспышка при переходах (не блокирует), domino-stagger секций,
-  кнопки 4 hover-эффекта, логотип-кроассан флипается по клику (Backpack Battles),
-  Konami → режим кроассана. Всё гаснет при `prefers-reduced-motion`.
-- **Мобайл**: бургер-меню slide-in, адаптивный hero, touch-friendly 44px.
-
-### Lighthouse-оптимизации (из отчёта, применены)
-
-`idle.js` (afterLoad): Метрика/Twitch/SWR/FxPanel вне критического пути;
-papaparse — dynamic import; preconnect steamstatic/jtvnw; пререндер вшивает CSS
-инлайном + preload 5 кириллических/латинских шрифтов; logo.webp + favicon 32px.
-
-### 10 рисков редизайна и 3 закрытых (см. историю разработки)
-
-Закрыты: (1) SSR-детерминизм — весь рандом только в эффектах; (2) перф-гард —
-адаптивные частицы, без 3D-библиотек, idle-запуск; (3) touch/a11y — hover-модалки
-убраны в пользу клика, бургер, aria-атрибуты, фокус-стили, overflow-x-clip.
+---
 
 ## SEO
 
-Пререндер генерирует статичный HTML для каждой игры (`/catalog/:slug`),
-подборки и статических страниц: уникальные `<title>`, `description`,
-`og:image` (обложка Steam), `canonical`. Плюс `sitemap.xml` (~452 URL) и `robots.txt`.
-На Vercel `cleanUrls: true` отдаёт эти файлы по «красивым» путям,
-а SPA-rewrite ловит всё остальное.
+Пререндер генерирует статичный HTML для каждой игры (`/catalog/:slug`), подборок и статических страниц: уникальные `<title>`, `description`, `og:image` (обложка), `canonical`. Плюс `sitemap.xml` (более 400 адресов, `lastmod` у страниц игр — дата прохождения) и `robots.txt`. F5 на любом адресе работает: все страницы — файлы на диске, не только SPA-роуты.
 
-## .env
+---
 
-**Не нужен.** Ни сборке, ни синхронизации ключи Google больше не требуются:
-ссылки Steam/YouTube/МИ приезжают из xlsx-выгрузки таблицы (она публичная),
-обложки — из самой таблицы и `src/data/steam-overrides.json`.
-Старые ключи `VITE_SHEETS_API_KEY` и `SHEETS_API_KEY_SERVER` можно удалить из `.env`
-и из секретов репозитория.
+## Данные и ключи
+
+- **`.env` не нужен и ключи не требуются.** Ссылки Steam/YouTube/МИ приезжают из xlsx-выгрузки таблицы (она публичная), обложки — из таблицы + поиск Steam по названию. Ключи `VITE_SHEETS_API_KEY` / `SHEETS_API_KEY_SERVER` мертвы, из workflow удалены; в локальном `.env` (который в git не попадает) можно подчистить.
+- Источник данных — Google Таблица. Если ссылка сломается, sync не трогает прежние `src/data/*.json`, сайт продолжает работать на последнем удачном слепке.
 
 ## Как сменить Google Таблицу
 
 1. Открой свою таблицу → «Файл» → «Сведения» → скопируй ID из URL (часть между `/d/` и `/edit`).
-2. В `src/config/dataSources.js` замени `SPREADSHEET_ID` (ID оригинала, откуда сайт берёт TSV).
-3. Создай **копию** таблицы и в `scripts/sync-data.js` замени `COPY_SPREADSHEET_ID`.
-4. Проверь `GAMES_SHEET_NAME` и `COLLECTIONS_SHEET_NAME` (точные имена листов).
-5. Сделай `npm run sync` и проверь `src/data/*.json`.
-6. Старый кэш у посетителей сбросится сам — ключи кэша привязаны к ссылке таблицы.
-
-## API-ключ Google
-
-**Не требуется.** Ссылки Steam/YouTube/МИ синхронизация забирает из xlsx-выгрузки
-таблицы (`format=xlsx`), где они лежат в `<hyperlink>`; выгрузка публичная.
-Ключ Sheets API пробовали раньше — браузерный получал 403 по referrer и лежал
-в публичном бандле, серверный в Actions тоже не срабатывал. Убрано 17–18.10.2026.
-
-## Как передать сайт другому человеку
-
-Все личные данные — в **`src/config/branding.js`**:
-
-1. Поменять значения на свои.
-2. Заменить `SPREADSHEET_ID` в `dataSources.js` на свою таблицу.
-3. Создать копию, установить Apps Script, заменить `COPY_SPREADSHEET_ID` в `scripts/sync-data.js`.
-4. Создать API-ключ (см. раздел выше).
-5. Обновить `src/data/*.json` через `npm run sync`.
+2. В `src/config/dataSources.js` замени `SPREADSHEET_ID` (основная таблица: TSV игр + xlsx-ссылки).
+3. Проверь `GAMES_SHEET_NAME` и `COLLECTIONS_SHEET_NAME` (точные имена листов).
+4. Сделай `npm run sync` и проверь `src/data/*.json` — они и есть точка правды.
 
 ## Яндекс.Метрика
 
