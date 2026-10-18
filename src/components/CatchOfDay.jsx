@@ -110,7 +110,10 @@ export function CatchOfDay() {
           <path d="M0 65 Q150 35 300 65 T600 65 T900 65 T1200 65 V100 H0Z" fill="#2a6fb0" opacity=".4" />
         </svg>
         <svg className="wave-l3" viewBox="0 0 1200 100" preserveAspectRatio="none">
-          <path d="M0 75 Q150 50 300 75 T900 75 T1200 75 V100 H0Z" fill="#A0C4FF" opacity=".3" />
+          {/* Период 600 единиц, как у двух верхних слоёв: сдвиг на -50% равен
+              двум полным периодам, и стык не виден. Прежний путь (300 + 600 + 300)
+              давал разные половины кадра — раз в 8 с волна прыгала. */}
+          <path d="M0 75 Q150 50 300 75 T600 75 T900 75 T1200 75 V100 H0Z" fill="#A0C4FF" opacity=".3" />
         </svg>
       </div>
 
