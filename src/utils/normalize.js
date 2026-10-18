@@ -1,4 +1,5 @@
 import { slugify, uniqueSlug } from "./slugify.js";
+import { normalizeDateCell } from "./date.js";
 
 // ─── Статусы: единый справочник синонимов ────────────────────────────────────
 const STATUS_ALIASES = {
@@ -37,8 +38,8 @@ export function normalizeGameRow(row, colIndex) {
     status: normalizeStatus(row[colIndex.status]),
     progress: get(colIndex.progress),
     rating: get(colIndex.rating),
-    releaseDate: get(colIndex.releaseDate),
-    playedDate: get(colIndex.playedDate),
+    releaseDate: normalizeDateCell(get(colIndex.releaseDate)),
+    playedDate: normalizeDateCell(get(colIndex.playedDate)),
     notes: get(colIndex.notes),
     youtube: extractUrlFromCell(get(colIndex.youtube)) || "",
     hasMI: get(colIndex.hasMI),

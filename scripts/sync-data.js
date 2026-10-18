@@ -1,5 +1,5 @@
 // Синхронизация: Google Sheets → src/data/*.json
-// Запуск: npm run sync (Node, .env читается вручную — import.meta.env тут нет)
+// Запуск: npm run sync. Ключей не нужно: и TSV, и xlsx таблицы публичные.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -9,24 +9,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const DATA_DIR = path.join(ROOT, "src", "data");
 
-// ── ручная загрузка .env ─────────────────────────────────────────────────────
-function loadEnv() {
-  const envPath = path.join(ROOT, ".env");
-  if (!fs.existsSync(envPath)) return;
-  for (const line of fs.readFileSync(envPath, "utf8").split(/\r?\n/)) {
-    const m = line.match(/^\s*([A-Za-z0-9_]+)\s*=\s*(.+?)\s*$/);
-    if (m && process.env[m[1]] === undefined) process.env[m[1]] = m[2];
-  }
-}
-loadEnv();
-
 const DS = await import("../src/config/dataSources.js");
-const { normalizeGames, normalizeCollections, extractLinksFromCopyRow, steamHeaderUrl, isUrl } =
-  await import("../src/utils/normalize.js");
+const {
+  normalizeGames,
+  normalizeCollections,
+  extractSteamAppId,
+  isUrl,
+} = await import("../src/utils/normalize.js");
+const { linksFromSheetXlsx } = await import("../src/utils/xlsx.js");
 const { parseRuDate, formatRuDate } = await import("../src/utils/date.js");
-
-const SERVER_KEY =
-  process.env.SHEETS_API_KEY_SERVER || process.env.VITE_SHEETS_API_KEY || "";
 
 async function fetchText(url, tries = 3, timeoutMs = 15000) {
   let lastErr;
@@ -41,6 +32,25 @@ async function fetchText(url, tries = 3, timeoutMs = 15000) {
     } catch (e) {
       lastErr = e;
       await new Promise((r) => setTimeout(r, 800 * (i + 1)));
+    }
+  }
+  throw lastErr;
+}
+
+// Выгрузка таблицы в xlsx весит ~25 МБ, поэтому таймаут и число попыток свои.
+async function fetchBuffer(url, tries = 2, timeoutMs = 120000) {
+  let lastErr;
+  for (let i = 0; i < tries; i++) {
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), timeoutMs);
+      const res = await fetch(url, { signal: ctrl.signal });
+      clearTimeout(t);
+      if (!res.ok) throw new Error(`HTTP ${res.status} для ${url}`);
+      return Buffer.from(await res.arrayBuffer());
+    } catch (e) {
+      lastErr = e;
+      await new Promise((r) => setTimeout(r, 1500 * (i + 1)));
     }
   }
   throw lastErr;
@@ -80,43 +90,47 @@ try {
   console.warn("  ⚠ Игры не скачались:", e.message);
 }
 
-// ── 2. Обогащение ссылками из Копии (Sheets API, серверный ключ) ─────────────
-if (games.length && SERVER_KEY) {
+// ── 2. Ссылки Steam/YouTube/МИ из таблицы (xlsx, без ключа) ──────────────────
+// Экспорт в TSV теряет гиперссылки: ячейка приходит текстом «Ссылка на плейлист».
+// В xlsx адрес лежит в <hyperlink r:id=…>, а сам файл скачивается без ключа.
+// Раньше здесь был Sheets API с серверным ключом — в Actions он получал 403.
+// Обложку из appId здесь НЕ собираем: старый путь header.jpg у новых игр Steam
+// отдаёт 404 (проверено 18.10.2026 на The Looper и Tower Tactics 2). Обложки
+// ставит таблица, а спорные — scripts/fix-covers.mjs после проверки адреса.
+if (games.length) {
   try {
-    console.log("▸ Скачиваю гиперссылки из Копии (C:W)…");
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${DS.COPY_SPREADSHEET_ID}/values/${encodeURIComponent(`${DS.GAMES_SHEET_NAME}!C:W`)}?key=${SERVER_KEY}&valueRenderOption=FORMULA`;
-    const res = await fetch(url);
-    if (res.ok) {
-      const json = await res.json();
-      const map = {};
-      (json.values || []).forEach((row) => {
-        const got = extractLinksFromCopyRow(row);
-        if (got) map[got.title.toLowerCase()] = got.entry;
-      });
-      let linked = 0;
-      games = games.map((g) => {
-        const entry = map[String(g.title).toLowerCase()];
-        if (!entry) return g;
-        linked++;
-        const next = { ...g };
-        if (entry.steamAppId) {
-          next.steamAppId = entry.steamAppId;
-          next.image = next.image || steamHeaderUrl(entry.steamAppId);
-          next.steamUrl = `https://store.steampowered.com/app/${entry.steamAppId}/`;
-        }
-        if (entry.youtube) next.youtube = entry.youtube;
-        if (entry.miVideo) next.miVideo = entry.miVideo;
-        return next;
-      });
-      console.log(`  ✔ игр со ссылками: ${linked}`);
-    } else {
-      console.warn(`  ⚠ Sheets API: HTTP ${res.status}`);
-    }
+    console.log("▸ Скачиваю таблицу в xlsx (ссылки Steam/YouTube/МИ)…");
+    const buf = await fetchBuffer(DS.GAMES_XLSX_URL);
+    const links = linksFromSheetXlsx(buf, DS.GAMES_SHEET_NAME);
+    let steam = 0;
+    let youtube = 0;
+    let mi = 0;
+    games = games.map((g) => {
+      const row = links.get(String(g.title).trim().toLowerCase());
+      if (!row) return g;
+      const next = { ...g };
+      const appId = extractSteamAppId(row.steam);
+      if (appId) {
+        next.steamAppId = appId;
+        next.steamUrl = `https://store.steampowered.com/app/${appId}/`;
+        steam += 1;
+      }
+      if (isUrl(row.youtube)) {
+        next.youtube = row.youtube;
+        youtube += 1;
+      }
+      if (isUrl(row.mi)) {
+        next.miVideo = row.mi;
+        mi += 1;
+      }
+      return next;
+    });
+    console.log(
+      `  ✔ xlsx: строк ${links.size}, Steam ${steam}, YouTube ${youtube}, МИ ${mi}`
+    );
   } catch (e) {
-    console.warn("  ⚠ Ссылки из Копии не скачались:", e.message);
+    console.warn("  ⚠ Ссылки из xlsx не скачались:", e.message);
   }
-} else if (games.length) {
-  console.warn("  ⚠ Нет серверного ключа — пропускаю гиперссылки.");
 }
 
 // ── 2.5. Обложки из overrides — функция ниже, применяется после withRichFields ──

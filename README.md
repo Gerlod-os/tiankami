@@ -151,12 +151,11 @@ papaparse — dynamic import; preconnect steamstatic/jtvnw; пререндер �
 
 ## .env
 
-```
-VITE_SHEETS_API_KEY=...      # браузерный (Sheets API + домен)
-SHEETS_API_KEY_SERVER=...    # серверный для sync (без ограничения по домену)
-```
-
-Без ключей сайт работает — просто без ссылок/обложек из гиперссылок Копии.
+**Не нужен.** Ни сборке, ни синхронизации ключи Google больше не требуются:
+ссылки Steam/YouTube/МИ приезжают из xlsx-выгрузки таблицы (она публичная),
+обложки — из самой таблицы и `src/data/steam-overrides.json`.
+Старые ключи `VITE_SHEETS_API_KEY` и `SHEETS_API_KEY_SERVER` можно удалить из `.env`
+и из секретов репозитория.
 
 ## Как сменить Google Таблицу
 
@@ -167,19 +166,12 @@ SHEETS_API_KEY_SERVER=...    # серверный для sync (без огран
 5. Сделай `npm run sync` и проверь `src/data/*.json`.
 6. Старый кэш у посетителей сбросится сам — ключи кэша привязаны к ссылке таблицы.
 
-## API-ключ Google (ссылки на YouTube/МИ и обложки Steam)
+## API-ключ Google
 
-Браузерный ключ:
-
-1. Console → Новый проект → Google Sheets API → Enable.
-2. Credentials → API key → Restrict key (API: Sheets API, Website: домен сайта).
-3. В `.env`: `VITE_SHEETS_API_KEY=ключ`.
-
-Серверный ключ (для sync):
-
-1. Console → Credentials → API key.
-2. Ограничь только по API (Sheets API), **Application restrictions: None**.
-3. В `.env`: `SHEETS_API_KEY_SERVER=ключ`.
+**Не требуется.** Ссылки Steam/YouTube/МИ синхронизация забирает из xlsx-выгрузки
+таблицы (`format=xlsx`), где они лежат в `<hyperlink>`; выгрузка публичная.
+Ключ Sheets API пробовали раньше — браузерный получал 403 по referrer и лежал
+в публичном бандле, серверный в Actions тоже не срабатывал. Убрано 17–18.10.2026.
 
 ## Как передать сайт другому человеку
 

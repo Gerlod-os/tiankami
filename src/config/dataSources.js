@@ -12,6 +12,10 @@ export const SCHEDULE_SHEET_NAME = "Расписание";
 // Прямые URL без ключа (используются только скриптом синхронизации при сборке)
 export const GAMES_URL =
   `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=tsv&gid=${GAMES_GID}`;
+// Та же таблица, но xlsx: только в этом формате приезжают гиперссылки ячеек
+// (Steam, YouTube, выпуск МИ). Ключ не нужен — выгрузка публичная.
+export const GAMES_XLSX_URL =
+  `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=xlsx`;
 export const COLLECTIONS_URL =
   `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(COLLECTIONS_SHEET_NAME)}`;
 export const SCHEDULE_URL =
@@ -19,7 +23,7 @@ export const SCHEDULE_URL =
 
 // Ключа Sheets API здесь больше нет: браузерный ключ ограничен по referrer,
 // с сайта он получал 403 и только лежал в публичном бандле. Гиперссылки
-// забирает серверный шаг синхронизации (см. scripts/sync-data.js).
+// забирает шаг синхронизации из xlsx (см. scripts/sync-data.js).
 
 // Google Apps Script — приёмник формы расписания (проксируется через /api/schedule)
 export const SCHEDULE_SCRIPT_URL =

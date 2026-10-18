@@ -38,3 +38,29 @@ export function todayUTC() {
   const now = new Date();
   return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
 }
+
+/**
+ * Дата из ячейки таблицы → «дд.мм.гггг».
+ * Понятную дату приводит, непонятную отдаёт как есть: молча переставить день
+ * и месяц хуже, чем оставить строку, которую видно в отчёте.
+ */
+export function normalizeDateCell(raw) {
+  const s = String(raw || "").trim();
+  if (!s) return "";
+  const known = parseRuDate(s);
+  if (known) return formatRuDate(known);
+  // 8/27/2024 — запись «месяц/день/год». Разбираем только там, где спутать
+  // нельзя: второе число больше 12 — значит это день, и наоборот.
+  const us = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (us) {
+    const a = Number(us[1]);
+    const b = Number(us[2]);
+    const month = b > 12 ? a : a > 12 ? b : null;
+    const day = b > 12 ? b : a > 12 ? a : null;
+    if (month) {
+      const d = createSafeDate(Number(us[3]), month, day);
+      if (d) return formatRuDate(d);
+    }
+  }
+  return s;
+}
