@@ -62,9 +62,14 @@ function SimilarCarousel({ items, bySlug, onQuickView }) {
     const el = ref.current;
     const b = bounds();
     if (!el || !b) return;
-    // Держим окно внутри средней копии: ушли к краю — перескакиваем на набор.
-    if (el.scrollLeft < b.start - b.width * 0.5) jumpTo(el.scrollLeft + b.width);
-    else if (el.scrollLeft > b.start + b.width * 0.5) jumpTo(el.scrollLeft - b.width);
+    // Держим окно внутри средней копии: ушли к краю — приводим к ближайшей копии
+    // ЦЕЛЫМ числом наборов. Прыжок «на один набор от текущего края» попадал за
+    // противоположный порог, карусель откатывалась назад и застревала на первой
+    // карточке средней копии (замер 18.10.2026: влево 1674 → 1398 → 1122 → 846 и стоп).
+    const rel = el.scrollLeft - b.start;
+    if (Math.abs(rel) > b.width * 0.5) {
+      jumpTo(el.scrollLeft - Math.round(rel / b.width) * b.width);
+    }
 
     const cards = [...el.children];
     const center = el.scrollLeft + el.clientWidth / 2;
@@ -81,8 +86,16 @@ function SimilarCarousel({ items, bySlug, onQuickView }) {
     setActive(best % items.length);
   };
 
-  const go = (dir) =>
-    ref.current?.scrollBy({ left: dir * 300, behavior: "smooth" });
+  // Шаг — ровно одна карточка с промежутком. Берём из разметки, а не числом:
+  // ширина карточки может поменяться, и тогда 300 px перестанет совпадать с шагом.
+  const go = (dir) => {
+    const el = ref.current;
+    if (!el) return;
+    const a = el.children[0];
+    const b = el.children[1];
+    const step = a && b ? b.offsetLeft - a.offsetLeft : 276;
+    el.scrollBy({ left: dir * step, behavior: "smooth" });
+  };
 
   const looped = [...items, ...items, ...items];
 
@@ -114,13 +127,13 @@ function SimilarCarousel({ items, bySlug, onQuickView }) {
         tabIndex={0}
         role="region"
         aria-label="Карусель похожих игр: шесть игр по кругу (стрелки влево/вправо)"
-        className="flex snap-x gap-4 overflow-x-auto scroll-smooth px-2 py-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-pastel-pink"
+        className="flex gap-4 overflow-x-auto scroll-smooth px-2 py-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-pastel-pink"
       >
         {looped.map((g, i) => (
           <div
             key={`${g.slug}-${i}`}
             className={
-              "car-item w-[260px] shrink-0 snap-start " +
+              "car-item w-[260px] shrink-0 " +
               (i % items.length === active ? "" : "car-dim")
             }
           >
