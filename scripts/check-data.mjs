@@ -52,6 +52,16 @@ if (problems.length) {
   process.exit(1);
 }
 
+const noYoutube = games.filter((g) => !g.youtube).length;
+// Правило то же, что в src/utils/normalize.js→hasMI(): только «TRUE».
+const noMi = games.filter((g) => /^true$/i.test(String(g.hasMI)) && !isUrl(g.miVideo)).length;
+
 console.log(
   `✔ Данные в формате: игр ${games.length}, подборок ${collections.length}, стримов ${schedule.length}`
 );
+if (noYoutube) {
+  console.log(`  ⓘ без ссылки на YouTube: ${noYoutube} — заполняется в таблице, колонка R`);
+}
+if (noMi) {
+  console.log(`  ⓘ отмечено «Проводил МИ», но ссылки на выпуск нет: ${noMi}`);
+}

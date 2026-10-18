@@ -33,6 +33,7 @@ export const SCHEDULE_SCRIPT_URL =
 // Отдаёт ICS без токена и без ключа — проверено 18.10.2026 (код 200, 2444 байта).
 // 95645837 — broadcaster_id канала tiankami.
 export const TWITCH_BROADCASTER_ID = "95645837";
+export const TWITCH_LOGIN = "tiankami";
 export const TWITCH_ICS_URL =
   `https://api.twitch.tv/helix/schedule/icalendar?broadcaster_id=${TWITCH_BROADCASTER_ID}`;
 export const TWITCH_CHANNEL_URL = "https://twitch.tv/tiankami";

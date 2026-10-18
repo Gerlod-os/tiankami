@@ -47,13 +47,13 @@ describe("splitSchedule", () => {
     expect(upcoming[0].date < upcoming[1].date).toBe(true);
   });
 
-  test("прошедших не больше пяти и свежие сверху", () => {
-    const many = Array.from({ length: 8 }, (_, i) =>
+  test("прошедших не больше семи и свежие сверху", () => {
+    const many = Array.from({ length: 10 }, (_, i) =>
       stream(`${String(i + 1).padStart(2, "0")}.10.2026`, "10:00", "14:00")
     );
     const { past } = splitSchedule(many, today, "09:00");
-    expect(past).toHaveLength(5);
-    expect(past[0].date).toBe("08.10.2026");
-    expect(past[4].date).toBe("04.10.2026");
+    expect(past).toHaveLength(7);
+    expect(past[0].date).toBe("10.10.2026");
+    expect(past[6].date).toBe("04.10.2026");
   });
 });

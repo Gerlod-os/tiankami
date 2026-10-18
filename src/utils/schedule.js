@@ -43,7 +43,7 @@ export function splitSchedule(list, todayRu, nowHHMM) {
   });
   const past = sorted
     .filter((s) => (parseRuDate(s.date)?.getTime() || 0) < todayMs)
-    .slice(-5)
+    .slice(-7)
     .reverse();
   return { upcoming, past };
 }

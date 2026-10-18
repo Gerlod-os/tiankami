@@ -81,31 +81,12 @@ function NextStreamCard({ s, isToday }) {
   );
 }
 
-// Остальные дни — строками: семь одинаковых карточек подряд читать невозможно.
-// На телефоне строка складывается в две: день и время сверху, название под ними.
-function ScheduleLine({ s }) {
-  const weekday = formatRuDateLong(parseRuDate(s.date)).split(",")[0];
-  return (
-    <li className="flex flex-col gap-0.5 py-2.5 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-3">
-      <span className="flex items-baseline gap-2 sm:contents">
-        <span className="font-display text-sm font-extrabold text-ink">{weekday}</span>
-        <span className="font-display text-sm font-bold text-ink-dim">{s.date.slice(0, 5)}</span>
-        <span className="text-xs tabular-nums text-ink-dim">
-          {s.time}
-          {s.endTime ? `–${s.endTime}` : ""} МСК
-        </span>
-      </span>
-      <span className="text-sm text-ink sm:min-w-0 sm:flex-1 sm:truncate">{s.game}</span>
-    </li>
-  );
-}
-
 export function SchedulePage() {
   const { schedule } = useData();
   usePageMeta({
     title: "Расписание стримов — Tiankami",
     description:
-      "Расписание стримов Tiankami: ближайшая неделя по календарю канала на Twitch. Стримы каждый день.",
+      "Расписание стримов Tiankami: ближайший стрим по календарю канала на Twitch и прошедшие трансляции с записями.",
   });
 
   const todayRu = formatRuDate(todayUTC());
@@ -120,11 +101,11 @@ export function SchedulePage() {
           <span className="h-marker">Расписание</span> <span className="section-accent">стримов</span>
         </h1>
         <p className="mt-2 text-sm text-ink-dim">
-          Стримы каждый день. Сетка берётся из{" "}
+          Ближайший стрим — из календаря канала, прошедшие трансляции — из записей на{" "}
           <a className="text-pastel-pink underline decoration-pastel-pink/40 underline-offset-2" href={BRAND.links.twitch} target="_blank" rel="noopener noreferrer">
-            календаря канала на Twitch
-          </a>{" "}
-          и обновляется сама; анонсы и переносы — в Telegram и ВК.
+            Twitch
+          </a>
+          . Всё обновляется само; анонсы и переносы — в Telegram и ВК.
         </p>
       </div>
 
@@ -141,18 +122,6 @@ export function SchedulePage() {
             </button>
           </div>
           <NextStreamCard s={next} isToday={next.date === todayRu} />
-          {upcoming.length > 1 && (
-            <div className="pt-2">
-              <h3 className="mb-1 text-xs font-bold uppercase tracking-[2px] text-ink-dim opacity-70">
-                Дальше на неделе
-              </h3>
-              <ul className="divide-y divide-white/5">
-                {upcoming.slice(1).map((s, i) => (
-                  <ScheduleLine key={`${s.date}-${i}`} s={s} />
-                ))}
-              </ul>
-            </div>
-          )}
         </section>
       ) : (
         <div className="card p-8 text-center">
@@ -184,19 +153,50 @@ export function SchedulePage() {
       )}
 
       {past.length > 0 && (
-        <details className="group">
-          <summary className="flex min-h-8 cursor-pointer list-none items-center gap-2 font-display text-lg font-extrabold text-ink">
-            <span className="transition-transform group-open:rotate-90" aria-hidden="true">
-              ▸
-            </span>
-            Прошедшие стримы ({past.length})
-          </summary>
-          <ul className="mt-1 divide-y divide-white/5">
+        <section>
+          <div className="mb-2 flex flex-wrap items-end justify-between gap-3">
+            <h2 className="font-display text-lg font-extrabold text-ink">Прошедшие трансляции</h2>
+            <a
+              className="btn-ghost !px-3 !py-1.5 text-xs"
+              href={BRAND.links.twitch + "/schedule"}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaTwitch className="text-pastel-purple" /> Всё на канале
+            </a>
+          </div>
+          <ul className="divide-y divide-white/5">
             {past.map((s, i) => (
-              <ScheduleLine key={`${s.date}-p${i}`} s={s} />
+              <li key={`${s.date}-p${i}`}>
+                <a
+                  className="group flex flex-col gap-0.5 py-3 transition sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-3"
+                  href={s.streamLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className="flex items-baseline gap-2 sm:contents">
+                    <span className="font-display text-sm font-extrabold text-ink">
+                      {formatRuDateLong(parseRuDate(s.date)).split(",")[0]}
+                    </span>
+                    <span className="font-display text-sm font-bold text-ink-dim">
+                      {s.date.slice(0, 5)}
+                    </span>
+                    <span className="text-xs tabular-nums text-ink-dim">
+                      {s.time}
+                      {s.endTime ? `–${s.endTime}` : ""} МСК
+                    </span>
+                  </span>
+                  <span className="min-w-0 text-sm text-ink sm:flex-1 group-hover:text-pastel-pink">
+                    {s.game}
+                  </span>
+                  {s.category && (
+                    <span className="text-xs text-ink-faint">{s.category}</span>
+                  )}
+                </a>
+              </li>
             ))}
           </ul>
-        </details>
+        </section>
       )}
 
       <p className="text-center text-xs text-ink-faint">

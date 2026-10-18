@@ -18,6 +18,7 @@ const {
 } = await import("../src/utils/normalize.js");
 const { linksFromSheetXlsx } = await import("../src/utils/xlsx.js");
 const { twitchSchedule, SCHEDULE_DAYS } = await import("./twitch-schedule.mjs");
+const { twitchRecentStreams } = await import("./twitch-recent.mjs");
 const { parseRuDate, formatRuDate } = await import("../src/utils/date.js");
 
 async function fetchText(url, tries = 3, timeoutMs = 15000) {
@@ -183,17 +184,33 @@ try {
   console.warn("  ⚠ Подборки не скачались:", e.message);
 }
 
-// ── 4. Расписание: сначала календарь Twitch, таблица — запасной вариант ─────
-// Таблицу расписания никто не заполняет (слово владельца 18.10.2026), поэтому
-// основной источник — публичный календарь канала. Он отдаёт недельную сетку,
-// её разворачиваем в даты на неделю вперёд.
+// ── 4. Расписание: прошедшие трансляции + ближайшие стримы из календаря ─────
+// Таблицу расписания никто не заполняет (слово владельца 18.10.2026).
+// Прошедшие берём из истории трансляций канала — то, что видно во вкладке
+// «Расписание» у него на канале. Ближайшие — из календаря: другого источника
+// будущего у Twitch нет, на канале для этого стоит «Следующая трансляция».
 let schedule = [];
 try {
-  console.log("▸ Беру расписание из календаря Twitch…");
-  schedule = await twitchSchedule(fetchText, DS.TWITCH_ICS_URL);
-  console.log(`  ✔ стримов на ${SCHEDULE_DAYS} дней вперёд: ${schedule.length}`);
+  console.log("▸ Беру прошедшие трансляции с Twitch…");
+  const recent = await twitchRecentStreams(DS.TWITCH_LOGIN, 12);
+  if (!recent.length) throw new Error("история пуста");
+  schedule = recent;
+  console.log(`  ✔ трансляций: ${recent.length}, последняя ${recent[0].date} "${recent[0].game}"`);
+} catch (e) {
+  console.warn("  ⚠ История трансляций не скачалась:", e.message);
+}
+
+try {
+  console.log("▸ Беру ближайшие стримы из календаря Twitch…");
+  const upcoming = await twitchSchedule(fetchText, DS.TWITCH_ICS_URL);
+  schedule = [...schedule, ...upcoming];
+  console.log(`  ✔ стримов на ${SCHEDULE_DAYS} дней вперёд: ${upcoming.length}`);
 } catch (e) {
   console.warn("  ⚠ Календарь Twitch не сработал:", e.message);
+}
+
+// Запасной вариант, если Твич не ответил целиком: таблица, как раньше.
+if (!schedule.length) {
   try {
     console.log("▸ Запасной вариант: «Расписание» из таблицы…");
     const csv = await fetchText(DS.SCHEDULE_URL);
