@@ -5,7 +5,6 @@ import { useData } from "../components/DataProvider";
 import { GameCard } from "../components/GameCard";
 import { GameModal } from "../components/GameModal";
 import { MITrophy } from "../components/MITrophy";
-import { MASCOTS } from "../config/mascots";
 import { hasMI, isUrl } from "../utils/normalize";
 import { usePageMeta } from "../utils/usePageMeta";
 
@@ -37,9 +36,8 @@ export function MIPage() {
           одинаковые правила, честная борьба за кубок.
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-          <span className="chip border-2 border-pastel-amber/50 bg-pastel-amber/15 font-extrabold text-pastel-amber text-base">
-            <FaGamepad className="inline" aria-hidden="true" /> Тиан — участник
-          </span>
+          {/* Плашку «Тиан — участник» убрал по просьбе владельца 18.10.2026:
+              страница и так про соревнование, лишняя плашка дублировала заголовок */}
           <span className="chip border border-white/10 bg-white/5 text-ink-dim">
             <FiAward className="inline" aria-hidden="true" /> {miGames.length} игр прошло
           </span>
@@ -136,17 +134,8 @@ export function MIPage() {
         </section>
       )}
 
-      {/* Mascot */}
-      <div className="flex justify-center">
-        <img
-          src={MASCOTS.croissant}
-          alt="Кроассан-маскот держит кубок"
-          width={720}
-          height={720}
-          className="w-56 -rotate-2 transition-transform hover:rotate-0 drop-shadow-[0_10px_22px_rgba(0,0,0,.5)]"
-          loading="lazy"
-        />
-      </div>
+      {/* Маскота в конце страницы убрал по просьбе владельца 18.10.2026:
+          он стоял после списка выпусков один и выглядел потерянным */}
 
       <GameModal game={modal} onClose={() => setModal(null)} />
     </div>
