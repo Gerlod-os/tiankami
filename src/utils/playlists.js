@@ -19,9 +19,13 @@ export function playlistsByTitle(playlists) {
 
 /**
  * Дополняет пустые `youtube` у игр: сначала одноимённый плейлист, потом видео
- * канала (плейлиста может не быть вовсе — MINOS на канале пятью видео).
+ * канала (плейлиста может не быть вовсе).
  * `videos` — [{ game, url }] из scripts/yt-videos.mjs.
- * Возвращает { games, filled, fromVideos }.
+ *
+ * Ссылка из таблицы главнее и не переписывается. Но ссылка на ОДНО видео, которую
+ * поставил сам скрипт (первый добор 18.10.2026, когда плейлистов было собрано 30
+ * из 612), заменяется на плейлист, если он нашёлся: плейлист владелец и просил,
+ * а раньше мы его просто не видели. Возвращает { games, filled, fromVideos, upgraded }.
  */
 export function fillYouTubeFromPlaylists(games, playlists, videos = []) {
   const map = playlistsByTitle(playlists);
@@ -32,19 +36,26 @@ export function fillYouTubeFromPlaylists(games, playlists, videos = []) {
   );
   const filled = [];
   const fromVideos = [];
+  const upgraded = [];
   const out = (games || []).map((g) => {
-    if (g.youtube || !g.title) return g;
+    if (!g.title) return g;
     const url = map.get(norm(g.title));
+    const ownVideo = /\/watch\?v=/.test(g.youtube || "");
     if (url) {
-      filled.push(g.title);
+      // Ссылку из таблицы (не видео от скрипта) не трогаем.
+      if (g.youtube && !ownVideo) return g;
+      if (g.youtube) upgraded.push(g.title);
+      else filled.push(g.title);
       return { ...g, youtube: url };
     }
-    const video = videoMap.get(norm(g.title));
-    if (video) {
-      fromVideos.push(g.title);
-      return { ...g, youtube: video };
+    if (!g.youtube) {
+      const video = videoMap.get(norm(g.title));
+      if (video) {
+        fromVideos.push(g.title);
+        return { ...g, youtube: video };
+      }
     }
     return g;
   });
-  return { games: out, filled, fromVideos };
+  return { games: out, filled, fromVideos, upgraded };
 }

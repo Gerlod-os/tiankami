@@ -309,7 +309,8 @@ export function GamePage() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <FiYoutube className="text-lg" /> YouTube
+                  <FiYoutube className="text-lg" />{" "}
+                  {/list=/.test(game.youtube) ? "YouTube плейлист" : "YouTube"}
                 </a>
               )}
             </div>

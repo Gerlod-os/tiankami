@@ -140,10 +140,13 @@ if (games.length) {
 }
 
 // ── 2.4. Плейлисты и видео YouTube канала: добор ссылок, которых нет в таблице ─
-// Плейлисты называются по названию игры. Заполняем только пустые поля: ссылка из
-// таблицы главнее. Списки лежат в данных и обновляются скриптами
-// scripts/yt-playlists.mjs и scripts/yt-videos.mjs (нужен браузер).
-// Видео — запасной вариант: плейлиста у игры может не быть (MINOS).
+// Плейлисты называются по названию игры. Ссылка из таблицы главнее, её не
+// переписываем; ссылка на одно видео, поставленная самим скриптом, при появлении
+// плейлиста заменяется — иначе первый неполный список плейлистов оставлял бы
+// ссылку на видео навсегда (замер 18.10.2026: собрано 30 плейлистов из 612,
+// 23 игры остались на видео, у MINOS так и был один ролик вместо плейлиста).
+// Списки лежат в данных и обновляются скриптами scripts/yt-playlists.mjs
+// (внутреннее API YouTube, все 612) и scripts/yt-videos.mjs (нужен браузер).
 const PLAYLISTS = path.join(DATA_DIR, "youtube-playlists.json");
 const VIDEOS = path.join(DATA_DIR, "youtube-videos.json");
 if (games.length && fs.existsSync(PLAYLISTS)) {
@@ -152,18 +155,21 @@ if (games.length && fs.existsSync(PLAYLISTS)) {
     const videos = fs.existsSync(VIDEOS)
       ? JSON.parse(fs.readFileSync(VIDEOS, "utf8"))
       : [];
-    const { games: filled, filled: names, fromVideos } = fillYouTubeFromPlaylists(
+    const { games: filled, filled: names, fromVideos, upgraded } = fillYouTubeFromPlaylists(
       games,
       playlists,
       videos,
     );
-    if (names.length || fromVideos.length) {
+    if (names.length || fromVideos.length || upgraded.length) {
       games = filled;
       if (names.length) {
         console.log(`  ✔ ссылки из плейлистов канала: ${names.length} (${names.slice(0, 5).join(", ")}${names.length > 5 ? "…" : ""})`);
       }
       if (fromVideos.length) {
         console.log(`  ✔ ссылки из видео канала: ${fromVideos.length} (${fromVideos.slice(0, 5).join(", ")}${fromVideos.length > 5 ? "…" : ""})`);
+      }
+      if (upgraded.length) {
+        console.log(`  ✔ видео подняты до плейлистов: ${upgraded.length} (${upgraded.slice(0, 5).join(", ")}${upgraded.length > 5 ? "…" : ""})`);
       }
     }
   } catch (e) {
