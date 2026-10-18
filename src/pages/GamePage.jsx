@@ -168,7 +168,7 @@ export function GamePage() {
   // Рекомендации считаются одинаково на сервере и в браузере: порядок по весам
   // (жанр → сеттинг → теги) больше не перемешивается после маунта — иначе
   // «лучшая» игра оказывалась третьей (решение владельца 18.10.2026).
-  const recs = game ? recommendSimilar(game, games, 6) : [];
+  const recs = game ? recommendSimilar(game, games, 10) : [];
 
   if (!game) {
     return (
