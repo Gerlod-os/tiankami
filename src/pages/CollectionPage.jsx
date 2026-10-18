@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { FiArrowLeft, FiStar } from "react-icons/fi";
+import { FiArrowLeft, FiStar, FiPackage } from "react-icons/fi";
 import { useData } from "../components/DataProvider";
 import { RarityEgg } from "../components/RarityEgg";
 import { rankMedal, ratingColor } from "../utils/statusMeta";
@@ -21,7 +21,7 @@ export function CollectionPage() {
   if (!collection) {
     return (
       <div className="card mx-auto max-w-md p-10 text-center">
-        <div className="text-5xl">📦</div>
+        <FiPackage className="mx-auto text-5xl text-ink-faint" aria-hidden="true" />
         <h1 className="mt-4 font-display text-2xl font-extrabold text-ink">
           Коробка пустая!
         </h1>

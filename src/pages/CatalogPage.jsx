@@ -33,7 +33,7 @@ import { MASCOTS } from "../config/mascots";
 const PAGE = 24;
 
 const EMPTY_PHRASES = [
-  "Ничего не найдено 😢",
+  "Ничего не найдено, даже крошки нет",
   "Рогалик сбежал из коробки...",
   "Пусто, как после забега в DBD",
   "Здесь мог быть твой рогалик",
@@ -761,7 +761,14 @@ export function CatalogPage() {
                       active={ratingMin === r}
                       onClick={() => apply({ rating: ratingMin === r ? null : r })}
                     >
-                      {r === 0 ? "Любая" : `⭐ ${r}+`}
+                      {r === 0 ? (
+                        "Любая"
+                      ) : (
+                        <span className="inline-flex items-center gap-1">
+                          <FiStar aria-hidden="true" />
+                          {r}+
+                        </span>
+                      )}
                     </Chip>
                   ))}
                 </div>

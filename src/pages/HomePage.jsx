@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { FiArrowRight, FiCalendar, FiZap } from "react-icons/fi";
+import { FiArrowRight, FiCalendar, FiZap, FiStar } from "react-icons/fi";
 import { FaYoutube } from "react-icons/fa";
 import { useData } from "../components/DataProvider";
 import { TwitchWidgetInHero } from "../components/TwitchWidgetInHero";
@@ -103,7 +103,7 @@ export function HomePage() {
             <div className="mt-3 flex flex-wrap items-center gap-2">
               {parseNum(last?.rating) > 0 && (
                 <span className="chip border border-white/10 bg-night-900/70 text-base">
-                  <span aria-hidden="true">⭐</span>
+                  <FiStar aria-hidden="true" className={ratingColor(last.rating)} />
                   <span className={ratingColor(last.rating) + " font-display font-extrabold"}>
                     {parseNum(last.rating)}/10
                   </span>
