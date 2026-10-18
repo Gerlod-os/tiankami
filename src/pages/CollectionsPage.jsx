@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { FiArrowRight } from "react-icons/fi";
 import { useData } from "../components/DataProvider";
 import { RarityEgg } from "../components/RarityEgg";
-import { CoverFan } from "../components/CoverFan";
 import { CollectionIcon } from "../components/CollectionIcon";
 import { MASCOTS } from "../config/mascots";
 import { ratingColor } from "../utils/statusMeta";
@@ -80,57 +79,46 @@ export function CollectionsPage() {
                   {c.description}
                 </p>
               )}
-              {/* Веер — только у золотой подборки: так требует дизайн.md
-                  («веер есть только на золотой подборке»). Остальным — превью-карточки
-                  игр вместо списка строк: список текста читался как оглавление
-                  (решение владельца 18.10.2026). */}
-              {golden ? (
-                <div className="mt-4">
-                  <CoverFan
-                    games={c.games
-                      .map((g) => byTitle.get(String(g.name).toLowerCase()))
-                      .filter(Boolean)}
-                  />
-                </div>
-              ) : (
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  {preview.map((g) => (
-                    <span
-                      key={g.slug}
-                      className="overflow-hidden rounded-btn border border-white/10 bg-night-900/60"
-                    >
-                      <img
-                        src={g.image}
-                        alt=""
-                        width={460}
-                        height={215}
-                        loading="lazy"
-                        className="aspect-[2/1] w-full object-cover"
-                      />
-                      <span className="block px-1.5 py-1">
-                        <span className="line-clamp-1 text-[11px] font-bold text-ink">
-                          {g.title}
-                        </span>
-                        <span className="mt-0.5 flex items-center justify-between gap-1">
-                          <RarityEgg
-                            rarity={bySlug?.[g.slug] || "common"}
-                            size={12}
-                          />
-                          {parseNum(g.rating) > 0 && (
-                            <span
-                              className={
-                                "text-[10px] font-bold " + ratingColor(g.rating)
-                              }
-                            >
-                              {parseNum(g.rating)}/10
-                            </span>
-                          )}
-                        </span>
+              {/* Один вид у всех подборок: три превью-карточки игр. Веер оставлен
+                  только на главной — здесь он делал золотую непохожей на остальные
+                  (замечание владельца 18.10.2026). */}
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                {preview.map((g) => (
+                  <span
+                    key={g.slug}
+                    className="block min-w-0 overflow-hidden rounded-btn border border-white/10 bg-night-900/60"
+                  >
+                    <img
+                      src={g.image}
+                      alt=""
+                      width={460}
+                      height={215}
+                      loading="lazy"
+                      className="aspect-[2/1] w-full object-cover"
+                    />
+                    <span className="block px-1.5 py-1">
+                      <span className="line-clamp-1 text-[11px] font-bold text-ink">
+                        {g.title}
+                      </span>
+                      <span className="mt-0.5 flex items-center justify-between gap-1">
+                        <RarityEgg
+                          rarity={bySlug?.[g.slug] || "common"}
+                          size={12}
+                        />
+                        {parseNum(g.rating) > 0 && (
+                          <span
+                            className={
+                              "text-[10px] font-bold " + ratingColor(g.rating)
+                            }
+                          >
+                            {parseNum(g.rating)}/10
+                          </span>
+                        )}
                       </span>
                     </span>
-                  ))}
-                </div>
-              )}
+                  </span>
+                ))}
+              </div>
               <span className="mt-auto flex items-center gap-1 pt-4 text-xs font-bold text-pastel-pink">
                 {c.games.length} игр <FiArrowRight />
               </span>
