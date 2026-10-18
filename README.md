@@ -131,6 +131,7 @@ src/
                schedule, steam, streams, idle, jsonld
 scripts/       sync-data.js, prerender.mjs, steam-covers.mjs, fix-covers.mjs,
                twitch-recent.mjs, twitch-schedule.mjs, yt-playlists.mjs,
+               yt-videos.mjs (видео канала для игр без плейлиста),
                cut-white-bg.mjs (вырезание светлого фона из маскотов, флаг --cream),
                check-data.mjs, check-links.mjs, audit.mjs
 ```
