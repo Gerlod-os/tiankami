@@ -10,8 +10,6 @@ import {
   FiPlay,
   FiMessageCircle,
   FiStar,
-  FiActivity,
-  FiFeather,
   FiFlag,
 } from "react-icons/fi";
 import { FaSkull, FaSteam } from "react-icons/fa";
@@ -26,16 +24,30 @@ import { useData } from "./DataProvider";
 // Иконки шкал: один шрифт на всех устройствах, цвет из палитры. Эмодзи (💫💀🌳)
 // рисовала система, и на iPhone, и на Windows это были разные значки.
 const ratingIcon = () => FiStar;
-const cxIcon = (c) => (c >= 7 ? FaSkull : c >= 4 ? FiActivity : FiFeather);
 const progIcon = () => FiFlag;
 
-function Bar({ label, icon: Icon, value, max, suffix }) {
+// Черепа сложности — как раньше: ряд из 1–3 черепов, а не одна сменяемая иконка.
+// Правило то же, что в карточке каталога (GameCard.jsx): >=8 → 3, >=5 → 2, >=1 → 1.
+export function skullCount(c) {
+  return c >= 8 ? 3 : c >= 5 ? 2 : c >= 1 ? 1 : 0;
+}
+
+function Bar({ label, icon: Icon, skulls = 0, value, max, suffix }) {
   const v = parseNum(value);
   return (
     <div>
       <div className="mb-1 flex items-center justify-between text-xs">
         <span className="flex items-center gap-1.5 font-semibold uppercase tracking-wider text-ink-dim">
-          {Icon && <Icon className="shrink-0" aria-hidden="true" />} {label}
+          {skulls > 0 ? (
+            <span className="flex items-center gap-0.5" aria-hidden="true">
+              {Array.from({ length: skulls }, (_, i) => (
+                <FaSkull key={i} className="skull text-[13px]" />
+              ))}
+            </span>
+          ) : (
+            Icon && <Icon className="shrink-0" aria-hidden="true" />
+          )}{" "}
+          {label}
         </span>
         <span className="font-display font-bold text-ink">
           {v > 0 ? `${v}${suffix || `/${max}`}` : "—"}
@@ -109,7 +121,7 @@ export function GameDetails({ game, compact = false }) {
       {/* YouTube под обложкой: сначала постер, плеер — по клику.
           В модалке плеера нет: там место занимает обложка, а смотреть — на странице игры. */}
       {showPlayer && !compact && (
-        <div className="mx-auto max-w-2xl overflow-hidden rounded-card border border-white/10 shadow-card">
+        <div className="mx-auto max-w-xl overflow-hidden rounded-card border border-white/10 shadow-card">
           {playing ? (
             <iframe
               className="aspect-video w-full"
@@ -261,7 +273,7 @@ export function GameDetails({ game, compact = false }) {
         />
         <Bar
           label="Сложность"
-          icon={cxIcon(parseNum(game.complexity))}
+          skulls={skullCount(parseNum(game.complexity))}
           value={game.complexity}
           max={10}
         />

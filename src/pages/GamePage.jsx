@@ -199,7 +199,7 @@ export function GamePage() {
       <header className="card relative overflow-hidden">
         {/* Фоновый арт убран: при высоте карточки 300 px он резал голову персонажа
             сверху. Обложка слева и так даёт цвет, вторая копия не нужна. */}
-        <div className="relative z-10 grid gap-6 p-6 md:grid-cols-[260px_minmax(0,1fr)] md:items-start md:p-8 xl:grid-cols-[260px_minmax(0,1fr)_auto]">
+        <div className="relative z-10 grid gap-6 p-6 md:grid-cols-[300px_minmax(0,1fr)] md:items-start md:p-8 xl:grid-cols-[300px_minmax(0,1fr)_auto]">
           <div>
             {game.image ? (
               <img
@@ -243,7 +243,7 @@ export function GamePage() {
               <span className="font-semibold text-ink">{game.title}</span>
             </nav>
             <h1
-              className="font-hero mt-3 text-4xl font-black text-ink md:text-5xl"
+              className="font-hero mt-3 text-3xl font-black text-ink md:text-4xl"
               style={
                 hardcore
                   ? { textShadow: "0 0 18px rgba(255,143,163,0.45), 0 2px 0 rgba(0,0,0,0.6)" }
@@ -322,7 +322,7 @@ export function GamePage() {
             <div className="hidden text-right xl:block">
               <div
                 className={
-                  "font-display text-7xl font-black leading-none " +
+                  "font-display text-6xl font-black leading-none " +
                   ratingColor(game.rating)
                 }
                 style={{ textShadow: "0 0 30px rgba(159,226,185,0.35)" }}
