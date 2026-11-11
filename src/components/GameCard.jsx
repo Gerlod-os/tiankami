@@ -1,12 +1,11 @@
 import { memo, useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiClock, FiEye, FiStar } from "react-icons/fi";
-import { FaSkull } from "react-icons/fa";
+import { FaSkull, FaTrophy } from "react-icons/fa";
 import { parseNum, hasMI } from "../utils/normalize";
 import { statusMeta, ratingColor } from "../utils/statusMeta";
 import { RARITY_GLOW } from "../utils/rarity";
 import { RarityEgg } from "./RarityEgg";
-import { MITrophy } from "./MITrophy";
 import { Highlight } from "./Highlight";
 
 // Единая карточка v4: яйцо редкости — всегда слева от названия, как в каталоге
@@ -94,16 +93,28 @@ export const GameCard = memo(function GameCard({
       </Link>
 
       <div className="flex flex-1 flex-col gap-1 rounded-b-card bg-night-600/60 p-3 sm:p-4">
-        <Link
-          to={`/catalog/${game.slug}`}
-          onClick={quickOpen}
-          className="flex min-h-8 items-center gap-2 font-display text-sm font-extrabold text-ink transition hover:text-pastel-pink sm:text-base"
-        >
-          <RarityEgg rarity={rarity} size={18} className="shrink-0" />
-          <span className="line-clamp-1">
-            <Highlight text={game.title} q={highlight} />
-          </span>
-        </Link>
+        <div className="flex min-h-8 items-center gap-2">
+          <Link
+            to={`/catalog/${game.slug}`}
+            onClick={quickOpen}
+            className="flex min-w-0 flex-1 items-center gap-2 font-display text-sm font-extrabold text-ink transition hover:text-pastel-pink sm:text-base"
+          >
+            <RarityEgg rarity={rarity} size={18} className="shrink-0" />
+            <span className="line-clamp-1">
+              <Highlight text={game.title} q={highlight} />
+            </span>
+          </Link>
+          {/* Кубок МИ — справа от названия, у правого края карточки. Раньше он
+              стоял отдельной строкой внизу и растягивал карточку (владелец 11.11.2026). */}
+          {hasMI(game) && (
+            <span
+              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-pastel-amber/40 bg-pastel-amber/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-pastel-amber"
+              title="Игра участвовала в «Мастер Игорей»"
+            >
+              <FaTrophy aria-hidden="true" /> МИ
+            </span>
+          )}
+        </div>
         <div className="line-clamp-1 text-xs text-ink-dim">
           <Highlight text={game.genre || "Рогалик"} q={highlight} />
           {game.setting ? ` · ${game.setting}` : ""}
@@ -121,22 +132,15 @@ export const GameCard = memo(function GameCard({
               </span>
             )}
           </span>
-          <span className="flex flex-col items-end gap-1">
-            {hasMI(game) && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-pastel-amber">
-                <MITrophy size="xs" /> МИ
-              </span>
-            )}
-            {/* «Обзор» ведёт на страницу игры — владелец 11.11.2026 развёл два
-                действия: клик по карточке — быстрый просмотр, «Обзор» — страница. */}
-            <Link
-              to={`/catalog/${game.slug}`}
-              className="btn-ghost !min-h-8 !px-3 !py-1 text-xs"
-              title={`Открыть страницу ${game.title}`}
-            >
-              <FiEye /> Обзор
-            </Link>
-          </span>
+          {/* «Обзор» ведёт на страницу игры — владелец 11.11.2026 развёл два
+              действия: клик по карточке — быстрый просмотр, «Обзор» — страница. */}
+          <Link
+            to={`/catalog/${game.slug}`}
+            className="btn-ghost !min-h-8 !px-3 !py-1 text-xs"
+            title={`Открыть страницу ${game.title}`}
+          >
+            <FiEye /> Обзор
+          </Link>
         </div>
       </div>
     </article>
