@@ -100,7 +100,7 @@ export const GameCard = memo(function GameCard({
           <Link
             to={`/catalog/${game.slug}`}
             onClick={quickOpen}
-            className="flex min-w-0 flex-1 items-center gap-2 font-display text-sm font-extrabold text-ink transition hover:text-pastel-pink sm:text-base"
+            className="flex min-h-8 min-w-0 flex-1 items-center gap-2 font-display text-sm font-extrabold text-ink transition hover:text-pastel-pink sm:text-base"
           >
             <RarityEgg rarity={rarity} size={18} className="shrink-0" />
             <span className="line-clamp-1">
@@ -128,12 +128,12 @@ export const GameCard = memo(function GameCard({
           {game.setting ? ` · ${game.setting}` : ""}
         </div>
         <div className="mt-auto flex items-end justify-between gap-2 pt-1">
-          <span className="flex items-center gap-2 text-xs text-ink-faint">
+          <span className="flex shrink-0 items-center gap-2 whitespace-nowrap text-xs text-ink-faint">
             <span className="flex items-center gap-1">
               <FiClock /> {parseNum(game.hours) || "—"} ч.
             </span>
             {skulls > 0 && (
-              <span className="flex gap-0.5" title={`Сложность ${cx}/10`}>
+              <span className="flex shrink-0 gap-0.5" title={`Сложность ${cx}/10`}>
                 {Array.from({ length: skulls }, (_, i) => (
                   <FaSkull key={i} className="skull" aria-hidden="true" />
                 ))}

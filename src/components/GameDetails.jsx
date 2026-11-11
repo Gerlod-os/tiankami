@@ -41,11 +41,11 @@ function Bar({ label, icon: Icon, skulls = 0, value, max, suffix, tone = "gold" 
   return (
     <div>
       <div className="mb-1 flex items-center justify-between text-xs">
-        <span className="flex items-center gap-1.5 font-semibold uppercase tracking-wider text-ink-dim">
+        <span className="t-micro flex items-center gap-1.5">
           {skulls > 0 ? (
             <span className="flex items-center gap-1" aria-hidden="true">
               {Array.from({ length: skulls }, (_, i) => (
-                <FaSkull key={i} className="skull text-[13px]" />
+                <FaSkull key={i} className="skull text-sm" />
               ))}
             </span>
           ) : (
@@ -90,7 +90,7 @@ function MetaCell({ icon: Icon, iconCls, label, children, onGo, tone }) {
   return (
     <div className="meta-row text-sm" style={colored ? { ["--tone"]: tone } : undefined}>
       <span
-        className="flex shrink-0 items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide"
+        className="t-micro flex shrink-0 items-center gap-1.5"
         style={colored ? { color: tone } : undefined}
       >
         <Icon
@@ -103,7 +103,9 @@ function MetaCell({ icon: Icon, iconCls, label, children, onGo, tone }) {
         {...(onGo ? { type: "button", onClick: onGo } : {})}
         className={
           "min-w-0 truncate text-right font-semibold text-ink " +
-          (onGo ? "tap hover:text-pastel-blue hover:underline" : "")
+          // py-0.5 поднимает высоту нажимаемого значения до 24 px (WCAG 2.5.8):
+          // было 20 px, аудит 11.11.2026 считал это мелкой целью.
+          (onGo ? "tap min-h-6 min-w-6 py-0.5 hover:text-pastel-blue hover:underline" : "")
         }
       >
         {children}
@@ -243,7 +245,7 @@ export function GameDetails({ game, compact = false }) {
           отдельной вкладкой внизу (владелец 11.11.2026). */}
       {game.notes && compact && (
         <div className="rounded-btn bg-night-700/40 p-2.5">
-          <div className="mb-1 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-ink-faint">
+          <div className="t-micro mb-1 flex items-center gap-1.5">
             <FiMessageCircle className="text-pastel-mint" aria-hidden="true" />
             Впечатления Тиана
           </div>
@@ -368,7 +370,7 @@ export function GameDetails({ game, compact = false }) {
           отдельную вкладку. В окне они остаются двумя строками выше. */}
       {game.notes && !compact && (
         <div className="rounded-card bg-night-700/40 p-4">
-          <div className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-ink-faint">
+          <div className="t-micro mb-2 flex items-center gap-1.5">
             <FiMessageCircle className="text-pastel-mint" aria-hidden="true" />
             Впечатления Тиана
           </div>

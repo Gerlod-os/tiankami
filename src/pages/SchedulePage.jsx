@@ -53,7 +53,7 @@ function NextStreamCard({ s, isToday }) {
     >
       <div className="flex h-20 w-20 flex-col items-center justify-center rounded-btn bg-gradient-to-br from-pastel-pink/20 to-pastel-purple/20 font-display font-black text-ink text-2xl">
         <span>{s.date.slice(0, 5)}</span>
-        <span className="text-[10px] font-bold text-ink-dim">{s.date.slice(6)}</span>
+        <span className="text-xs font-bold text-ink-dim">{s.date.slice(6)}</span>
       </div>
       <div className="min-w-0 flex-1">
         <div className="font-display text-xl font-extrabold text-ink">{s.game}</div>
@@ -97,7 +97,7 @@ export function SchedulePage() {
   return (
     <div className="mx-auto max-w-4xl space-y-8">
       <div>
-        <h1 className="section-title min-h-[2lh] text-3xl md:min-h-0 md:text-4xl">
+        <h1 className="t-h1 min-h-[2lh] md:min-h-0">
           <span className="h-marker">Расписание</span> <span className="section-accent">стримов</span>
         </h1>
         <p className="mt-2 text-sm text-ink-dim">

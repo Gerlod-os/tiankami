@@ -291,7 +291,7 @@ export function GamePage() {
                   >
                     {parseNum(game.rating)}
                   </span>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-ink-dim">
+                  <span className="t-micro">
                     /10
                   </span>
                 </span>
@@ -346,7 +346,7 @@ export function GamePage() {
               >
                 {parseNum(game.rating)}
               </div>
-              <div className="mt-2 text-[10px] font-bold uppercase tracking-widest text-ink-dim">
+              <div className="t-micro mt-2">
                 оценка Тиана / 10
               </div>
             </div>
@@ -363,7 +363,7 @@ export function GamePage() {
 
       {recs.length > 0 && (
         <section>
-          <h2 className="section-title mb-1 text-xl md:text-2xl">
+          <h2 className="section-title mb-1">
             Похожие игры
           </h2>
           <p className="mb-2 text-xs text-ink-dim">

@@ -7,7 +7,10 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-night-800 text-ink font-body antialiased min-h-screen;
+    /* Одно семейство текста на весь сайт — Nunito. Inter убран: два
+       нейтральных шрифта рядом давали разницу в буквах без разницы в смысле
+       (11.11.2026). Заголовки — Unbounded, всё остальное — Nunito. */
+    @apply bg-night-800 text-ink font-display antialiased min-h-screen;
     /* один тёплый свет сверху + едва заметный розовый снизу — без «конфетти-пятен» */
     background-image:
       radial-gradient(
@@ -212,7 +215,7 @@
   }
   /* соцсети бренд-цвета */
   .soc {
-    @apply inline-flex h-8 w-8 items-center justify-center rounded-btn text-[22px] transition duration-300;
+    @apply inline-flex h-8 w-8 items-center justify-center rounded-btn text-xl transition duration-300;
   }
   .soc:hover {
     transform: scale(1.2);
@@ -290,6 +293,20 @@
   }
   .sticker {
     @apply rounded-card border-4 border-white shadow-sticker;
+  }
+  /* Шкала типографики — пять размеров на весь сайт.
+     micro 12 · small 14 · body 16 · h3 18 · h2 24–30 · h1 30–36.
+     Новые размеры через text-[Npx] не заводим: на сайте было 17 разных,
+     из них 5 произвольных (11.11.2026). Micro был 11 px — поднят до 12:
+     мелкий текст ниже 12 px аудит считает нечитаемым. */
+  .t-micro {
+    @apply text-xs font-bold uppercase tracking-wider text-ink-dim;
+  }
+  .t-h1 {
+    @apply font-hero text-3xl font-black tracking-tight text-ink md:text-4xl;
+  }
+  .t-h3 {
+    @apply font-display text-lg font-extrabold text-ink;
   }
   .section-title {
     @apply font-hero text-2xl font-extrabold tracking-tight text-ink md:text-3xl;

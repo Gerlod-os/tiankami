@@ -47,14 +47,8 @@ export default {
           '"Segoe UI"',
           "sans-serif",
         ],
-        body: [
-          '"Inter Variable"',
-          "Inter",
-          "system-ui",
-          "-apple-system",
-          '"Segoe UI"',
-          "sans-serif",
-        ],
+        // Inter убран 11.11.2026: третье семейство дублировало Nunito по роли.
+        // font-body больше нет — текст берёт font-display (Nunito).
       },
       borderRadius: {
         card: "16px",

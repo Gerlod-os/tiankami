@@ -36,7 +36,7 @@ export function AboutPage() {
         </div>
         <div className="p-6 md:p-10">
           <div className="max-w-2xl">
-            <h1 className="section-title text-3xl md:text-4xl">
+            <h1 className="t-h1">
               <span className="h-marker">Обо</span> <span className="section-accent">мне</span>
             </h1>
             <p className="mt-4 text-ink-dim">
@@ -90,7 +90,7 @@ export function AboutPage() {
       <section className="card p-6 md:p-10">
         <div className="grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_280px]">
           <div>
-            <h2 className="section-title text-2xl md:text-3xl">
+            <h2 className="section-title">
               Подписка и <span className="section-accent">поддержка</span>
             </h2>
             <p className="mt-4 text-sm text-ink-dim">

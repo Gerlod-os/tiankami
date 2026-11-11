@@ -64,7 +64,7 @@ export function CollectionPage() {
               конкретной игры (11.11.2026). */}
           <CollectionIcon name={collection.name} size={44} />
           <div>
-            <h1 className={`section-title text-3xl ${golden ? "text-pastel-amber" : ""}`}
+            <h1 className={`t-h1 ${golden ? "text-pastel-amber" : ""}`}
               style={golden ? {
                 textShadow: "0 0 30px rgba(255,217,160,0.5)",
               } : {}}>

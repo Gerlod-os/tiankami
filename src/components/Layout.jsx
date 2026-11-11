@@ -319,7 +319,7 @@ export function Layout({ children }) {
           дата сборки ничего не говорит читателю, а подпись про рогалик вернул
           (18.10.2026). */}
       <footer className="border-t border-white/5 bg-night-900/60">
-        <div className="mx-auto max-w-7xl px-4 py-3 text-center text-[11px] text-ink-faint">
+        <div className="mx-auto max-w-7xl px-4 py-3 text-center text-xs text-ink-faint">
           © {new Date().getFullYear()} {BRAND.name} · {BRAND.footerText} · сделано с{" "}
           <span aria-hidden="true">🥐</span> и любовью
         </div>

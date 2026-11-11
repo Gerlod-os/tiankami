@@ -17,7 +17,7 @@ export function CollectionsPage() {
       <div className="card relative overflow-hidden">
         <div className="grid items-center gap-6 p-6 md:grid-cols-[minmax(0,1fr)_320px] md:p-10">
           <div>
-            <h1 className="section-title text-3xl md:text-4xl">
+            <h1 className="t-h1">
               <span className="h-marker">Подборки</span>{" "}
               <span className="section-accent">от Тиана</span>
             </h1>

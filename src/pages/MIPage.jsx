@@ -136,7 +136,7 @@ export function MIPage() {
         <section className="card p-6">
           <div className="flex items-center gap-2 mb-3">
             <FiInfo className="text-pastel-blue" />
-            <h2 className="section-title text-xl">Что такое МИ</h2>
+            <h2 className="t-h3">Что такое МИ</h2>
           </div>
           <p className="text-sm leading-relaxed text-ink-dim">
             Мастер Игорей — регулярное соревнование стримеров-рогаликов.
@@ -148,7 +148,7 @@ export function MIPage() {
         <section className="card p-6">
           <div className="flex items-center gap-2 mb-3">
             <FiBookOpen className="text-pastel-purple" />
-            <h2 className="section-title text-xl">Правила</h2>
+            <h2 className="t-h3">Правила</h2>
           </div>
           <p className="text-sm leading-relaxed text-ink-dim">
             Одинаковые условия для всех участников: один и тот же старт,
@@ -162,7 +162,7 @@ export function MIPage() {
       <section className="card p-6 md:p-8">
         <div className="flex items-center gap-2 mb-4">
           <FiUsers className="text-pastel-mint" />
-          <h2 className="section-title text-xl">Участники</h2>
+          <h2 className="t-h3">Участники</h2>
         </div>
         <div className="flex flex-wrap gap-3">
           <span className="chip border-2 border-pastel-amber/50 bg-pastel-amber/15 text-pastel-amber">

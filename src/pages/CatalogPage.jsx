@@ -75,7 +75,7 @@ function Chip({ active, onClick, children, title, disabled, className = "" }) {
 
 // Свой список вместо <select>: системный белый список не оформить (MDN <option> —
 // оформление зависит от ОС), клавиатура — по паттерну listbox WAI-ARIA APG.
-function SelectMenu({ label, value, options, onChange, icon: Icon }) {
+function SelectMenu({ label, value, options, onChange, icon: Icon, wrapClass = "", btnClass = "!w-auto" }) {
   const uid = useId().replace(/:/g, "");
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
@@ -133,7 +133,7 @@ function SelectMenu({ label, value, options, onChange, icon: Icon }) {
   };
 
   return (
-    <span className="relative inline-block shrink-0" ref={boxRef}>
+    <span className={"relative inline-block shrink-0 " + wrapClass} ref={boxRef}>
       <button
         ref={btnRef}
         type="button"
@@ -144,10 +144,13 @@ function SelectMenu({ label, value, options, onChange, icon: Icon }) {
           setOpen((o) => !o);
           setActive(Math.max(0, options.findIndex((o) => o.v === value)));
         }}
-        className="input flex !h-12 !w-auto items-center gap-2 !py-2 pl-3 pr-8 text-xs font-semibold"
+        className={
+          "input flex !h-12 items-center gap-2 !py-2 pl-3 pr-8 text-xs font-semibold " +
+          btnClass
+        }
       >
         {Icon && <Icon className="shrink-0 text-pastel-purple" />}
-        <span className="whitespace-nowrap">{current?.l}</span>
+        <span className="min-w-0 truncate">{current?.l}</span>
         <FiChevronDown
           className={
             "pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-pastel-purple transition " +
@@ -228,6 +231,21 @@ export function CatalogPage() {
   const searchRef = useRef(null);
   const filtersRef = useRef(null);
   const MAX_GENRES = 2;
+
+  // Липкая строка фильтров встаёт под шапку сайта. Высоту шапки меряю, а не
+  // угадываю: на телефоне и десктопе она разная, и от неё зависит, не наедет
+  // ли строка на меню (11.11.2026).
+  const [headerH, setHeaderH] = useState(0);
+  useEffect(() => {
+    const header = document.querySelector("header");
+    if (!header) return undefined;
+    const measure = () =>
+      setHeaderH(Math.round(header.getBoundingClientRect().height));
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(header);
+    return () => ro.disconnect();
+  }, []);
 
   usePageMeta({
     title: "Каталог рогаликов — Tiankami",
@@ -477,10 +495,78 @@ export function CatalogPage() {
     apply({ genre: [...next] });
   };
 
+  // Активные фильтры видимой строкой: панель свёрнута, а состояние видно.
+  // Каждую плашку можно снять по одной, не открывая панель (11.11.2026).
+  const HOURS_LABELS = {
+    lt10: "до 10 ч",
+    "10-49": "10–50 ч",
+    "50-99": "50–100 ч",
+    "100+": "100+ ч",
+  };
+  const COMPLEXITY_LABELS = { low: "лёгкие", mid: "средние", high: "хардкор" };
+  const activeChips = useMemo(() => {
+    const list = [];
+    for (const g of genresSel) {
+      list.push({ key: `genre-${g}`, label: g, clear: () => toggleGenre(g) });
+    }
+    if (status !== "any") {
+      list.push({
+        key: "status",
+        label: status,
+        clear: () => apply({ status: null }),
+      });
+    }
+    if (year !== "any") {
+      list.push({
+        key: "year",
+        label: `${year} год`,
+        clear: () => apply({ year: null }),
+      });
+    }
+    if (ratingMin > 0) {
+      list.push({
+        key: "rating",
+        label: `оценка ${ratingMin}+`,
+        clear: () => apply({ rating: null }),
+      });
+    }
+    if (complexity !== "any") {
+      list.push({
+        key: "complexity",
+        label: COMPLEXITY_LABELS[complexity] || complexity,
+        clear: () => apply({ complexity: null }),
+      });
+    }
+    if (hours !== "any") {
+      list.push({
+        key: "hours",
+        label: HOURS_LABELS[hours] || hours,
+        clear: () => apply({ hours: null }),
+      });
+    }
+    if (miOnly) {
+      list.push({
+        key: "mi",
+        label: "только МИ",
+        clear: () => apply({ mi: null }),
+      });
+    }
+    if (collectionParam) {
+      list.push({
+        key: "collection",
+        label: "подборка",
+        clear: () => apply({ collection: null }),
+      });
+    }
+    return list;
+    // toggleGenre и apply пересоздаются вместе с searchParams — этого достаточно.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [genresSel, status, year, ratingMin, complexity, hours, miOnly, collectionParam, searchParams]);
+
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h1 className="section-title text-3xl md:text-4xl">
+        <h1 className="t-h1">
           <span className="h-marker">Каталог</span>{" "}
           <span className="section-accent">рогаликов</span>
         </h1>
@@ -492,10 +578,14 @@ export function CatalogPage() {
         </p>
       </div>
 
-      {/* Поиск, фильтры и сортировка — одна строка во всю ширину страницы:
-          так она совпадает по ширине с панелью фильтров под ней (было 960 против
-          1152 px — замечание владельца 18.10.2026). */}
-      <div className="w-full">
+      {/* Поиск, сортировка и активные фильтры — одна липкая полоса под шапкой:
+          панель фильтров больше не занимает экран, а состояние видно всегда
+          (11.11.2026). Ширина та же, что у панели под ней. */}
+      <div
+        className="sticky z-30 -mx-4 border-b border-white/5 bg-night-800/95 px-4 py-2 backdrop-blur md:-mx-6 md:px-6"
+        style={{ top: headerH }}
+        data-catalog-toolbar
+      >
         <div className="flex flex-wrap items-stretch gap-2" ref={filtersRef}>
         <div className="relative w-full min-w-0 sm:flex-1">
         <FiSearch className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-faint" />
@@ -627,48 +717,79 @@ export function CatalogPage() {
           aria-expanded={filtersOpen}
         >
           <FiFilter /> Фильтры
+          {activeChips.length > 0 && (
+            <span className="ml-0.5 rounded-full bg-pastel-purple/30 px-1.5 text-xs font-bold text-ink">
+              {activeChips.length}
+            </span>
+          )}
           <FiChevronDown
             className={filtersOpen ? "rotate-180 transition" : "transition"}
           />
         </button>
 
-        <SelectMenu
-          label="Сортировка"
-          value={sort}
-          onChange={(v) =>
-            apply({
-              sort: v === "played-desc" ? null : v,
-              dir: null,
-            })
-          }
-          options={[
-            { v: "played-desc", l: "Сначала недавние" },
-            { v: "rating-desc", l: "По оценке Тиана" },
-            { v: "hours-desc", l: "По часам" },
-            { v: "release-desc", l: "По дате выхода" },
-            { v: "progress-desc", l: "По прогрессу" },
-            { v: "title", l: "По алфавиту" },
-          ]}
-        />
+        {/* Сортировка и направление — одна группа: на телефоне они делят
+            вторую строку с «Фильтрами» и не уезжают на третью (11.11.2026). */}
+        <div className="flex min-w-0 flex-1 items-stretch gap-2 sm:flex-none">
+          <SelectMenu
+            label="Сортировка"
+            value={sort}
+            wrapClass="min-w-0 flex-1 sm:flex-none"
+            btnClass="!w-full sm:!w-auto"
+            onChange={(v) =>
+              apply({
+                sort: v === "played-desc" ? null : v,
+                dir: null,
+              })
+            }
+            options={[
+              { v: "played-desc", l: "Сначала недавние" },
+              { v: "rating-desc", l: "По оценке Тиана" },
+              { v: "hours-desc", l: "По часам" },
+              { v: "release-desc", l: "По дате выхода" },
+              { v: "progress-desc", l: "По прогрессу" },
+              { v: "title", l: "По алфавиту" },
+            ]}
+          />
 
-        <button
-          type="button"
-          onClick={() => apply({ dir: dir === "asc" ? "desc" : "asc" })}
-          aria-label={
-            dir === "asc"
-              ? "Направление сортировки: по возрастанию. Переключить на убывание"
-              : "Направление сортировки: по убыванию. Переключить на возрастание"
-          }
-          title={dir === "asc" ? "По возрастанию" : "По убыванию"}
-          className="input flex !h-12 !w-auto shrink-0 items-center justify-center !px-2.5 !py-2 text-ink-dim hover:border-pastel-purple/40 hover:text-ink"
-        >
-          {dir === "asc" ? (
-            <FiArrowUp className="text-pastel-mint" />
-          ) : (
-            <FiArrowDown className="text-pastel-mint" />
-          )}
-        </button>
+          <button
+            type="button"
+            onClick={() => apply({ dir: dir === "asc" ? "desc" : "asc" })}
+            aria-label={
+              dir === "asc"
+                ? "Направление сортировки: по возрастанию. Переключить на убывание"
+                : "Направление сортировки: по убыванию. Переключить на возрастание"
+            }
+            title={dir === "asc" ? "По возрастанию" : "По убыванию"}
+            className="input flex !h-12 !w-auto shrink-0 items-center justify-center !px-2.5 !py-2 text-ink-dim hover:border-pastel-purple/40 hover:text-ink"
+          >
+            {dir === "asc" ? (
+              <FiArrowUp className="text-pastel-mint" />
+            ) : (
+              <FiArrowDown className="text-pastel-mint" />
+            )}
+          </button>
         </div>
+        </div>
+
+        {/* Активные фильтры — плашками под строкой: видно, что включено,
+            и каждую можно снять одной кнопкой. */}
+        {activeChips.length > 0 && (
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            {activeChips.map((c) => (
+              <button
+                key={c.key}
+                type="button"
+                onClick={c.clear}
+                className="chip inline-flex items-center gap-1 border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-semibold text-ink transition hover:border-pastel-pink/50 hover:text-pastel-pink"
+                title={`Убрать фильтр: ${c.label}`}
+                aria-label={`Убрать фильтр: ${c.label}`}
+              >
+                {c.label}
+                <FiX className="shrink-0" aria-hidden="true" />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {collection && (

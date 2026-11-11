@@ -200,7 +200,7 @@ export function RarityEgg({ rarity = "common", size = 22, className = "" }) {
             <span className="block font-display text-xs font-extrabold" style={{ color: c }}>
               {meta.ru}
             </span>
-            <span className="mt-0.5 block text-[10px] leading-snug text-ink-dim">
+            <span className="mt-0.5 block text-xs leading-snug text-ink-dim">
               {meta.desc}
             </span>
           </span>,
