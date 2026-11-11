@@ -45,8 +45,9 @@ export function CollectionsPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {(collections || []).map((c) => {
           const golden = /золотой/i.test(c.name);
+          // Пять игр: три уходят в веер, остальные — в список справа.
           const preview = c.games
-            .slice(0, 3)
+            .slice(0, 5)
             .map((g) => byTitle.get(String(g.name).toLowerCase()))
             .filter(Boolean);
           return (
@@ -84,8 +85,24 @@ export function CollectionsPage() {
               {/* Веер обложек у каждой подборки — тот же вид, что у золотой на
                   главной: владелец 18.10.2026 назвал прежние карточки «старыми»
                   и попросил «везде как на золотом списке, красиво и живо». */}
-              <div className="mt-4">
-                <CoverFan games={preview} count={3} />
+              {/* Веер + список игр справа: карточки выглядели пустыми,
+                  владелец 11.11.2026 попросил вернуть список, веер не убирать. */}
+              <div className="mt-4 flex items-start gap-4">
+                <div className="shrink-0">
+                  <CoverFan games={preview} count={3} />
+                </div>
+                {preview.length > 3 && (
+                  <ul className="min-w-0 flex-1 space-y-1 pt-1 text-xs text-ink-dim">
+                    {preview.slice(3, 5).map((g) => (
+                      <li key={g.slug} className="line-clamp-1">
+                        {g.title}
+                      </li>
+                    ))}
+                    {c.games.length > 5 && (
+                      <li className="text-ink-faint">и ещё {c.games.length - 5}…</li>
+                    )}
+                  </ul>
+                )}
               </div>
               <span className="mt-auto flex items-center gap-1 pt-4 text-xs font-bold text-pastel-pink">
                 {c.games.length} игр <FiArrowRight />
