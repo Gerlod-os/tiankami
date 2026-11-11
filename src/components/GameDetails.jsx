@@ -15,7 +15,7 @@ import {
 import { FaSkull, FaSteam } from "react-icons/fa";
 import { parseNum, isUrl, hasMI } from "../utils/normalize";
 import { statusMeta, ratingColor } from "../utils/statusMeta";
-import { parseYouTubeUrl } from "../utils/youtube";
+import { parseYouTubeUrl, posterVideoId } from "../utils/youtube";
 import { moodOf } from "../utils/recommend";
 import { RarityEgg } from "./RarityEgg";
 import { MITrophy } from "./MITrophy";
@@ -105,12 +105,15 @@ export function GameDetails({ game, compact = false }) {
     : "";
   // Превью ролика: maxresdefault 1280×720 (16:9), запасной mqdefault 320×180.
   // hqdefault не годится — 480×360 с чёрными полосами у 16:9 (замер 18.10.2026).
-  // У плейлиста ролика нет — подложкой идёт обложка игры.
-  const poster = yt?.videoId
-    ? `https://i.ytimg.com/vi/${yt.videoId}/maxresdefault.jpg`
+  // У плейлиста своего кадра нет, поэтому ID первого ролика берём из карты
+  // youtube-posters.json (собрана scripts/yt-posters.mjs): владелец 11.11.2026
+  // попросил показывать кадр видео, а не обложку игры. Обложка игры — последний запас.
+  const posterId = posterVideoId(game.youtube);
+  const poster = posterId
+    ? `https://i.ytimg.com/vi/${posterId}/maxresdefault.jpg`
     : game.image || "";
-  const posterFallback = yt?.videoId
-    ? `https://i.ytimg.com/vi/${yt.videoId}/mqdefault.jpg`
+  const posterFallback = posterId
+    ? `https://i.ytimg.com/vi/${posterId}/mqdefault.jpg`
     : game.image || "";
 
   return (
