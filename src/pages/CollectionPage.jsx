@@ -1,7 +1,9 @@
+import { useCallback, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { FiArrowLeft, FiStar, FiPackage } from "react-icons/fi";
 import { useData } from "../components/DataProvider";
 import { RarityEgg } from "../components/RarityEgg";
+import { GameModal } from "../components/GameModal";
 import { rankMedal, ratingColor } from "../utils/statusMeta";
 import { parseNum } from "../utils/normalize";
 import { usePageMeta } from "../utils/usePageMeta";
@@ -9,7 +11,16 @@ import { usePageMeta } from "../utils/usePageMeta";
 export function CollectionPage() {
   const { slug } = useParams();
   const { collections, games, bySlug } = useData();
+  const [modal, setModal] = useState(null);
   const collection = (collections || []).find((c) => c.slug === slug);
+
+  // «Везде» (слово владельца 11.11.2026): клик по строке открывает быстрый
+  // просмотр, Ctrl/Cmd/Shift — обычный переход на страницу игры.
+  const quickOpen = useCallback((e, game) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    setModal(game);
+  }, []);
 
   usePageMeta({
     title: collection
@@ -77,6 +88,7 @@ export function CollectionPage() {
               {match ? (
                 <Link
                   to={`/catalog/${match.slug}`}
+                  onClick={(e) => quickOpen(e, match)}
                   className="card card-hover flex items-center gap-4 p-4 transition duration-300 hover:scale-[1.02] hover:shadow-card"
                 >
                   {/* Мини-обложка */}
@@ -136,6 +148,8 @@ export function CollectionPage() {
           );
         })}
       </ol>
+
+      <GameModal game={modal} onClose={() => setModal(null)} />
     </div>
   );
 }

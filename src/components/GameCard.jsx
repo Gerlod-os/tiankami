@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiClock, FiEye, FiStar } from "react-icons/fi";
 import { FaSkull } from "react-icons/fa";
@@ -25,6 +25,19 @@ export const GameCard = memo(function GameCard({
   const cx = parseNum(game.complexity);
   const skulls = cx >= 8 ? 3 : cx >= 5 ? 2 : cx >= 1 ? 1 : 0;
 
+  // Клик по карточке открывает быстрый просмотр, но ссылка остаётся ссылкой:
+  // в HTML живёт href (гейт внутренних ссылок и поисковики), а клик перехватываем.
+  // Ctrl/Cmd/Shift/средняя кнопка — обычное открытие страницы в новой вкладке.
+  const quickOpen = useCallback(
+    (e) => {
+      if (!onQuickView) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      e.preventDefault();
+      onQuickView(game);
+    },
+    [onQuickView, game]
+  );
+
   return (
     <article
       className="card card-hover group relative flex animate-fadeUp flex-col"
@@ -35,8 +48,9 @@ export const GameCard = memo(function GameCard({
     >
       <Link
         to={`/catalog/${game.slug}`}
+        onClick={quickOpen}
         className="relative block aspect-[2/1] overflow-hidden rounded-t-card bg-night-900"
-        title={game.title}
+        title={onQuickView ? `${game.title} — быстрый просмотр` : game.title}
         aria-label={game.title}
       >
         {!broken && game.image ? (
@@ -82,6 +96,7 @@ export const GameCard = memo(function GameCard({
       <div className="flex flex-1 flex-col gap-1 rounded-b-card bg-night-600/60 p-3 sm:p-4">
         <Link
           to={`/catalog/${game.slug}`}
+          onClick={quickOpen}
           className="flex min-h-8 items-center gap-2 font-display text-sm font-extrabold text-ink transition hover:text-pastel-pink sm:text-base"
         >
           <RarityEgg rarity={rarity} size={18} className="shrink-0" />
@@ -112,16 +127,15 @@ export const GameCard = memo(function GameCard({
                 <MITrophy size="xs" /> МИ
               </span>
             )}
-            {onQuickView && (
-              <button
-                type="button"
-                onClick={() => onQuickView(game)}
-                className="btn-ghost !min-h-8 !px-3 !py-1 text-xs"
-                title="Быстрый просмотр"
-              >
-                <FiEye /> Обзор
-              </button>
-            )}
+            {/* «Обзор» ведёт на страницу игры — владелец 11.11.2026 развёл два
+                действия: клик по карточке — быстрый просмотр, «Обзор» — страница. */}
+            <Link
+              to={`/catalog/${game.slug}`}
+              className="btn-ghost !min-h-8 !px-3 !py-1 text-xs"
+              title={`Открыть страницу ${game.title}`}
+            >
+              <FiEye /> Обзор
+            </Link>
           </span>
         </div>
       </div>

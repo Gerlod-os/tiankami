@@ -32,11 +32,11 @@ export function GameModal({ game, onClose }) {
       }
     };
     document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    // Скролл страницы не блокируем: владелец 11.11.2026 попросил, чтобы при
+    // открытом просмотре по странице можно было листать дальше. Поэтому же
+    // убрано затемнение на весь экран — панель висит сбоку и не запирает страницу.
     return () => {
       document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
       prevFocus?.focus?.();
     };
   }, [game, onClose]);
@@ -47,27 +47,17 @@ export function GameModal({ game, onClose }) {
   if (!game || typeof document === "undefined") return null;
 
   return createPortal(
+    // Панель, а не полноэкранное окно: стоит у правого края, страница вокруг
+    // остаётся живой и прокручивается. aria-modal=false — фон не заблокирован.
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6"
+      className="pointer-events-none fixed inset-0 z-50 flex items-start justify-end p-3 sm:p-6"
       role="dialog"
-      aria-modal="true"
+      aria-modal="false"
       aria-label={game.title}
-      style={{
-        backgroundImage: game.image
-          ? `linear-gradient(to bottom, rgba(10,10,30,0.7), rgba(10,10,30,0.95)), url(${game.image})`
-          : undefined,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
     >
       <div
-        className="absolute inset-0 bg-night-900/75"
-        onClick={onClose}
-      />
-      <div
         ref={boxRef}
-        className="relative max-h-[88vh] w-full max-w-[640px] animate-fadeUp overflow-y-auto rounded-card border border-white/10 bg-night-900/95 shadow-card"
+        className="pointer-events-auto relative max-h-[calc(100vh-1.5rem)] w-full max-w-[560px] animate-fadeUp overflow-y-auto rounded-card border border-white/10 bg-night-900/95 shadow-card backdrop-blur"
       >
         {/* Обложка 192×96 — ровно 2:1, как у Steam. Широкая полоса резала
             верх арта: у игр с персонажем срезало голову (замечено 18.10.2026). */}
