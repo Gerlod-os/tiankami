@@ -138,11 +138,14 @@ export function HomePage() {
             </div>
           </div>
 
-          <div className="relative flex flex-col justify-end gap-5">
-            <div className="w-full"><TwitchWidgetInHero /></div>
-          </div>
         </div>
       </section>
+
+      {/* Плашка канала — отдельной строкой под hero. Раньше стояла в правой
+          колонке поверх арта и закрывала обложку (владелец 11.11.2026). */}
+      <div className="animate-fadeUp" style={{ animationDelay: "100ms" }}>
+        <TwitchWidgetInHero />
+      </div>
 
       {/* СТАТИСТИКА: domino 50ms */}
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-4" aria-label="Статистика канала">
