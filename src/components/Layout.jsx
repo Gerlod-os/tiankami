@@ -154,10 +154,12 @@ export function Layout({ children }) {
               {/* Ник разделён цветом и свечением: «Тиан» и «Ками» читаются
                   как две части, а не одно слово (11.11.2026). Не режем
                   truncate: рядом плашка стрима, и «Kami» пропадало. */}
-              {/* Цвета контрастные, а не два тёплых: «Tian» голубой, «Kami»
-                  золотой — граница видна с первого взгляда (11.11.2026). */}
+              {/* Цвета контрастные, а не два тёплых: «Tian» синий, «Kami»
+                  золотой — граница видна с первого взгляда (11.11.2026).
+                  Бледный pastel-blue владелец 11.11 назвал «синим» и попросил
+                  заменить на настоящий синий: на тёмном фоне он почти белел. */}
               <span className="block whitespace-nowrap font-display text-lg font-black tracking-wide">
-                <span className="text-pastel-blue [text-shadow:0_0_14px_rgba(160,196,255,0.55)]">
+                <span className="text-[#4C8DFF] [text-shadow:0_0_16px_rgba(76,141,255,0.65)]">
                   Tian
                 </span>
                 <span className="text-pastel-amber [text-shadow:0_0_16px_rgba(255,196,107,0.65)]">
