@@ -44,23 +44,31 @@ export function AboutPage() {
               <b className="text-ink">{BRAND.about.realName}</b>, но все зовут просто{" "}
               <b className="section-accent">{BRAND.about.nick}</b>.
             </p>
-            <ul className="mt-4 space-y-3 text-sm text-ink-dim">
-              <li className="flex gap-2">
-                <FaGamepad aria-hidden="true" />
+            {/* Иконки крупнее и в цветных кружках: раньше это были бледные
+                значки 1em, они терялись рядом с жирным текстом (11.11.2026). */}
+            <ul className="mt-5 space-y-4 text-sm text-ink-dim">
+              <li className="flex gap-3">
+                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-pastel-pink/30 bg-pastel-pink/10 text-pastel-pink">
+                  <FaGamepad className="text-lg" aria-hidden="true" />
+                </span>
                 <span>
                   <b className="text-ink">Какие игры на стримах?</b> Всевозможные{" "}
                   <b className="text-pastel-pink">новинки-рогалики</b> в первые дни релиза!
                 </span>
               </li>
-              <li className="flex gap-2">
-                <FiCalendar aria-hidden="true" />
+              <li className="flex gap-3">
+                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-pastel-blue/30 bg-pastel-blue/10 text-pastel-blue">
+                  <FiCalendar className="text-lg" aria-hidden="true" />
+                </span>
                 <span>
                   <b className="text-ink">Стримлю КАЖДЫЙ ДЕНЬ</b>.{" "}
                   {BRAND.about.scheduleNote}
                 </span>
               </li>
-              <li className="flex gap-2">
-                <FiAward aria-hidden="true" />
+              <li className="flex gap-3">
+                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-pastel-amber/30 bg-pastel-amber/10 text-pastel-amber">
+                  <FiAward className="text-lg" aria-hidden="true" />
+                </span>
                 <span>
                   На этом сайте я веду <b className="text-ink">базу всех рогаликов</b>:
                   оценки, часы, статусы и заметки — всё честно, даже боль.

@@ -52,12 +52,15 @@ export function statusMeta(status) {
   );
 }
 
+// Цвет оценки = цвет яйца редкости (utils/rarity.js): 10 — золото perfect,
+// 9 — фиолет epic, 7–8 — голубой rare, ниже 7 — серый common. Раньше 5–6 были
+// янтарными и путались с золотым яйцом (замечание владельца 11.11.2026).
 export function ratingColor(r) {
   const n = parseNum(r);
-  if (n >= 9) return "text-pastel-mint";
-  if (n >= 7) return "text-pastel-blue";
-  if (n >= 5) return "text-pastel-amber";
-  return "text-red-300";
+  if (n >= 10) return "text-[#FFD9A0]";
+  if (n >= 9) return "text-[#C9A0DC]";
+  if (n >= 7) return "text-[#A0C4FF]";
+  return "text-[#9aa0ae]";
 }
 
 // Медали первым трём — просто номера: эмодзи 🥇🥈🥉 на разных системах выглядят

@@ -43,7 +43,7 @@ function Bar({ label, icon: Icon, skulls = 0, value, max, suffix, tone = "gold" 
       <div className="mb-1 flex items-center justify-between text-xs">
         <span className="flex items-center gap-1.5 font-semibold uppercase tracking-wider text-ink-dim">
           {skulls > 0 ? (
-            <span className="flex items-center gap-0.5" aria-hidden="true">
+            <span className="flex items-center gap-1" aria-hidden="true">
               {Array.from({ length: skulls }, (_, i) => (
                 <FaSkull key={i} className="skull text-[13px]" />
               ))}
@@ -103,7 +103,7 @@ function MetaCell({ icon: Icon, iconCls, label, children, onGo, tone }) {
         {...(onGo ? { type: "button", onClick: onGo } : {})}
         className={
           "min-w-0 truncate text-right font-semibold text-ink " +
-          (onGo ? "transition hover:text-pastel-blue hover:underline" : "")
+          (onGo ? "tap hover:text-pastel-blue hover:underline" : "")
         }
       >
         {children}
@@ -361,6 +361,18 @@ export function GameDetails({ game, compact = false }) {
                 {f}
               </span>
             ))}
+        </div>
+      )}
+
+      {/* Впечатления — в самом низу, под тегами: владелец 11.11.2026 отменил
+          отдельную вкладку. В окне они остаются двумя строками выше. */}
+      {game.notes && !compact && (
+        <div className="rounded-card bg-night-700/40 p-4">
+          <div className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-ink-faint">
+            <FiMessageCircle className="text-pastel-mint" aria-hidden="true" />
+            Впечатления Тиана
+          </div>
+          <p className="text-sm leading-relaxed text-ink-dim">{game.notes}</p>
         </div>
       )}
     </div>

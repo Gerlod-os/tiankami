@@ -115,74 +115,57 @@ export function RarityEgg({ rarity = "common", size = 22, className = "" }) {
     }
   };
 
+  // Мелкие детали (точки, «чешуйки», ромбы) убраны: на 22 px они читались как
+  // грязь и артефакты, особенно на золотом яйце (замечание владельца 11.11.2026).
+  // Остались чистый градиент, обводка и один мягкий блик.
   const renderBody = () => {
     const shell = `url(#eg${uid})`;
+    const EGG = "M32 3 C 19 3 8 22 8 38 C 8 53 19 61 32 61 C 45 61 56 53 56 38 C 56 22 45 3 32 3 Z";
     switch (rarity) {
       case "common":
-        return (
-          <path d="M32 3 C 19 3 8 22 8 38 C 8 53 19 61 32 61 C 45 61 56 53 56 38 C 56 22 45 3 32 3 Z" fill={shell} stroke="#6a6058" strokeWidth="1.5" />
-        );
+        return <path d={EGG} fill={shell} stroke="#6a6058" strokeWidth="1.5" />;
       case "rare":
         return (
           <>
-            <path d="M32 3 C 19 3 8 22 8 38 C 8 53 19 61 32 61 C 45 61 56 53 56 38 C 56 22 45 3 32 3 Z" fill={shell} stroke="#2a7a9a" strokeWidth="1.5" />
-            <path d="M20 30 C 22 28 26 28 28 30 C 26 32 22 32 20 30 Z" fill="#fff" opacity="0.25" />
-            <path d="M30 35 C 32 33 36 33 38 35 C 36 37 32 37 30 35 Z" fill="#fff" opacity="0.2" />
-            <path d="M24 40 C 26 38 30 38 32 40 C 30 42 26 42 24 40 Z" fill="#fff" opacity="0.15" />
-            <path d="M36 44 C 38 42 42 42 44 44 C 42 46 38 46 36 44 Z" fill="#fff" opacity="0.15" />
-            <path d="M32 3 C 19 3 8 22 8 38 C 8 53 19 61 32 61 C 45 61 56 53 56 38 C 56 22 45 3 32 3 Z" fill={`url(#egR${uid})`} />
+            <path d={EGG} fill={shell} stroke="#2a7a9a" strokeWidth="1.5" />
+            <path d={EGG} fill={`url(#egR${uid})`} />
           </>
         );
       case "epic":
         return (
           <>
-            <path d="M32 3 C 19 3 8 22 8 38 C 8 53 19 61 32 61 C 45 61 56 53 56 38 C 56 22 45 3 32 3 Z" fill={shell} stroke="#6a10a0" strokeWidth="1.5" />
-            <polygon points="22,28 25,22 28,28 25,32" fill="#e0b0ff" opacity="0.7" />
-            <polygon points="36,38 39,32 42,38 39,42" fill="#d090ff" opacity="0.6" />
-            <polygon points="28,44 31,38 34,44 31,48" fill="#c080f0" opacity="0.5" />
-            <path d="M32 3 C 19 3 8 22 8 38 C 8 53 19 61 32 61 C 45 61 56 53 56 38 C 56 22 45 3 32 3 Z" fill={`url(#egG${uid})`} />
+            <path d={EGG} fill={shell} stroke="#6a10a0" strokeWidth="1.5" />
+            <path d={EGG} fill={`url(#egG${uid})`} />
           </>
         );
       case "perfect":
       case "legendary":
         return (
           <>
-            <path d="M32 3 C 19 3 8 22 8 38 C 8 53 19 61 32 61 C 45 61 56 53 56 38 C 56 22 45 3 32 3 Z" fill={shell} stroke="#b08010" strokeWidth="1.5" />
-            <ellipse cx="32" cy="32" rx="22" ry="26" fill="none" stroke="#d4a020" strokeWidth="1" opacity="0.5" />
-            <circle cx="22" cy="24" r="2.5" fill="#d02040" opacity="0.9" />
-            <circle cx="42" cy="24" r="2.5" fill="#d02040" opacity="0.9" />
-            <circle cx="22" cy="40" r="2" fill="#d02040" opacity="0.8" />
-            <circle cx="42" cy="40" r="2" fill="#d02040" opacity="0.8" />
-            <circle cx="32" cy="16" r="2" fill="#d02040" opacity="0.85" />
-            <path d="M32 3 C 19 3 8 22 8 38 C 8 53 19 61 32 61 C 45 61 56 53 56 38 C 56 22 45 3 32 3 Z" fill={`url(#egR${uid})`} />
+            <path d={EGG} fill={shell} stroke="#b08010" strokeWidth="1.5" />
+            <path d={EGG} fill={`url(#egR${uid})`} />
           </>
         );
       case "mythic":
         return (
           <>
-            <path d="M32 3 C 19 3 8 22 8 38 C 8 53 19 61 32 61 C 45 61 56 53 56 38 C 56 22 45 3 32 3 Z" fill={shell} stroke="#8060ff" strokeWidth="1.5" />
-            <path d="M32 3 C 19 3 8 22 8 38 C 8 53 19 61 32 61 C 45 61 56 53 56 38 C 56 22 45 3 32 3 Z" fill={`url(#egN${uid})`} />
-            <circle cx="20" cy="20" r="0.8" fill="#fff" opacity="0.9" />
-            <circle cx="38" cy="18" r="0.6" fill="#fff" opacity="0.7" />
-            <circle cx="44" cy="30" r="0.7" fill="#fff" opacity="0.8" />
-            <circle cx="24" cy="42" r="0.5" fill="#fff" opacity="0.6" />
-            <circle cx="34" cy="50" r="0.8" fill="#fff" opacity="0.9" />
-            <circle cx="46" cy="48" r="0.6" fill="#fff" opacity="0.5" />
-            <circle cx="16" cy="34" r="0.7" fill="#fff" opacity="0.7" />
-            <circle cx="28" cy="28" r="0.5" fill="#fff" opacity="0.8" />
+            <path d={EGG} fill={shell} stroke="#8060ff" strokeWidth="1.5" />
+            <path d={EGG} fill={`url(#egN${uid})`} />
+            <path d={EGG} fill={`url(#egR${uid})`} />
           </>
         );
       default:
-        return (
-          <path d="M32 3 C 19 3 8 22 8 38 C 8 53 19 61 32 61 C 45 61 56 53 56 38 C 56 22 45 3 32 3 Z" fill={c} stroke={c} strokeWidth="1.5" />
-        );
+        return <path d={EGG} fill={c} stroke={c} strokeWidth="1.5" />;
     }
   };
 
   return (
     <span
       ref={anchorRef}
-      className={"group/egg relative inline-flex " + className}
+      className={
+        "group/egg relative inline-flex transition-transform duration-200 hover:scale-110 " +
+        className
+      }
       style={{ width: size, height: size }}
       onMouseEnter={showTip}
       onMouseLeave={hideTip}

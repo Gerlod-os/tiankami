@@ -3,7 +3,21 @@ export function CollectionIcon({ name, size = 30 }) {
   const n = String(name || "").toLowerCase();
   const p = { width: size, height: size, viewBox: "0 0 24 24", "aria-hidden": true };
 
-  if (/золотой/.test(n)) return null; // у золотого — яйцо Legendary
+  // Золотому списку — звезда, а не яйцо: яйца в заголовках подборок путали
+  // и давали артефакты (замечание владельца 11.11.2026).
+  if (/золотой/.test(n))
+    return (
+      <svg {...p} fill="none">
+        <path
+          d="M12 2.5l2.9 6.1 6.6.9-4.8 4.6 1.2 6.6L12 17.6 6.1 20.7l1.2-6.6L2.5 9.5l6.6-.9L12 2.5Z"
+          fill="#FFD9A0"
+          stroke="#E8A33D"
+          strokeWidth="1.2"
+          strokeLinejoin="round"
+        />
+        <circle cx="12" cy="11" r="2" fill="#2A1B08" opacity=".55" />
+      </svg>
+    );
   if (/карточ/.test(n))
     return (
       <svg {...p} fill="none">

@@ -147,15 +147,17 @@ export function Layout({ children }) {
                 alt="Аватар Tiankami — кроассан-геймпад"
                 width={512}
                 height={512}
-                className="h-full w-full object-cover"
+                className="h-full w-full scale-110 object-cover"
               />
             </span>
             <span className="leading-tight">
               {/* Ник разделён цветом и свечением: «Тиан» и «Ками» читаются
                   как две части, а не одно слово (11.11.2026). Не режем
                   truncate: рядом плашка стрима, и «Kami» пропадало. */}
+              {/* Цвета контрастные, а не два тёплых: «Tian» голубой, «Kami»
+                  золотой — граница видна с первого взгляда (11.11.2026). */}
               <span className="block whitespace-nowrap font-display text-lg font-black tracking-wide">
-                <span className="text-pastel-pink [text-shadow:0_0_12px_rgba(255,182,193,0.45)]">
+                <span className="text-pastel-blue [text-shadow:0_0_14px_rgba(160,196,255,0.55)]">
                   Tian
                 </span>
                 <span className="text-pastel-amber [text-shadow:0_0_16px_rgba(255,196,107,0.65)]">

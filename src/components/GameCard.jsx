@@ -2,11 +2,11 @@ import { memo, useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiClock, FiEye, FiStar } from "react-icons/fi";
 import { FaSkull } from "react-icons/fa";
-import { LuTrophy } from "react-icons/lu";
 import { parseNum, hasMI } from "../utils/normalize";
 import { statusMeta, ratingColor } from "../utils/statusMeta";
 import { RARITY_GLOW } from "../utils/rarity";
 import { RarityEgg } from "./RarityEgg";
+import { MITrophy } from "./MITrophy";
 import { Highlight } from "./Highlight";
 
 // Единая карточка v4: яйцо редкости — всегда слева от названия, как в каталоге
@@ -109,12 +109,18 @@ export const GameCard = memo(function GameCard({
           </Link>
           {/* Кубок МИ — справа от названия, у правого края карточки. Раньше он
               стоял отдельной строкой внизу и растягивал карточку (владелец 11.11.2026). */}
+          {/* Кубок — вариант 2 (заливной, с бликом), выбран владельцем
+              11.11.2026. Кликабельный: ведёт на страницу МИ, подсказка как
+              у яйца редкости. */}
           {hasMI(game) && (
-            <LuTrophy
-              className="shrink-0 text-2xl text-pastel-amber drop-shadow-[0_0_10px_rgba(255,217,160,0.7)]"
-              title="Игра участвовала в «Мастер Игорей»"
+            <Link
+              to="/mi"
+              className="shrink-0 transition duration-200 hover:scale-110"
+              title="Игра участвовала в «Мастер Игорей» — открыть страницу МИ"
               aria-label="Участник «Мастер Игорей»"
-            />
+            >
+              <MITrophy size="md" />
+            </Link>
           )}
         </div>
         <div className="line-clamp-1 text-xs text-ink-dim">
@@ -127,7 +133,7 @@ export const GameCard = memo(function GameCard({
               <FiClock /> {parseNum(game.hours) || "—"} ч.
             </span>
             {skulls > 0 && (
-              <span className="flex" title={`Сложность ${cx}/10`}>
+              <span className="flex gap-0.5" title={`Сложность ${cx}/10`}>
                 {Array.from({ length: skulls }, (_, i) => (
                   <FaSkull key={i} className="skull" aria-hidden="true" />
                 ))}

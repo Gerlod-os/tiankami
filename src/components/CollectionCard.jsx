@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { FiArrowRight } from "react-icons/fi";
-import { RarityEgg } from "./RarityEgg";
 import { CoverFan } from "./CoverFan";
 import { CollectionIcon } from "./CollectionIcon";
 
@@ -35,17 +34,16 @@ export function CollectionCard({ collection: c, byTitle }) {
     <Link
       to={`/collections/${c.slug}`}
       // group обязателен: веер расходится по `.group:hover .fan-img`
-      className={"card card-hover group flex flex-col p-4 " + (golden ? "gold-card" : "")}
+      className={
+        "card card-hover group flex flex-col p-4 hover:scale-[1.01] " +
+        (golden ? "gold-card" : "")
+      }
     >
       <div className="flex items-center gap-2">
-        {/* Одинаковая ячейка под иконку у всех подборок: золотое яйцо больше
-            коллекционной иконки и раньше сдвигало заголовок. */}
+        {/* Иконка подборки вместо яйца: яйца путали с редкостью игры и давали
+            артефакты на малом размере (11.11.2026). */}
         <span className="flex h-10 w-10 shrink-0 items-center justify-center">
-          {golden ? (
-            <RarityEgg rarity="legendary" size={40} />
-          ) : (
-            <CollectionIcon name={c.name} size={30} />
-          )}
+          <CollectionIcon name={c.name} size={32} />
         </span>
         <h3
           className={

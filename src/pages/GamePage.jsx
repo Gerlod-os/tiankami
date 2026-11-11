@@ -5,7 +5,6 @@ import {
   FiChevronRight,
   FiChevronLeft,
   FiYoutube,
-  FiMessageCircle,
 } from "react-icons/fi";
 import { FaSteam } from "react-icons/fa";
 import { useData } from "../components/DataProvider";
@@ -16,6 +15,7 @@ import { GameModal } from "../components/GameModal";
 import { SITE_URL } from "../config/site.js";
 import { usePageMeta } from "../utils/usePageMeta";
 import { parseNum } from "../utils/normalize";
+import { ratingColor } from "../utils/statusMeta";
 import { recommendSimilar } from "../utils/recommend";
 
 // Карусель «похожих» в стиле PlayStation: стрелки, клавиатура, глубина.
@@ -152,7 +152,6 @@ export function GamePage() {
   const { slug } = useParams();
   const { games, bySlug } = useData();
   const [modal, setModal] = useState(null);
-  const [tab, setTab] = useState("overview");
   const game = games.find((g) => g.slug === slug);
 
   usePageMeta(
@@ -204,16 +203,36 @@ export function GamePage() {
         {/* Две колонки, обе по высоте: обложка растянута на всю шапку, справа
             текст и кнопки прижаты к низу. Третьей колонки с крупной оценкой
             больше нет — она оставляла пустой правый угол (11.11.2026). */}
-        <div className="relative z-10 grid gap-6 p-6 md:grid-cols-[minmax(0,380px)_minmax(0,1fr)] md:items-stretch md:gap-8 md:p-8">
+        <div className="relative z-10 grid gap-6 p-6 md:grid-cols-[minmax(0,380px)_minmax(0,1fr)] md:items-stretch md:gap-8 md:p-8 xl:grid-cols-[minmax(0,380px)_minmax(0,1fr)_auto]">
           <div className="relative min-h-[220px]">
             {game.image ? (
-              <img
-                src={game.image}
-                alt={`Обложка ${game.title}`}
-                width={460}
-                height={215}
-                className="h-full min-h-[220px] w-full rounded-card border border-white/15 object-cover shadow-card"
-              />
+              // Обложка кликабельна, если есть прохождение: отклик на наведение
+              // как у характеристик — подъём и лёгкое увеличение (11.11.2026).
+              game.youtube ? (
+                <a
+                  href={game.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="tap block h-full"
+                  title={`Открыть прохождение ${game.title} на YouTube`}
+                >
+                  <img
+                    src={game.image}
+                    alt={`Обложка ${game.title}`}
+                    width={460}
+                    height={215}
+                    className="h-full min-h-[220px] w-full rounded-card border border-white/15 object-cover shadow-card"
+                  />
+                </a>
+              ) : (
+                <img
+                  src={game.image}
+                  alt={`Обложка ${game.title}`}
+                  width={460}
+                  height={215}
+                  className="h-full min-h-[220px] w-full rounded-card border border-white/15 object-cover shadow-card"
+                />
+              )
             ) : (
               <div className="flex h-full min-h-[220px] w-full flex-col items-center justify-center gap-2 rounded-card border border-dashed border-white/15 bg-gradient-to-br from-night-700 to-night-600">
                 <span className="text-4xl" aria-hidden="true">
@@ -247,26 +266,29 @@ export function GamePage() {
               <FiChevronRight />
               <span className="font-semibold text-ink">{game.title}</span>
             </nav>
-            {/* Одна оценка на страницу: крупная цифра рядом с заголовком.
-                Бейдж на обложке перекрывал арт, отдельная шкала дублировала
-                число (11.11.2026). */}
-            <div className="mt-3 flex items-start justify-between gap-4">
-              <h1
-                className="font-hero min-w-0 text-3xl font-black text-ink md:text-4xl"
-                style={
-                  hardcore
-                    ? { textShadow: "0 0 18px rgba(255,143,163,0.45), 0 2px 0 rgba(0,0,0,0.6)" }
-                    : undefined
-                }
-              >
-                {game.title}
-              </h1>
+            <h1
+              className="font-hero mt-3 text-3xl font-black text-ink md:text-4xl"
+              style={
+                hardcore
+                  ? { textShadow: "0 0 18px rgba(255,143,163,0.45), 0 2px 0 rgba(0,0,0,0.6)" }
+                  : undefined
+              }
+            >
+              {game.title}
+            </h1>
+            {/* Чипсы (редкость, статус, настроение, МИ) — в свободном месте
+                шапки. Раньше висели посреди деталей под постером. */}
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <GameChips game={game} rarity={bySlug?.[game.slug] || "common"} />
+              {/* На узких экранах оценка живёт здесь, на xl — крупно справа. */}
               {parseNum(game.rating) > 0 && (
-                <span
-                  className="flex shrink-0 items-baseline gap-1"
-                  title={`Оценка Тиана: ${parseNum(game.rating)} из 10`}
-                >
-                  <span className="font-display text-4xl font-black leading-none text-ink md:text-5xl">
+                <span className="flex items-baseline gap-1 xl:hidden">
+                  <span
+                    className={
+                      "font-display text-3xl font-black leading-none " +
+                      ratingColor(game.rating)
+                    }
+                  >
                     {parseNum(game.rating)}
                   </span>
                   <span className="text-[10px] font-bold uppercase tracking-widest text-ink-dim">
@@ -274,11 +296,6 @@ export function GamePage() {
                   </span>
                 </span>
               )}
-            </div>
-            {/* Чипсы (редкость, статус, настроение, МИ) — здесь, в свободном
-                месте шапки. Раньше они висели посреди деталей под постером. */}
-            <div className="mt-3">
-              <GameChips game={game} rarity={bySlug?.[game.slug] || "common"} />
             </div>
 
             <div className="mt-auto flex flex-wrap gap-3 pt-5">
@@ -315,55 +332,32 @@ export function GamePage() {
               )}
             </div>
           </div>
+
+          {/* Оценка крупно справа — как на проде: цвет по рейтингу, свечение,
+              подпись под цифрой. Одна на страницу: шкала в деталях скрыта. */}
+          {parseNum(game.rating) > 0 && (
+            <div className="hidden text-right xl:block">
+              <div
+                className={
+                  "font-display text-7xl font-black leading-none " +
+                  ratingColor(game.rating)
+                }
+                style={{ textShadow: "0 0 34px rgba(160,196,255,0.35)" }}
+              >
+                {parseNum(game.rating)}
+              </div>
+              <div className="mt-2 text-[10px] font-bold uppercase tracking-widest text-ink-dim">
+                оценка Тиана / 10
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
-      {/* Детали и впечатления — вкладками: заметки ушли из середины вниз,
-          под основной раздел (владелец 11.11.2026). */}
+      {/* Вкладок нет: впечатления снова в деталях, но внизу — под тегами
+          (владелец 11.11.2026 отменил отдельную вкладку). */}
       <div className="px-6 pb-7 md:px-8">
-        <div className="mb-4 flex gap-1 border-b border-white/10" role="tablist" aria-label="Разделы игры">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === "overview"}
-            onClick={() => setTab("overview")}
-            className={
-              "-mb-px border-b-2 px-4 py-2 font-display text-sm font-bold transition " +
-              (tab === "overview"
-                ? "border-pastel-amber text-ink"
-                : "border-transparent text-ink-dim hover:text-ink")
-            }
-          >
-            Обзор
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === "notes"}
-            onClick={() => setTab("notes")}
-            className={
-              "-mb-px border-b-2 px-4 py-2 font-display text-sm font-bold transition " +
-              (tab === "notes"
-                ? "border-pastel-amber text-ink"
-                : "border-transparent text-ink-dim hover:text-ink")
-            }
-          >
-            Впечатления Тиана
-          </button>
-        </div>
-        {tab === "overview" ? (
-          <GameDetails game={game} />
-        ) : (
-          <div className="rounded-card bg-night-700/40 p-4">
-            <div className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-ink-faint">
-              <FiMessageCircle className="text-pastel-mint" aria-hidden="true" />
-              Впечатления Тиана
-            </div>
-            <p className="text-sm leading-relaxed text-ink-dim">
-              {game.notes || "Пока без заметок."}
-            </p>
-          </div>
-        )}
+        <GameDetails game={game} />
       </div>
       </section>
 

@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { FiArrowLeft, FiStar, FiPackage } from "react-icons/fi";
 import { useData } from "../components/DataProvider";
+import { CollectionIcon } from "../components/CollectionIcon";
 import { RarityEgg } from "../components/RarityEgg";
 import { GameModal } from "../components/GameModal";
 import { rankMedal, ratingColor } from "../utils/statusMeta";
@@ -59,11 +60,9 @@ export function CollectionPage() {
       {/* Заголовок подборки */}
       <div className={"card relative overflow-hidden p-6 md:p-8 " + (golden ? "gold-card" : "")}>
         <div className="flex items-center gap-4">
-          {golden ? (
-            <RarityEgg rarity="legendary" size={56} />
-          ) : (
-            <RarityEgg rarity="rare" size={40} />
-          )}
+          {/* Вместо яйца — иконка подборки: яйца в заголовке путали с редкостью
+              конкретной игры (11.11.2026). */}
+          <CollectionIcon name={collection.name} size={44} />
           <div>
             <h1 className={`section-title text-3xl ${golden ? "text-pastel-amber" : ""}`}
               style={golden ? {
