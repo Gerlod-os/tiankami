@@ -26,8 +26,13 @@ const playlists = JSON.parse(
 const known = new Set(playlists.map((p) => p.id));
 const used = new Set();
 for (const g of games) {
-  const m = /[?&]list=([\w-]+)/.exec(String(g.youtube || ""));
-  if (m && known.has(m[1]) && !/[?&]v=/.test(String(g.youtube || ""))) used.add(m[1]);
+  // Два источника: ссылка на прохождение (youtube) и выпуск МИ (miVideo).
+  // У выпусков МИ постер нужен так же — карточки на странице «Мастер Игорей».
+  for (const url of [g.youtube, g.miVideo]) {
+    const s = String(url || "");
+    const m = /[?&]list=([\w-]+)/.exec(s);
+    if (m && known.has(m[1]) && !/[?&]v=/.test(s)) used.add(m[1]);
+  }
 }
 
 // Уже собранные ID не запрашиваем повторно: скрипт можно гонять сколько угодно.

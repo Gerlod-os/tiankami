@@ -1,12 +1,88 @@
 import { useState } from "react";
-import { FiExternalLink, FiYoutube, FiUsers, FiBookOpen, FiInfo, FiAward, FiFilm } from "react-icons/fi";
+import { FiExternalLink, FiYoutube, FiUsers, FiBookOpen, FiInfo, FiAward, FiFilm, FiPlay } from "react-icons/fi";
 import { FaGamepad } from "react-icons/fa";
 import { useData } from "../components/DataProvider";
 import { GameCard } from "../components/GameCard";
 import { GameModal } from "../components/GameModal";
 import { MITrophy } from "../components/MITrophy";
 import { hasMI, isUrl } from "../utils/normalize";
+import { parseYouTubeUrl, posterVideoId } from "../utils/youtube";
 import { usePageMeta } from "../utils/usePageMeta";
+
+// Карточка выпуска: постер — кадр ролика, плеер грузится по клику.
+// Автозагрузка 23 iframe сразу — лишние мегабайты и тормоза (тот же довод,
+// что у плеера на странице игры, замер 18.10.2026).
+function EpisodeCard({ game }) {
+  const [playing, setPlaying] = useState(false);
+  const yt = parseYouTubeUrl(game.miVideo);
+  const posterId = posterVideoId(game.miVideo);
+  const poster = posterId
+    ? `https://i.ytimg.com/vi/${posterId}/maxresdefault.jpg`
+    : "";
+  const posterFallback = posterId
+    ? `https://i.ytimg.com/vi/${posterId}/mqdefault.jpg`
+    : "";
+  const autoplayUrl = yt?.embedUrl
+    ? yt.embedUrl + (yt.embedUrl.includes("?") ? "&" : "?") + "autoplay=1"
+    : "";
+
+  return (
+    <div className="card overflow-hidden">
+      {playing && autoplayUrl ? (
+        <iframe
+          className="aspect-video w-full"
+          src={autoplayUrl}
+          title={`Выпуск МИ: ${game.title}`}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          loading="lazy"
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={() => setPlaying(true)}
+          className="group relative flex aspect-video w-full items-center justify-center overflow-hidden bg-night-800"
+          aria-label={`Смотреть выпуск МИ: ${game.title}`}
+        >
+          {poster && (
+            <img
+              src={poster}
+              alt=""
+              aria-hidden="true"
+              width={1280}
+              height={720}
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover opacity-80 transition duration-300 group-hover:scale-[1.03] group-hover:opacity-95"
+              onError={(e) => {
+                if (posterFallback && e.currentTarget.src !== posterFallback)
+                  e.currentTarget.src = posterFallback;
+              }}
+            />
+          )}
+          <span className="absolute inset-0 bg-night-900/45" />
+          <span className="relative flex h-12 w-12 items-center justify-center rounded-full bg-[#FF2D2D] text-white shadow-[0_8px_22px_rgba(255,0,0,0.35)] transition group-hover:scale-110">
+            <FiPlay className="ml-0.5 text-xl" aria-hidden="true" />
+          </span>
+        </button>
+      )}
+      <div className="flex items-center justify-between gap-2 p-3">
+        <span className="truncate font-display text-sm font-extrabold text-ink">
+          {game.title}
+        </span>
+        <a
+          className="shrink-0 text-ink-faint transition hover:text-pastel-pink"
+          href={game.miVideo}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Открыть на YouTube"
+          aria-label={`Открыть выпуск ${game.title} на YouTube`}
+        >
+          <FiExternalLink />
+        </a>
+      </div>
+    </div>
+  );
+}
 
 export function MIPage() {
   const { games, bySlug } = useData();
@@ -115,19 +191,10 @@ export function MIPage() {
             <FiYoutube className="text-red-300" />
             <h2 className="section-title text-xl"><FiFilm className="inline" aria-hidden="true" /> Выпуски</h2>
           </div>
-          <ul className="grid gap-2 sm:grid-cols-2">
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {episodes.map((g) => (
               <li key={g.slug}>
-                <a
-                  className="btn-ghost w-full justify-start text-sm"
-                  href={g.miVideo}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FiYoutube className="shrink-0 text-red-300" />
-                  <span className="truncate">{g.title}</span>
-                  <FiExternalLink className="ml-auto shrink-0 text-ink-faint" />
-                </a>
+                <EpisodeCard game={g} />
               </li>
             ))}
           </ul>
