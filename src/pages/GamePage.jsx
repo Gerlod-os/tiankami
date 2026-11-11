@@ -5,16 +5,17 @@ import {
   FiChevronRight,
   FiChevronLeft,
   FiYoutube,
+  FiMessageCircle,
 } from "react-icons/fi";
 import { FaSteam } from "react-icons/fa";
 import { useData } from "../components/DataProvider";
 import { GameDetails } from "../components/GameDetails";
+import { GameChips } from "../components/GameChips";
 import { GameCard } from "../components/GameCard";
 import { GameModal } from "../components/GameModal";
-import { MITrophy } from "../components/MITrophy";
 import { SITE_URL } from "../config/site.js";
 import { usePageMeta } from "../utils/usePageMeta";
-import { parseNum, hasMI } from "../utils/normalize";
+import { parseNum } from "../utils/normalize";
 import { recommendSimilar } from "../utils/recommend";
 
 // Карусель «похожих» в стиле PlayStation: стрелки, клавиатура, глубина.
@@ -151,6 +152,7 @@ export function GamePage() {
   const { slug } = useParams();
   const { games, bySlug } = useData();
   const [modal, setModal] = useState(null);
+  const [tab, setTab] = useState("overview");
   const game = games.find((g) => g.slug === slug);
 
   usePageMeta(
@@ -203,7 +205,7 @@ export function GamePage() {
             текст и кнопки прижаты к низу. Третьей колонки с крупной оценкой
             больше нет — она оставляла пустой правый угол (11.11.2026). */}
         <div className="relative z-10 grid gap-6 p-6 md:grid-cols-[minmax(0,380px)_minmax(0,1fr)] md:items-stretch md:gap-8 md:p-8">
-          <div className="min-h-[220px]">
+          <div className="relative min-h-[220px]">
             {game.image ? (
               <img
                 src={game.image}
@@ -245,25 +247,39 @@ export function GamePage() {
               <FiChevronRight />
               <span className="font-semibold text-ink">{game.title}</span>
             </nav>
-            <h1
-              className="font-hero mt-3 text-3xl font-black text-ink md:text-4xl"
-              style={
-                hardcore
-                  ? { textShadow: "0 0 18px rgba(255,143,163,0.45), 0 2px 0 rgba(0,0,0,0.6)" }
-                  : undefined
-              }
-            >
-              {game.title}
-            </h1>
-            {/* Ни подзаголовка «Жанр · Сеттинг», ни крупной оценки: оба дублировали
-                детали ниже и оставляли пустой правый угол (11.11.2026). */}
-            {hasMI(game) && (
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <span className="chip border-2 border-pastel-amber/50 bg-pastel-amber/15 font-extrabold text-pastel-amber">
-                  <MITrophy size="xs" /> Участник «Мастер Игорей»
+            {/* Одна оценка на страницу: крупная цифра рядом с заголовком.
+                Бейдж на обложке перекрывал арт, отдельная шкала дублировала
+                число (11.11.2026). */}
+            <div className="mt-3 flex items-start justify-between gap-4">
+              <h1
+                className="font-hero min-w-0 text-3xl font-black text-ink md:text-4xl"
+                style={
+                  hardcore
+                    ? { textShadow: "0 0 18px rgba(255,143,163,0.45), 0 2px 0 rgba(0,0,0,0.6)" }
+                    : undefined
+                }
+              >
+                {game.title}
+              </h1>
+              {parseNum(game.rating) > 0 && (
+                <span
+                  className="flex shrink-0 items-baseline gap-1"
+                  title={`Оценка Тиана: ${parseNum(game.rating)} из 10`}
+                >
+                  <span className="font-display text-4xl font-black leading-none text-ink md:text-5xl">
+                    {parseNum(game.rating)}
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-ink-dim">
+                    /10
+                  </span>
                 </span>
-              </div>
-            )}
+              )}
+            </div>
+            {/* Чипсы (редкость, статус, настроение, МИ) — здесь, в свободном
+                месте шапки. Раньше они висели посреди деталей под постером. */}
+            <div className="mt-3">
+              <GameChips game={game} rarity={bySlug?.[game.slug] || "common"} />
+            </div>
 
             <div className="mt-auto flex flex-wrap gap-3 pt-5">
               {game.steamUrl && (
@@ -302,10 +318,52 @@ export function GamePage() {
         </div>
       </header>
 
-      {/* Разделительной полосы нет: шапка и детали — одна карточка, без
-          «двух окон» (замечание владельца 11.11.2026). */}
+      {/* Детали и впечатления — вкладками: заметки ушли из середины вниз,
+          под основной раздел (владелец 11.11.2026). */}
       <div className="px-6 pb-7 md:px-8">
-        <GameDetails game={game} />
+        <div className="mb-4 flex gap-1 border-b border-white/10" role="tablist" aria-label="Разделы игры">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === "overview"}
+            onClick={() => setTab("overview")}
+            className={
+              "-mb-px border-b-2 px-4 py-2 font-display text-sm font-bold transition " +
+              (tab === "overview"
+                ? "border-pastel-amber text-ink"
+                : "border-transparent text-ink-dim hover:text-ink")
+            }
+          >
+            Обзор
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === "notes"}
+            onClick={() => setTab("notes")}
+            className={
+              "-mb-px border-b-2 px-4 py-2 font-display text-sm font-bold transition " +
+              (tab === "notes"
+                ? "border-pastel-amber text-ink"
+                : "border-transparent text-ink-dim hover:text-ink")
+            }
+          >
+            Впечатления Тиана
+          </button>
+        </div>
+        {tab === "overview" ? (
+          <GameDetails game={game} />
+        ) : (
+          <div className="rounded-card bg-night-700/40 p-4">
+            <div className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-ink-faint">
+              <FiMessageCircle className="text-pastel-mint" aria-hidden="true" />
+              Впечатления Тиана
+            </div>
+            <p className="text-sm leading-relaxed text-ink-dim">
+              {game.notes || "Пока без заметок."}
+            </p>
+          </div>
+        )}
       </div>
       </section>
 

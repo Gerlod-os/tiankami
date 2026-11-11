@@ -62,9 +62,13 @@ export function HomePage() {
     [games]
   );
 
+  // Переход мягче и длиннее: обложка растворяется в карточке, а не
+  // обрывается вертикальной границей (замечание владельца 11.11.2026).
   const maskStyle = {
-    maskImage: "linear-gradient(to left, #000 45%, transparent 100%)",
-    WebkitMaskImage: "linear-gradient(to left, #000 45%, transparent 100%)",
+    maskImage:
+      "linear-gradient(to left, #000 28%, rgba(0,0,0,0.6) 62%, transparent 100%)",
+    WebkitMaskImage:
+      "linear-gradient(to left, #000 28%, rgba(0,0,0,0.6) 62%, transparent 100%)",
   };
 
   return (

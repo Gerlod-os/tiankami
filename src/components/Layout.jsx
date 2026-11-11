@@ -19,6 +19,9 @@ import {
 } from "react-icons/fi";
 import { BRAND } from "../config/branding";
 import { MASCOTS } from "../config/mascots";
+import { useData } from "./DataProvider";
+import { splitSchedule } from "../utils/schedule";
+import { formatRuDate, todayUTC } from "../utils/date";
 import { TwitchHeaderWidget } from "./TwitchHeaderWidget";
 import { FxPanel } from "./FxPanel";
 import { YandexMetrika } from "./YandexMetrika";
@@ -65,6 +68,10 @@ export function Layout({ children }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [flip, setFlip] = useState(0);
   const drawerRef = useRef(null);
+  const { schedule } = useData();
+  // Ближайший стрим в шапке: первый будущий по дате. Время суток не учитываем —
+  // иначе на сервере и в браузере могли бы получиться разные стримы.
+  const nextStream = splitSchedule(schedule, formatRuDate(todayUTC()), "00:00").upcoming[0];
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -143,10 +150,11 @@ export function Layout({ children }) {
                 className="h-full w-full object-cover"
               />
             </span>
-            <span className="min-w-0 leading-tight">
+            <span className="leading-tight">
               {/* Ник разделён цветом и свечением: «Тиан» и «Ками» читаются
-                  как две части, а не одно слово (11.11.2026). */}
-              <span className="block truncate font-display text-xl font-black tracking-wide">
+                  как две части, а не одно слово (11.11.2026). Не режем
+                  truncate: рядом плашка стрима, и «Kami» пропадало. */}
+              <span className="block whitespace-nowrap font-display text-lg font-black tracking-wide">
                 <span className="text-pastel-pink [text-shadow:0_0_12px_rgba(255,182,193,0.45)]">
                   Tian
                 </span>
@@ -194,6 +202,15 @@ export function Layout({ children }) {
           </nav>
 
           <div className="ml-auto flex items-center gap-2 md:ml-0">
+            {nextStream && (
+              <Link
+                to="/schedule"
+                className="hidden items-center gap-1.5 rounded-btn border border-pastel-blue/25 bg-pastel-blue/10 px-2.5 py-1.5 text-xs font-bold text-pastel-blue transition hover:border-pastel-blue/50 2xl:flex"
+                title={`Ближайший стрим${nextStream.game ? ": " + nextStream.game : ""}`}
+              >
+                <FiCalendar /> {nextStream.date} · {nextStream.time}
+              </Link>
+            )}
             <TwitchHeaderWidget />
             <div className="hidden items-center gap-1 xl:flex">
               {SOCIALS.map(({ href, icon: Icon, cls, label }) => (

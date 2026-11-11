@@ -14,12 +14,7 @@ import {
 import { FaSkull, FaSteam } from "react-icons/fa";
 import { LuTrophy } from "react-icons/lu";
 import { parseNum, isUrl, hasMI } from "../utils/normalize";
-import { statusMeta } from "../utils/statusMeta";
 import { parseYouTubeUrl, posterVideoId } from "../utils/youtube";
-import { moodOf } from "../utils/recommend";
-import { RarityEgg } from "./RarityEgg";
-import { MITrophy } from "./MITrophy";
-import { useData } from "./DataProvider";
 
 // Иконки шкал: один шрифт на всех устройствах, цвет из палитры. Эмодзи (💫💀🌳)
 // рисовала система, и на iPhone, и на Windows это были разные значки.
@@ -119,9 +114,6 @@ function MetaCell({ icon: Icon, iconCls, label, children, onGo, tone }) {
 
 export function GameDetails({ game, compact = false }) {
   const navigate = useNavigate();
-  const { bySlug } = useData();
-  const rarity = bySlug?.[game.slug] || "common";
-  const meta = statusMeta(game.status);
   // Авторство проверено на сборке (sync-data.js → youtubeOwners.js):
   // youtubeOwn === false — ролик чужой, плеер не показываем. Не проверено
   // (undefined) — показываем: молча спрятать рабочий плеер хуже.
@@ -247,42 +239,15 @@ export function GameDetails({ game, compact = false }) {
 
       {/* Теги: в панели не нужны — статус и оценка уже в шапке и шкалах,
           а место нужно, чтобы модалка влезла целиком (11.11.2026). */}
-      {!compact && (
-      <div className="flex flex-wrap items-center gap-2">
-        {/* Яйцо — подпись редкости, а не кнопка: раньше клик уводил в каталог
-            с фильтром по первому жанру, и это читалось как случайный переход
-            (решение владельца 18.10.2026). */}
-        <span className="chip border border-white/10 bg-night-900/70">
-          <RarityEgg rarity={rarity} size={24} />
-        </span>
-        <span className={"chip " + meta.cls}>
-          {meta.icon && <meta.icon className="shrink-0" aria-hidden="true" />} {game.status || "—"}
-        </span>
-        <span
-          className="chip border border-pastel-mint/25 bg-pastel-mint/10 text-pastel-mint"
-          title="Настроение забега"
-        >
-          {(() => { const M = moodOf(game); const MI = M.icon; return <>{MI && <MI className="shrink-0" aria-hidden="true" />} {M.label}</>; })()}
-        </span>
-        {hasMI(game) && (
-          <span className="chip border border-pastel-amber/30 bg-pastel-amber/15 text-pastel-amber">
-            <MITrophy size="xs" /> МИ
-          </span>
-        )}
-        {/* Оценки здесь нет: она уже крупно в шапке страницы и в шкале выше.
-            Третий поворот того же числа читался как дубль (11.11.2026). */}
-      </div>
-      )}
-
-      {/* Впечатления Тиана: в панели две строки, на странице целиком.
-          Владелец 11.11.2026 попросил вернуть их и в модалку. */}
-      {game.notes && (
-        <div className={"rounded-btn bg-night-700/40 " + (compact ? "p-2.5" : "p-3.5")}>
+      {/* Впечатления в окне — двумя строками; на странице игры они живут
+          отдельной вкладкой внизу (владелец 11.11.2026). */}
+      {game.notes && compact && (
+        <div className="rounded-btn bg-night-700/40 p-2.5">
           <div className="mb-1 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-ink-faint">
             <FiMessageCircle className="text-pastel-mint" aria-hidden="true" />
             Впечатления Тиана
           </div>
-          <p className={(compact ? "line-clamp-2 text-xs " : "text-sm ") + "leading-relaxed text-ink-dim"}>
+          <p className="line-clamp-2 text-xs leading-relaxed text-ink-dim">
             {game.notes}
           </p>
         </div>
@@ -297,15 +262,18 @@ export function GameDetails({ game, compact = false }) {
             : "grid gap-5 lg:grid-cols-2 lg:gap-8"
         }
       >
-      {/* Бары */}
+      {/* Бары. На странице игры оценка стоит бейджем на обложке — шкала
+          остаётся только в окне, чтобы число не повторялось (11.11.2026). */}
       <div className="max-w-xs space-y-3">
-        <Bar
-          label="Оценка"
-          icon={ratingIcon(parseNum(game.rating))}
-          value={game.rating}
-          max={10}
-          tone="gold"
-        />
+        {compact && (
+          <Bar
+            label="Оценка"
+            icon={ratingIcon(parseNum(game.rating))}
+            value={game.rating}
+            max={10}
+            tone="gold"
+          />
+        )}
         <Bar
           label="Сложность"
           skulls={skullCount(parseNum(game.complexity))}

@@ -6,22 +6,45 @@ import { LuPin, LuPinOff, LuGrip } from "react-icons/lu";
 import { GameDetails } from "./GameDetails";
 
 const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+const FRAME_KEY = "tiankami_modal_frame";
 
 // Окно быстрого просмотра: таскается за шапку, меняет размер за правый нижний
 // угол, закрепляется. Escape и клик мимо закрывают обычное окно; закреплённое
 // они не трогают — это и есть защита от случайного закрытия (11.11.2026).
+// Окно одно: размер и место запоминаются и переходят к следующей игре
+// (владелец 11.11.2026 — «меняется только содержимое»).
+function readFrame() {
+  if (typeof window === "undefined") return null;
+  try {
+    const f = JSON.parse(sessionStorage.getItem(FRAME_KEY) || "null");
+    if (!f || typeof f.width !== "number") return null;
+    return {
+      left: clamp(f.left, 8, window.innerWidth - 160),
+      top: clamp(f.top, 8, window.innerHeight - 56),
+      width: clamp(f.width, 360, window.innerWidth - 16),
+      height: clamp(f.height, 240, window.innerHeight - 16),
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function GameModal({ game, onClose }) {
   const boxRef = useRef(null);
   const closeRef = useRef(null);
   const dragRef = useRef(null);
   const resizeRef = useRef(null);
-  const [frame, setFrame] = useState(null);
+  const [frame, setFrame] = useState(readFrame);
   const [pinned, setPinned] = useState(false);
 
   useEffect(() => {
-    setFrame(null);
-    setPinned(false);
-  }, [game?.slug]);
+    if (!frame) return;
+    try {
+      sessionStorage.setItem(FRAME_KEY, JSON.stringify(frame));
+    } catch {
+      /* приватный режим — размер просто не переживёт перезагрузку */
+    }
+  }, [frame]);
 
   useEffect(() => {
     if (!game) return undefined;

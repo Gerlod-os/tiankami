@@ -24,7 +24,7 @@ export default {
         ink: {
           DEFAULT: "#EDEAF6",
           dim: "#B9B4CF",
-          faint: "#8d88a6",
+          faint: "#a7a1bf",
         },
       },
       fontFamily: {

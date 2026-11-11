@@ -65,12 +65,14 @@ export function recommendSimilar(game, games, n = 4) {
 }
 
 // Настроение (AI-теги): 5 уровней — chill / intense / mindfuck / casual / hardcore
+// Подписи по-русски: владелец 11.11.2026 спросил «что за английские слова».
+// Ключи (chill/intense/…) остаются латиницей — они живут в коде и данных.
 export const MOODS = {
-  chill: { key: "chill", icon: FiCoffee, label: "Chill", desc: "расслабляющая" },
-  intense: { key: "intense", icon: FiZap, label: "Intense", desc: "напряжённая" },
-  mindfuck: { key: "mindfuck", icon: FiLayers, label: "Mindfuck", desc: "сложная" },
-  casual: { key: "casual", icon: FiTarget, label: "Casual", desc: "казуальная" },
-  hardcore: { key: "hardcore", icon: FaFire, label: "Hardcore", desc: "хардкорная" },
+  chill: { key: "chill", icon: FiCoffee, label: "Спокойно", desc: "расслабляющая" },
+  intense: { key: "intense", icon: FiZap, label: "Напряжённо", desc: "напряжённая" },
+  mindfuck: { key: "mindfuck", icon: FiLayers, label: "Заморочно", desc: "сложная" },
+  casual: { key: "casual", icon: FiTarget, label: "Казуально", desc: "казуальная" },
+  hardcore: { key: "hardcore", icon: FaFire, label: "Хардкор", desc: "хардкорная" },
 };
 
 export function moodOf(game) {

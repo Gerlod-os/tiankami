@@ -20,21 +20,18 @@ export function AboutPage() {
             11.11.2026 и попросил «закинуть, только отредактируй как надо».
             Обрезана белая кайма, на телефоне кадр сдвинут к логотипу, иначе
             надпись на широком баннере становится нечитаемой. */}
-        {/* Градиент снизу растворяет баннер в карточке: без него картинка
-            обрывалась резкой полосой (замечание владельца 11.11.2026). */}
+        {/* Баннер растворяется маской, а не тёмной накладкой: накладка давала
+            видимую полосу, маска тянет переход на всю нижнюю половину картинки
+            (замечание владельца 11.11.2026 — «слишком резкий переход»). */}
         <div className="relative">
           <img
             src={MASCOTS.aboutBanner}
             alt="TianKami — канал Тиана"
             width={1872}
             height={276}
-            className="block aspect-[1872/276] w-full object-cover max-sm:aspect-[3.4/1] max-sm:object-[38%_center]"
+            className="block aspect-[1872/276] w-full object-cover [mask-image:linear-gradient(to_bottom,#000_52%,rgba(0,0,0,0.55)_78%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,#000_52%,rgba(0,0,0,0.55)_78%,transparent_100%)] max-sm:aspect-[3.4/1] max-sm:object-[38%_center]"
             fetchPriority="high"
             loading="eager"
-          />
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-b from-transparent via-[#261E17]/60 to-[#261E17]"
-            aria-hidden="true"
           />
         </div>
         <div className="p-6 md:p-10">
