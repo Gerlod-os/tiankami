@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { pagesCount, pageSlice, pageNumbers } from "../utils/pagination";
 import {
@@ -30,6 +30,10 @@ import { usePageMeta } from "../utils/usePageMeta";
 import { MASCOTS } from "../config/mascots";
 
 const PAGE = 24;
+
+// Параметры для самого первого рендера: пока не прошла гидратация, каталог
+// считается без фильтров — ровно так, как его отдаёт пререндер.
+const EMPTY_PARAMS = new URLSearchParams();
 
 const EMPTY_PHRASES = [
   "Ничего не найдено, даже крошки нет",
@@ -198,26 +202,33 @@ export function CatalogPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const q = searchParams.get("q") || "";
-  const genresSel = useMemo(
-    () => new Set(searchParams.getAll("genre")),
-    [searchParams],
-  );
-  const status = searchParams.get("status") || "any";
-  const year = searchParams.get("year") || "any";
-  const ratingMin = Number(searchParams.get("rating")) || 0;
-  const complexity = searchParams.get("complexity") || "any";
-  const hours = searchParams.get("hours") || "any";
-  const miOnly = searchParams.get("mi") === "1";
-  const sort = searchParams.get("sort") || "played-desc";
+  // Пререндер отдаёт каталог БЕЗ фильтров. Если открыть адрес вида
+  // /catalog/?genre=Шутер, клиент на первом рендере отфильтровал бы список и
+  // React ругался на расхождение разметки (ошибка #418, ловилась в консоли
+  // 11.11.2026). Поэтому первый рендер считается по пустым параметрам — ровно
+  // как в статике, — а настоящие подставляются в layout-эффекте: он срабатывает
+  // до отрисовки, так что мигания «весь каталог → отфильтрованный» не видно.
+  const [hydrated, setHydrated] = useState(false);
+  useLayoutEffect(() => setHydrated(true), []);
+  const sp = hydrated ? searchParams : EMPTY_PARAMS;
+
+  const q = sp.get("q") || "";
+  const genresSel = useMemo(() => new Set(sp.getAll("genre")), [sp]);
+  const status = sp.get("status") || "any";
+  const year = sp.get("year") || "any";
+  const ratingMin = Number(sp.get("rating")) || 0;
+  const complexity = sp.get("complexity") || "any";
+  const hours = sp.get("hours") || "any";
+  const miOnly = sp.get("mi") === "1";
+  const sort = sp.get("sort") || "played-desc";
   // Направление: у дат и чисел по умолчанию «сначала новые/большие», у алфавита — прямой.
   // ?dir= не задан — работает прежнее поведение, старые ссылки не ломаются.
   const dirDefault = sort === "title" ? "asc" : "desc";
-  const dirParam = searchParams.get("dir");
+  const dirParam = sp.get("dir");
   const dir = dirParam === "asc" || dirParam === "desc" ? dirParam : dirDefault;
   const flip = dir === dirDefault ? 1 : -1;
-  const collectionParam = searchParams.get("collection");
-  const page = Math.max(1, Math.floor(Number(searchParams.get("page")) || 1));
+  const collectionParam = sp.get("collection");
+  const page = Math.max(1, Math.floor(Number(sp.get("page")) || 1));
 
   // Поле поиска держит своё значение, чтобы ввод не ждал навигации;
   // из адреса оно подтягивается при сбросе и кнопке «назад».
