@@ -154,7 +154,7 @@ export function GameDetails({ game, compact = false }) {
       {/* YouTube: сначала постер, плеер — по клику. В модалке плеера нет,
           чтобы не раздувать панель; смотреть — на странице игры. */}
       {showPlayer && !compact && (
-        <div className="mx-auto max-w-lg overflow-hidden rounded-card border border-white/10 shadow-card">
+        <div className="w-full overflow-hidden rounded-card border border-white/10 shadow-card">
           {playing ? (
             <iframe
               className="aspect-video w-full"
@@ -169,7 +169,7 @@ export function GameDetails({ game, compact = false }) {
               type="button"
               onClick={() => setPlaying(true)}
               aria-label={`Смотреть прохождение ${game.title} на YouTube`}
-              className="group relative flex aspect-video w-full flex-col items-center justify-center gap-2 overflow-hidden bg-night-800 transition"
+              className="group relative flex aspect-video w-full items-center justify-center overflow-hidden bg-night-800"
             >
               {poster && (
                 <img
@@ -178,24 +178,17 @@ export function GameDetails({ game, compact = false }) {
                   aria-hidden="true"
                   width={1280}
                   height={720}
-                  className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-300 group-hover:scale-[1.02] group-hover:opacity-90"
+                  className="absolute inset-0 h-full w-full object-cover opacity-95 transition duration-300 group-hover:scale-[1.02]"
                   onError={(e) => {
                     if (posterFallback && e.currentTarget.src !== posterFallback)
                       e.currentTarget.src = posterFallback;
                   }}
                 />
               )}
-              <span className="absolute inset-0 bg-night-900/55" />
-              <span className="relative flex h-16 w-16 items-center justify-center rounded-full bg-[#FF2D2D] text-white shadow-[0_10px_26px_rgba(255,0,0,0.35)] transition group-hover:scale-110">
-                <FiPlay className="ml-1 text-2xl" aria-hidden="true" />
-              </span>
-              <span className="relative flex flex-col items-center gap-0.5 rounded-btn bg-night-900/70 px-4 py-2 text-center backdrop-blur-sm">
-                <span className="font-display text-sm font-extrabold text-ink">
-                  Смотреть прохождение
-                </span>
-                <span className="text-xs text-ink-dim">
-                  Плеер YouTube загрузится после нажатия
-                </span>
+              {/* Контурная иконка из линий: ни залитого круга, ни текста,
+                  ни затемнения — обложка видео остаётся видна (11.11.2026). */}
+              <span className="relative flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/90 bg-night-900/20 text-white backdrop-blur-sm transition group-hover:scale-110">
+                <FiPlay className="ml-0.5 text-lg" aria-hidden="true" />
               </span>
             </button>
           )}
@@ -335,8 +328,7 @@ export function GameDetails({ game, compact = false }) {
       <div className={compact ? "grid grid-cols-1 gap-y-2" : "grid grid-cols-1 gap-x-5 gap-y-2 sm:grid-cols-2"}>
         <MetaCell
           icon={FiTag}
-          iconCls="text-pastel-purple"
-          tone="#C9A0DC"
+          tone="#D7A8F5"
           label="Жанр"
           onGo={() =>
             navigate(
@@ -348,8 +340,7 @@ export function GameDetails({ game, compact = false }) {
         </MetaCell>
         <MetaCell
           icon={FiGlobe}
-          iconCls="text-pastel-blue"
-          tone="#A0C4FF"
+          tone="#8FC0FF"
           label="Сеттинг"
           onGo={() =>
             navigate(`/catalog?q=${encodeURIComponent(game.setting || "")}`)
@@ -357,13 +348,32 @@ export function GameDetails({ game, compact = false }) {
         >
           {game.setting}
         </MetaCell>
-        <MetaCell icon={FiClock} iconCls="text-pastel-amber" tone="#FFD9A0" label="Наиграно">
+        <MetaCell
+          icon={FiClock}
+          tone="#FFC86B"
+          label="Наиграно"
+          onGo={() => navigate("/catalog?sort=hours-desc")}
+        >
           {parseNum(game.hours) ? `${parseNum(game.hours)} ч.` : ""}
         </MetaCell>
-        <MetaCell icon={FiCalendar} iconCls="text-pastel-mint" tone="#9FE2B9" label="Выход">
+        <MetaCell
+          icon={FiCalendar}
+          tone="#7BE0A8"
+          label="Выход"
+          onGo={() =>
+            navigate(
+              `/catalog?year=${encodeURIComponent(String(game.releaseDate).slice(-4))}`,
+            )
+          }
+        >
           {game.releaseDate}
         </MetaCell>
-        <MetaCell icon={FiCalendar} iconCls="text-pastel-pink" tone="#FFB6C1" label="Играл">
+        <MetaCell
+          icon={FiCalendar}
+          tone="#FF9DB8"
+          label="Играл"
+          onGo={() => navigate("/catalog?sort=played-desc")}
+        >
           {game.playedDate}
         </MetaCell>
       </div>

@@ -15,7 +15,6 @@ import { MITrophy } from "../components/MITrophy";
 import { SITE_URL } from "../config/site.js";
 import { usePageMeta } from "../utils/usePageMeta";
 import { parseNum, hasMI } from "../utils/normalize";
-import { ratingColor } from "../utils/statusMeta";
 import { recommendSimilar } from "../utils/recommend";
 
 // Карусель «похожих» в стиле PlayStation: стрелки, клавиатура, глубина.
@@ -200,20 +199,21 @@ export function GamePage() {
           между ними была пустота (замечание владельца 11.11.2026). */}
       <section className="card overflow-hidden">
       <header className="relative overflow-hidden">
-        {/* Фоновый арт убран: при высоте карточки 300 px он резал голову персонажа
-            сверху. Обложка слева и так даёт цвет, вторая копия не нужна. */}
-        <div className="relative z-10 grid gap-6 p-6 md:grid-cols-[300px_minmax(0,1fr)] md:items-start md:p-8 xl:grid-cols-[300px_minmax(0,1fr)_auto]">
-          <div>
+        {/* Две колонки, обе по высоте: обложка растянута на всю шапку, справа
+            текст и кнопки прижаты к низу. Третьей колонки с крупной оценкой
+            больше нет — она оставляла пустой правый угол (11.11.2026). */}
+        <div className="relative z-10 grid gap-6 p-6 md:grid-cols-[minmax(0,380px)_minmax(0,1fr)] md:items-stretch md:gap-8 md:p-8">
+          <div className="min-h-[220px]">
             {game.image ? (
               <img
                 src={game.image}
                 alt={`Обложка ${game.title}`}
                 width={460}
                 height={215}
-                className="w-full rounded-card border border-white/15 object-cover shadow-card"
+                className="h-full min-h-[220px] w-full rounded-card border border-white/15 object-cover shadow-card"
               />
             ) : (
-              <div className="flex aspect-[2/1] w-full flex-col items-center justify-center gap-2 rounded-card border border-dashed border-white/15 bg-gradient-to-br from-night-700 to-night-600">
+              <div className="flex h-full min-h-[220px] w-full flex-col items-center justify-center gap-2 rounded-card border border-dashed border-white/15 bg-gradient-to-br from-night-700 to-night-600">
                 <span className="text-4xl" aria-hidden="true">
                   🥐
                 </span>
@@ -224,7 +224,7 @@ export function GamePage() {
             )}
           </div>
 
-          <div className="min-w-0">
+          <div className="flex min-w-0 flex-col">
             <nav
               className="flex flex-wrap items-center gap-1 text-sm text-ink-dim"
               aria-label="Хлебные крошки"
@@ -255,33 +255,17 @@ export function GamePage() {
             >
               {game.title}
             </h1>
-            {/* Жанр и сеттинг не дублируем: ниже в деталях они идут отдельными
-                строками с подписями (замечание владельца 11.11.2026). */}
-            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-              {parseNum(game.rating) > 0 && (
-                <span className="flex items-baseline gap-1.5 xl:hidden">
-                  <span
-                    className={
-                      "font-display text-4xl font-black " +
-                      ratingColor(game.rating)
-                    }
-                    style={{ textShadow: "0 0 24px rgba(159,226,185,0.35)" }}
-                  >
-                    {parseNum(game.rating)}
-                  </span>
-                  <span className="text-xs font-bold uppercase tracking-widest text-ink-dim">
-                    /10 · оценка Тиана
-                  </span>
-                </span>
-              )}
-              {hasMI(game) && (
+            {/* Ни подзаголовка «Жанр · Сеттинг», ни крупной оценки: оба дублировали
+                детали ниже и оставляли пустой правый угол (11.11.2026). */}
+            {hasMI(game) && (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
                 <span className="chip border-2 border-pastel-amber/50 bg-pastel-amber/15 font-extrabold text-pastel-amber">
                   <MITrophy size="xs" /> Участник «Мастер Игорей»
                 </span>
-              )}
-            </div>
+              </div>
+            )}
 
-            <div className="mt-5 flex flex-wrap gap-3">
+            <div className="mt-auto flex flex-wrap gap-3 pt-5">
               {game.steamUrl && (
                 <a
                   className="inline-flex items-center justify-center gap-2 rounded-btn px-4 py-2.5 text-sm font-display font-extrabold text-[#0E1621] transition duration-300 hover:scale-[1.02]"
@@ -315,25 +299,6 @@ export function GamePage() {
               )}
             </div>
           </div>
-
-          {/* Оценка крупно в правом углу — как в дизайн.md: «оценку в углу выделить + больше».
-              На узких экранах она живёт в строке чипсов выше. */}
-          {parseNum(game.rating) > 0 && (
-            <div className="hidden text-right xl:block">
-              <div
-                className={
-                  "font-display text-6xl font-black leading-none " +
-                  ratingColor(game.rating)
-                }
-                style={{ textShadow: "0 0 30px rgba(159,226,185,0.35)" }}
-              >
-                {parseNum(game.rating)}
-              </div>
-              <div className="mt-2 text-[10px] font-bold uppercase tracking-widest text-ink-dim">
-                оценка Тиана / 10
-              </div>
-            </div>
-          )}
         </div>
       </header>
 

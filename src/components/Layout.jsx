@@ -144,8 +144,15 @@ export function Layout({ children }) {
               />
             </span>
             <span className="min-w-0 leading-tight">
-              <span className="section-accent block truncate font-display text-xl font-black tracking-wide">
-                TianKami
+              {/* Ник разделён цветом и свечением: «Тиан» и «Ками» читаются
+                  как две части, а не одно слово (11.11.2026). */}
+              <span className="block truncate font-display text-xl font-black tracking-wide">
+                <span className="text-pastel-pink [text-shadow:0_0_12px_rgba(255,182,193,0.45)]">
+                  Tian
+                </span>
+                <span className="text-pastel-amber [text-shadow:0_0_16px_rgba(255,196,107,0.65)]">
+                  Kami
+                </span>
               </span>
             </span>
           </Link>

@@ -93,7 +93,9 @@ export const GameCard = memo(function GameCard({
         </span>
       </Link>
 
-      <div className="flex flex-1 flex-col gap-1 rounded-b-card bg-night-600/60 p-3 sm:p-4">
+      {/* Граница между обложкой и информацией: тонкая линия плюс мягкое
+          свечение вверх, чтобы блоки не сливались (11.11.2026). */}
+      <div className="flex flex-1 flex-col gap-1 rounded-b-card border-t border-pastel-pink/25 bg-night-600/60 p-3 shadow-[0_-10px_22px_-14px_rgba(255,182,193,0.8)] sm:p-4">
         <div className="flex min-h-8 items-center gap-2">
           <Link
             to={`/catalog/${game.slug}`}
@@ -109,7 +111,7 @@ export const GameCard = memo(function GameCard({
               стоял отдельной строкой внизу и растягивал карточку (владелец 11.11.2026). */}
           {hasMI(game) && (
             <LuTrophy
-              className="shrink-0 text-[15px] text-pastel-amber drop-shadow-[0_0_6px_rgba(255,217,160,0.55)]"
+              className="shrink-0 text-2xl text-pastel-amber drop-shadow-[0_0_10px_rgba(255,217,160,0.7)]"
               title="Игра участвовала в «Мастер Игорей»"
               aria-label="Участник «Мастер Игорей»"
             />

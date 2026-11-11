@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FiExternalLink, FiYoutube, FiUsers, FiBookOpen, FiInfo, FiAward, FiFilm, FiPlay, FiArrowRight } from "react-icons/fi";
+import { FiUsers, FiBookOpen, FiInfo, FiAward, FiPlay, FiArrowRight } from "react-icons/fi";
 import { FaGamepad } from "react-icons/fa";
 import { useData } from "../components/DataProvider";
-import { GameCard } from "../components/GameCard";
 import { GameModal } from "../components/GameModal";
 import { MITrophy } from "../components/MITrophy";
 import { hasMI, isUrl } from "../utils/normalize";
@@ -28,13 +27,15 @@ function EpisodeCard({ game }) {
     : "";
 
   return (
-    // У каждого выпуска своя карточка с фоном: без рамки постеры слипались,
-    // а ссылка на игру терялась (замечание владельца 11.11.2026).
-    <div className="card flex h-full flex-col p-3">
-      <div className="overflow-hidden rounded-btn">
+    // Как карточка игры: постер на всю верхнюю часть, под ним инфоблок с
+    // названием и кнопкой страницы игры. Ни подписей, ни крупной залитой
+    // кнопки — только контурная иконка play, обложка не загораживается
+    // (замечание владельца 11.11.2026).
+    <div className="card overflow-hidden">
+      <div className="relative aspect-[2/1] overflow-hidden bg-night-900">
         {playing && autoplayUrl ? (
           <iframe
-            className="aspect-video w-full"
+            className="absolute inset-0 h-full w-full"
             src={autoplayUrl}
             title={`Выпуск МИ: ${game.title}`}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -45,7 +46,7 @@ function EpisodeCard({ game }) {
           <button
             type="button"
             onClick={() => setPlaying(true)}
-            className="group relative flex aspect-video w-full items-center justify-center overflow-hidden bg-night-800"
+            className="group absolute inset-0 flex items-center justify-center"
             aria-label={`Смотреть выпуск МИ: ${game.title}`}
           >
             {poster && (
@@ -56,42 +57,30 @@ function EpisodeCard({ game }) {
                 width={1280}
                 height={720}
                 loading="lazy"
-                className="absolute inset-0 h-full w-full object-cover opacity-80 transition duration-300 group-hover:scale-[1.03] group-hover:opacity-95"
+                className="absolute inset-0 h-full w-full object-cover opacity-90 transition duration-300 group-hover:scale-[1.03]"
                 onError={(e) => {
                   if (posterFallback && e.currentTarget.src !== posterFallback)
                     e.currentTarget.src = posterFallback;
                 }}
               />
             )}
-            <span className="absolute inset-0 bg-night-900/45" />
-            <span className="relative flex h-12 w-12 items-center justify-center rounded-full bg-[#FF2D2D] text-white shadow-[0_8px_22px_rgba(255,0,0,0.35)] transition group-hover:scale-110">
-              <FiPlay className="ml-0.5 text-xl" aria-hidden="true" />
+            <span className="absolute inset-0 bg-gradient-to-t from-night-900/70 via-transparent to-transparent" />
+            <span className="relative flex h-11 w-11 items-center justify-center rounded-full border-2 border-white/85 bg-night-900/25 text-white backdrop-blur-sm transition group-hover:scale-110">
+              <FiPlay className="ml-0.5 text-lg" aria-hidden="true" />
             </span>
           </button>
         )}
       </div>
-      <div className="mt-3 flex flex-1 flex-col">
-        <div className="flex items-center justify-between gap-2">
-          <span className="min-w-0 truncate font-display text-base font-extrabold text-ink">
-            {game.title}
-          </span>
-          <a
-            className="shrink-0 text-ink-faint transition hover:text-[#FF2D2D]"
-            href={game.miVideo}
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Открыть выпуск на YouTube"
-            aria-label={`Открыть выпуск ${game.title} на YouTube`}
-          >
-            <FiExternalLink />
-          </a>
-        </div>
+      <div className="flex items-center gap-2 border-t border-pastel-pink/25 bg-night-600/60 p-3">
+        <span className="min-w-0 flex-1 truncate font-display text-sm font-extrabold text-ink sm:text-base">
+          {game.title}
+        </span>
         <Link
           to={`/catalog/${game.slug}`}
-          className="btn-ghost mt-auto w-full text-sm"
-          title={`Страница игры ${game.title}`}
+          className="btn-ghost !min-h-8 !px-3 !py-1 text-xs"
+          title={`Открыть страницу ${game.title}`}
         >
-          Страница игры <FiArrowRight />
+          <FiArrowRight /> Страница игры
         </Link>
       </div>
     </div>
@@ -99,7 +88,7 @@ function EpisodeCard({ game }) {
 }
 
 export function MIPage() {
-  const { games, bySlug } = useData();
+  const { games } = useData();
   const [modal, setModal] = useState(null);
   usePageMeta({
     title: "Мастер Игорей — Tiankami",
@@ -108,7 +97,15 @@ export function MIPage() {
   });
 
   const miGames = games.filter((g) => hasMI(g));
-  const episodes = miGames.filter((g) => isUrl(g.miVideo));
+  // Дата выхода выпуска в данных — playedDate (ДД.ММ.ГГГГ), отдельного поля
+  // нет. Сначала новые; у всех 23 выпусков дата заполнена (замер 11.11.2026).
+  const dateKey = (d) => {
+    const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(String(d || "").trim());
+    return m ? Number(m[3] + m[2] + m[1]) : 0;
+  };
+  const episodes = miGames
+    .filter((g) => isUrl(g.miVideo))
+    .sort((a, b) => dateKey(b.playedDate) - dateKey(a.playedDate));
 
   return (
     <div className="space-y-10">
@@ -177,44 +174,16 @@ export function MIPage() {
         </div>
       </section>
 
-      {/* Игры */}
-      <section>
-        <h2 className="section-title mb-2 text-2xl">
-          <FiAward className="inline" aria-hidden="true" /> Игры <span className="text-ink-dim text-base">({miGames.length})</span>
-        </h2>
-        <p className="mb-4 text-sm text-ink-dim">
-          Все игры, участвовавшие в Мастер Игорей — с датами, статусами и кубками.
-        </p>
-        <div className="grid gap-x-4 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {miGames.map((g, i) => (
-            <GameCard
-              key={g.slug}
-              game={g}
-              onQuickView={setModal}
-              rarity={bySlug?.[g.slug] || "common"}
-              delay={i % 8}
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* Выпуски */}
+      {/* Блок «Игры» и подпись «Выпуски» убраны: остаются только карточки
+          видео со ссылками (11.11.2026). */}
       {episodes.length > 0 && (
-        <section>
-          {/* Общей плашки вокруг всех выпусков нет: фон у каждой отдельной
-              карточки. Зазор крупнее — раньше постеры выглядели слипшимися. */}
-          <div className="flex items-center gap-2 mb-4">
-            <FiYoutube className="text-red-300" />
-            <h2 className="section-title text-xl"><FiFilm className="inline" aria-hidden="true" /> Выпуски</h2>
-          </div>
-          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {episodes.map((g) => (
-              <li key={g.slug}>
-                <EpisodeCard game={g} />
-              </li>
-            ))}
-          </ul>
-        </section>
+        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {episodes.map((g) => (
+            <li key={g.slug}>
+              <EpisodeCard game={g} />
+            </li>
+          ))}
+        </ul>
       )}
 
       {/* Маскота в конце страницы убрал по просьбе владельца 18.10.2026:

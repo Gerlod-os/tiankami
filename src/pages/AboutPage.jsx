@@ -20,15 +20,23 @@ export function AboutPage() {
             11.11.2026 и попросил «закинуть, только отредактируй как надо».
             Обрезана белая кайма, на телефоне кадр сдвинут к логотипу, иначе
             надпись на широком баннере становится нечитаемой. */}
-        <img
-          src={MASCOTS.aboutBanner}
-          alt="TianKami — канал Тиана"
-          width={1872}
-          height={276}
-          className="block aspect-[1872/276] w-full object-cover max-sm:aspect-[3.4/1] max-sm:object-[38%_center]"
-          fetchPriority="high"
-          loading="eager"
-        />
+        {/* Градиент снизу растворяет баннер в карточке: без него картинка
+            обрывалась резкой полосой (замечание владельца 11.11.2026). */}
+        <div className="relative">
+          <img
+            src={MASCOTS.aboutBanner}
+            alt="TianKami — канал Тиана"
+            width={1872}
+            height={276}
+            className="block aspect-[1872/276] w-full object-cover max-sm:aspect-[3.4/1] max-sm:object-[38%_center]"
+            fetchPriority="high"
+            loading="eager"
+          />
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-b from-transparent via-[#261E17]/60 to-[#261E17]"
+            aria-hidden="true"
+          />
+        </div>
         <div className="p-6 md:p-10">
           <div className="max-w-2xl">
             <h1 className="section-title text-3xl md:text-4xl">
@@ -63,10 +71,10 @@ export function AboutPage() {
               </li>
             </ul>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link to="/schedule" className="btn-primary text-sm">
+              <Link to="/schedule" className="about-cta text-sm">
                 <FiCalendar /> Расписание стримов
               </Link>
-              <Link to="/catalog" className="btn-ghost text-sm">
+              <Link to="/catalog" className="about-cta-ghost text-sm">
                 Каталог рогаликов
               </Link>
             </div>
@@ -86,13 +94,13 @@ export function AboutPage() {
               в чате! А ещё ты просто помогаешь стримеру развиваться и стримить дальше :3
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <a className="btn-primary text-sm" href={BRAND.links.twitch} target="_blank" rel="noopener noreferrer">
+              <a className="about-cta text-sm" href={BRAND.links.twitch} target="_blank" rel="noopener noreferrer">
                 <FaTwitch /> Подписаться на Twitch
               </a>
-              <a className="btn-ghost text-sm" href={BRAND.links.youtube} target="_blank" rel="noopener noreferrer">
+              <a className="about-cta-ghost text-sm" href={BRAND.links.youtube} target="_blank" rel="noopener noreferrer">
                 <FaYoutube /> YouTube
               </a>
-              <a className="btn-ghost text-sm" href={BRAND.links.discord} target="_blank" rel="noopener noreferrer">
+              <a className="about-cta-ghost text-sm" href={BRAND.links.discord} target="_blank" rel="noopener noreferrer">
                 <FaDiscord /> Discord
               </a>
             </div>

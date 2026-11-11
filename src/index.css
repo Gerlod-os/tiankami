@@ -80,6 +80,29 @@
     border-color: rgba(255, 196, 107, 0.45);
     box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
   }
+  /* Кнопки страницы «Обо мне»: розово-золотая заливка вместо общей оранжевой
+     и фиолетовая обводка вместо серой. Только здесь — остальной сайт не
+     трогаем, у него своя иерархия кнопок (11.11.2026). */
+  .about-cta {
+    @apply inline-flex items-center justify-center gap-2 rounded-btn px-4 py-2 font-display font-extrabold text-[#2B1A08] transition duration-300 active:scale-95;
+    background-image: linear-gradient(135deg, #ffb6c1 0%, #ffc46b 55%, #ff9e7a 100%);
+    box-shadow: 0 10px 26px rgba(255, 158, 122, 0.28);
+  }
+  .about-cta:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.06);
+    box-shadow: 0 12px 30px rgba(255, 158, 122, 0.38);
+  }
+  .about-cta-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-btn border px-4 py-2 font-display font-bold text-ink transition duration-300 active:scale-95;
+    border-color: rgba(201, 160, 220, 0.45);
+    background: rgba(201, 160, 220, 0.1);
+  }
+  .about-cta-ghost:hover {
+    transform: translateY(-2px);
+    border-color: rgba(201, 160, 220, 0.8);
+    box-shadow: 0 12px 30px rgba(201, 160, 220, 0.22);
+  }
   .glass {
     @apply rounded-card border border-white/10 bg-white/[0.07];
   }
