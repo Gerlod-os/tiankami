@@ -34,6 +34,7 @@ export default {
         // Героический дисплей — заголовки с характером (кириллица)
         hero: [
           '"Unbounded Variable"',
+          '"Unbounded Fallback"',
           "Unbounded",
           '"Nunito Variable"',
           "Nunito",

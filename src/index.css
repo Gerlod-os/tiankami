@@ -14,6 +14,15 @@
   size-adjust: 101.89%;
 }
 
+/* То же для заголовков. Unbounded шире Arial на 35% (замер: 136% на кириллице,
+   134% на латинице) — без подмены заголовок до загрузки шрифта занимает меньше
+   строк, а потом переносится заново и толкает страницу вниз. */
+@font-face {
+  font-family: "Unbounded Fallback";
+  src: local("Arial"), local("Helvetica Neue"), local("Helvetica");
+  size-adjust: 135%;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
