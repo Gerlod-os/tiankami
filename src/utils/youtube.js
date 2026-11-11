@@ -4,7 +4,9 @@
 
 // Карта «ID плейлиста → ID первого ролика», собрана scripts/yt-posters.mjs.
 // Нужна, чтобы постер плеера был кадром видео, а не обложкой игры.
-import posters from "../data/youtube-posters.json";
+// Атрибут `type: "json"` обязателен: этот модуль грузит и Node (sync-data.js),
+// а Node ESM без атрибута падает с ERR_IMPORT_ATTRIBUTE_MISSING.
+import posters from "../data/youtube-posters.json" with { type: "json" };
 
 export function parseYouTubeUrl(url) {
   const s = String(url || "").trim();

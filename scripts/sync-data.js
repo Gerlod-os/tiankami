@@ -231,6 +231,22 @@ try {
 // Прошедшие берём из истории трансляций канала — то, что видно во вкладке
 // «Расписание» у него на канале. Ближайшие — из календаря: другого источника
 // будущего у Twitch нет, на канале для этого стоит «Следующая трансляция».
+// Прежние прошедшие записи из уже собранного файла. Нужны, когда Twitch
+// отвечает `service error` (замер 10.11.2026): без них сборка записывала только
+// календарь на 7 дней вперёд, и блок «Прошедшие трансляции» исчезал с сайта
+// целиком. Пустой ответ источника — не повод терять то, что уже проверено.
+function previousPast() {
+  const file = path.join(DATA_DIR, "schedule.json");
+  if (!fs.existsSync(file)) return [];
+  try {
+    const prev = JSON.parse(fs.readFileSync(file, "utf8"));
+    if (!Array.isArray(prev)) return [];
+    return prev.filter((s) => s?.date && s?.game && s?.streamLink);
+  } catch {
+    return [];
+  }
+}
+
 let schedule = [];
 try {
   console.log("▸ Беру прошедшие трансляции с Twitch…");
@@ -240,6 +256,11 @@ try {
   console.log(`  ✔ трансляций: ${recent.length}, последняя ${recent[0].date} "${recent[0].game}"`);
 } catch (e) {
   console.warn("  ⚠ История трансляций не скачалась:", e.message);
+  const saved = previousPast();
+  if (saved.length) {
+    schedule = saved;
+    console.log(`  ↺ прошедшие взяты из прежнего schedule.json: ${saved.length}`);
+  }
 }
 
 try {
