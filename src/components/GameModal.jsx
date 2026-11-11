@@ -48,14 +48,14 @@ export function GameModal({ game, onClose }) {
     // Панель, а не полноэкранное окно: стоит у правого края, страница вокруг
     // остаётся живой и прокручивается. aria-modal=false — фон не заблокирован.
     <div
-      className="pointer-events-none fixed inset-0 z-50 flex items-start justify-end p-3 sm:p-6"
+      className="pointer-events-none fixed inset-0 z-50 flex items-end justify-end p-3 sm:items-start sm:p-6"
       role="dialog"
       aria-modal="false"
       aria-label={game.title}
     >
       <div
         ref={boxRef}
-        className="pointer-events-auto relative max-h-[calc(100vh-1.5rem)] w-full max-w-[560px] animate-fadeUp overflow-y-auto rounded-card border border-white/10 bg-night-900/95 shadow-card backdrop-blur"
+        className="pointer-events-auto relative max-h-[78vh] w-full max-w-[560px] animate-fadeUp overflow-y-auto rounded-card border border-white/10 bg-night-900/95 shadow-card backdrop-blur sm:max-h-[calc(100vh-3rem)]"
       >
         {/* Обложка 192×96 — ровно 2:1, как у Steam. Широкая полоса резала
             верх арта: у игр с персонажем срезало голову (замечено 18.10.2026). */}
