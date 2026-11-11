@@ -20,11 +20,21 @@ export function GameModal({ game, onClose }) {
       if (e.key === "Escape") onClose();
     };
     document.addEventListener("keydown", onKey);
+    // Клик мимо панели закрывает её. Исключение — клик по карточке игры:
+    // она сама переключит панель на другую игру, закрывать перед этим незачем.
+    const onDown = (e) => {
+      const box = boxRef.current;
+      if (!box || box.contains(e.target)) return;
+      if (e.target.closest?.('a[href*="/catalog/"]')) return;
+      onClose();
+    };
+    document.addEventListener("pointerdown", onDown);
     // Скролл страницы не блокируем: владелец 11.11.2026 попросил, чтобы при
     // открытом просмотре по странице можно было листать дальше. Поэтому же
     // убрано затемнение на весь экран — панель висит сбоку и не запирает страницу.
     return () => {
       document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onDown);
       prevFocus?.focus?.();
     };
   }, [game, onClose]);
