@@ -17,14 +17,22 @@ export function AboutPage() {
     <div className="mx-auto max-w-4xl space-y-8">
       <section className="card relative overflow-hidden p-6 md:p-10">
         <div className="grid items-center gap-8 md:grid-cols-[280px_minmax(0,1fr)]">
-          <img
-            src={MASCOTS.croissant}
-            alt="Кроассан-маскот канала Tiankami"
-            width={720}
-            height={720}
-            className="w-full -rotate-2 transition-transform hover:rotate-0 drop-shadow-[0_14px_28px_rgba(0,0,0,.5)]"
-            loading="lazy"
-          />
+          {/* Плашка «Обо мне» в стиле сайта: владелец 11.11.2026 прислал референс
+              с Сайтамой и попросил сделать так же, но в наших цветах. Собираем из
+              готового ассета (mascot-support.webp) и типографики — новых картинок
+              не генерируем. */}
+          <div className="about-hero relative overflow-hidden rounded-card border border-white/10">
+            <div className="about-hero-glow" aria-hidden="true" />
+            <img
+              src={MASCOTS.collections}
+              alt="Сайтама — маскот канала Tiankami"
+              width={900}
+              height={501}
+              className="relative z-10 w-full drop-shadow-[0_14px_28px_rgba(0,0,0,.55)]"
+              loading="lazy"
+            />
+            <span className="about-hero-badge">Обо мне</span>
+          </div>
           <div>
             <h1 className="section-title text-3xl md:text-4xl">
               <span className="h-marker">Обо</span> <span className="section-accent">мне</span>

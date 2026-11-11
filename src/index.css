@@ -347,6 +347,45 @@
       rgba(255, 182, 193, 0.07)
     );
   }
+  /* Плашка «Обо мне»: тёмная подложка сайта + розовое свечение и заголовок
+     тем же шрифтом, что остальные заголовки. Референс владельца 11.11.2026. */
+  .about-hero {
+    background-image: linear-gradient(
+      160deg,
+      rgba(24, 22, 38, 0.95),
+      rgba(40, 28, 48, 0.9)
+    );
+  }
+  .about-hero-glow {
+    position: absolute;
+    inset: -20% -10% auto -10%;
+    height: 90%;
+    background: radial-gradient(
+      55% 60% at 50% 40%,
+      rgba(255, 182, 193, 0.35),
+      rgba(255, 143, 163, 0.12) 55%,
+      transparent 75%
+    );
+    filter: blur(8px);
+  }
+  .about-hero-badge {
+    position: absolute;
+    left: 0.75rem;
+    top: 0.75rem;
+    z-index: 20;
+    padding: 0.35rem 0.85rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 182, 193, 0.45);
+    background: rgba(20, 18, 32, 0.82);
+    font-family: "Unbounded", "Nunito", system-ui, sans-serif;
+    font-weight: 800;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #ffb6c1;
+    text-shadow: 0 0 14px rgba(255, 143, 163, 0.55);
+    backdrop-filter: blur(6px);
+  }
   .gold-card:hover {
     transform: scale(1.03);
     box-shadow: 0 0 40px rgba(255, 217, 160, 0.3);
