@@ -711,31 +711,20 @@ export function CatalogPage() {
               </div>
 
               <div className="min-w-0">
-                <div className="label">Год и кубок</div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <SelectMenu
-                    label="Год выхода"
-                    value={year}
-                    icon={FiCalendar}
-                    onChange={(v) => apply({ year: v })}
-                    options={[
-                      { v: "any", l: "Любой год" },
-                      ...meta.years.map((y) => ({ v: String(y), l: String(y) })),
-                    ]}
-                  />
-                  <label className="flex items-center gap-1.5 text-xs text-ink-dim">
-                    <span className="switch">
-                      <input
-                        type="checkbox"
-                        checked={miOnly}
-                        onChange={(e) => apply({ mi: e.target.checked ? "1" : null })}
-                        aria-label="Только с кубком МИ"
-                      />
-                      <span className="knob" />
-                    </span>
-                    Только МИ
-                  </label>
-                </div>
+                {/* Подпись «Год и кубок» владелец 11.11.2026 попросил убрать.
+                    Пустой label той же высоты держит селект на одной линии
+                    с соседними колонками. */}
+                <div className="label" aria-hidden="true">&nbsp;</div>
+                <SelectMenu
+                  label="Год выхода"
+                  value={year}
+                  icon={FiCalendar}
+                  onChange={(v) => apply({ year: v })}
+                  options={[
+                    { v: "any", l: "Любой год" },
+                    ...meta.years.map((y) => ({ v: String(y), l: String(y) })),
+                  ]}
+                />
               </div>
 
               <div className="min-w-0">
@@ -834,6 +823,23 @@ export function CatalogPage() {
                   ))}
                 </div>
               </div>
+            </div>
+
+            {/* Тумблер «Только МИ» — справа снизу панели фильтров.
+                Владелец 11.11.2026: в колонке года ему не место. */}
+            <div className="mt-4 flex justify-end">
+              <label className="flex items-center gap-2 text-xs font-semibold text-ink-dim">
+                <span className="switch">
+                  <input
+                    type="checkbox"
+                    checked={miOnly}
+                    onChange={(e) => apply({ mi: e.target.checked ? "1" : null })}
+                    aria-label="Только с кубком МИ"
+                  />
+                  <span className="knob" />
+                </span>
+                Только МИ
+              </label>
             </div>
           </div>
       )}
