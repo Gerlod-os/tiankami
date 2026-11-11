@@ -50,6 +50,9 @@ export function CollectionsPage() {
             .slice(0, 5)
             .map((g) => byTitle.get(String(g.name).toLowerCase()))
             .filter(Boolean);
+          // В маленькой подборке веер показывает всё, поэтому справа выводим
+          // названия целиком — иначе место пустует.
+          const listGames = preview.length > 3 ? preview.slice(3, 5) : preview;
           return (
             <Link
               key={c.slug}
@@ -91,9 +94,9 @@ export function CollectionsPage() {
                 <div className="shrink-0">
                   <CoverFan games={preview} count={3} />
                 </div>
-                {preview.length > 3 && (
+                {listGames.length > 0 && (
                   <ul className="min-w-0 flex-1 space-y-1 pt-1 text-xs text-ink-dim">
-                    {preview.slice(3, 5).map((g) => (
+                    {listGames.map((g) => (
                       <li key={g.slug} className="line-clamp-1">
                         {g.title}
                       </li>

@@ -4,7 +4,10 @@ import { Link } from "react-router-dom";
 import { FiX, FiArrowRight } from "react-icons/fi";
 import { GameDetails } from "./GameDetails";
 
-// Модалка быстрого просмотра: Escape, клик по фону, блокировка скролла
+// Панель быстрого просмотра: Escape закрывает, фокус возвращается на карточку.
+// Ловушки фокуса нет намеренно: панель не модальная (aria-modal=false),
+// страница вокруг живая, и Tab должен свободно уходить из панели на страницу.
+// Раньше здесь запирался Tab — остаток от полноэкранной модалки.
 export function GameModal({ game, onClose }) {
   const boxRef = useRef(null);
   const closeRef = useRef(null);
@@ -15,21 +18,6 @@ export function GameModal({ game, onClose }) {
     closeRef.current?.focus();
     const onKey = (e) => {
       if (e.key === "Escape") onClose();
-      if (e.key === "Tab" && boxRef.current) {
-        const els = boxRef.current.querySelectorAll(
-          'a[href], button, iframe, [tabindex]:not([tabindex="-1"])',
-        );
-        if (!els.length) return;
-        const first = els[0];
-        const last = els[els.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
     };
     document.addEventListener("keydown", onKey);
     // Скролл страницы не блокируем: владелец 11.11.2026 попросил, чтобы при
