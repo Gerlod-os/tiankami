@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FiClock,
-  FiExternalLink,
   FiTag,
   FiCalendar,
   FiGlobe,
@@ -13,6 +12,7 @@ import {
   FiFlag,
 } from "react-icons/fi";
 import { FaSkull, FaSteam } from "react-icons/fa";
+import { LuTrophy } from "react-icons/lu";
 import { parseNum, isUrl, hasMI } from "../utils/normalize";
 import { statusMeta, ratingColor } from "../utils/statusMeta";
 import { parseYouTubeUrl, posterVideoId } from "../utils/youtube";
@@ -32,8 +32,17 @@ export function skullCount(c) {
   return c >= 8 ? 3 : c >= 5 ? 2 : c >= 1 ? 1 : 0;
 }
 
-function Bar({ label, icon: Icon, skulls = 0, value, max, suffix }) {
+// Цвета шкал: у каждой свой, чтобы оценка, сложность и прогресс читались
+// с одного взгляда (замечание владельца 11.11.2026 — всё было одним оранжевым).
+const BAR_TONES = {
+  gold: { from: "#FFD9A0", to: "#F0913A", glow: "rgba(255,217,160,0.45)" },
+  pink: { from: "#FFB6C1", to: "#E05A7A", glow: "rgba(255,143,163,0.45)" },
+  mint: { from: "#9FE2B9", to: "#3FAE7A", glow: "rgba(159,226,185,0.45)" },
+};
+
+function Bar({ label, icon: Icon, skulls = 0, value, max, suffix, tone = "gold" }) {
   const v = parseNum(value);
+  const c = BAR_TONES[tone] || BAR_TONES.gold;
   return (
     <div>
       <div className="mb-1 flex items-center justify-between text-xs">
@@ -45,7 +54,13 @@ function Bar({ label, icon: Icon, skulls = 0, value, max, suffix }) {
               ))}
             </span>
           ) : (
-            Icon && <Icon className="shrink-0" aria-hidden="true" />
+            Icon && (
+              <Icon
+                className="shrink-0"
+                aria-hidden="true"
+                style={{ color: c.from, filter: `drop-shadow(0 0 5px ${c.glow})` }}
+              />
+            )
           )}{" "}
           {label}
         </span>
@@ -56,7 +71,11 @@ function Bar({ label, icon: Icon, skulls = 0, value, max, suffix }) {
       <div className="bar-track bar-shine">
         <div
           className="bar-fill"
-          style={{ width: `${Math.min(100, (v / max) * 100)}%` }}
+          style={{
+            width: `${Math.min(100, (v / max) * 100)}%`,
+            backgroundImage: `linear-gradient(90deg, ${c.from}, ${c.to})`,
+            boxShadow: `0 0 12px ${c.glow}`,
+          }}
         />
       </div>
     </div>
@@ -65,21 +84,37 @@ function Bar({ label, icon: Icon, skulls = 0, value, max, suffix }) {
 
 // Две ячейки сетки: подпись с иконкой и значение. Иконка одна — вторая,
 // стоявшая перед значением, была дублем и сбивала выравнивание.
-function MetaCell({ icon: Icon, iconCls, label, children, onGo }) {
+// tone — цвет пары «подпись + значение»: у жанра, сеттинга, часов и дат свои
+// цвета, чтобы характеристики не сливались в серую стену (11.11.2026).
+function MetaCell({ icon: Icon, iconCls, label, children, onGo, tone }) {
   if (!children) return null;
   const Comp = onGo ? "button" : "span";
+  const colored = Boolean(tone);
   return (
     <>
-      <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ink-faint">
-        <Icon className={"shrink-0 " + iconCls} aria-hidden="true" /> {label}
+      <span
+        className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider"
+        style={
+          colored
+            ? { color: tone, textShadow: `0 0 10px ${tone}55` }
+            : undefined
+        }
+      >
+        <Icon
+          className={"shrink-0 " + (colored ? "" : iconCls)}
+          aria-hidden="true"
+          style={colored ? { filter: `drop-shadow(0 0 5px ${tone}88)` } : undefined}
+        />{" "}
+        {label}
       </span>
       <Comp
         {...(onGo ? { type: "button", onClick: onGo } : {})}
         className={
-          onGo
-            ? "-mx-1 inline-flex min-h-8 items-center justify-self-start rounded-btn px-1 text-left text-ink underline-offset-2 transition hover:text-pastel-blue hover:underline"
-            : "min-w-0 text-ink"
+          (onGo
+            ? "inline-flex min-h-8 w-full items-center justify-self-start text-left text-ink underline-offset-2 transition hover:text-pastel-blue hover:underline"
+            : "min-w-0 w-full text-ink") + (colored ? " meta-underline" : "")
         }
+        style={colored ? { ["--tone"]: tone } : undefined}
       >
         {children}
       </Comp>
@@ -117,7 +152,7 @@ export function GameDetails({ game, compact = false }) {
     : game.image || "";
 
   return (
-    <div className={compact ? "space-y-4" : "space-y-5"}>
+    <div className={compact ? "space-y-3" : "space-y-5"}>
       {/* Обложки здесь нет: в шапке страницы она уже стоит дважды (фон + видимая).
           Третья копия на том же экране — дубль (план, Б17). */}
 
@@ -173,50 +208,64 @@ export function GameDetails({ game, compact = false }) {
       )}
 
       {/* Кнопки — только в модалке: на странице игры они уже стоят в шапке.
-          В один ряд 50/50, спокойный фон — цвет остаётся только у иконки. */}
+          Steam забирает свободное место, YouTube — по содержимому и уже:
+          владелец 11.11.2026 попросил не растягивать обе на половину. */}
       {compact && (
-      <div
-        className={
-          (Boolean(game.steamUrl) && isUrl(game.youtube)
-            ? "grid grid-cols-2 "
-            : "flex flex-wrap ") + "gap-2"
-        }
-      >
+      <div className="flex flex-wrap gap-2">
+        {/* Цветные кнопки без заливки: обводка + свечение + цветной текст,
+            как просил владелец 11.11.2026. */}
         {game.steamUrl && (
           <a
-            className="inline-flex w-full items-center justify-center gap-2 rounded-btn border border-white/10 bg-white/5 px-3 py-2.5 font-display font-bold text-ink transition duration-300 hover:border-white/25 hover:bg-white/10"
+            className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-btn border px-3 py-2.5 font-display font-bold transition duration-300 hover:bg-white/5"
+            style={{
+              borderColor: "rgba(102,192,244,0.45)",
+              color: "#66C0F4",
+              boxShadow: "0 0 18px rgba(102,192,244,0.16)",
+            }}
             href={game.steamUrl}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <FaSteam className="text-lg text-[#66C0F4]" /> В Steam
+            <FaSteam className="text-lg" /> В Steam
           </a>
         )}
         {isUrl(game.youtube) && (
           <a
-            className="inline-flex w-full items-center justify-center gap-2 rounded-btn border border-white/10 bg-white/5 px-3 py-2.5 font-display font-bold text-ink transition duration-300 hover:border-white/25 hover:bg-white/10"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-btn border px-3.5 py-2.5 text-sm font-display font-bold transition duration-300 hover:bg-white/5"
+            style={{
+              borderColor: "rgba(255,45,45,0.45)",
+              color: "#FF6B6B",
+              boxShadow: "0 0 18px rgba(255,45,45,0.16)",
+            }}
             href={game.youtube}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <FiYoutube className="text-lg text-[#FF2D2D]" />{" "}
+            <FiYoutube className="text-lg" />{" "}
             {/list=/.test(game.youtube) ? "YouTube плейлист" : "YouTube"}
           </a>
         )}
         {hasMI(game) && isUrl(game.miVideo) && (
           <a
-            className="btn-ghost col-span-2 text-sm"
+            className="col-span-2 inline-flex w-full items-center justify-center gap-2 rounded-btn border px-3 py-2 font-display font-bold transition duration-300 hover:bg-white/5"
+            style={{
+              borderColor: "rgba(255,217,160,0.45)",
+              color: "#FFD9A0",
+              boxShadow: "0 0 18px rgba(255,217,160,0.16)",
+            }}
             href={game.miVideo}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <FiExternalLink className="text-pastel-amber" /> Выпуск МИ
+            <LuTrophy className="text-lg" /> Выпуск МИ
           </a>
         )}
       </div>
       )}
 
-      {/* Теги */}
+      {/* Теги: в панели не нужны — статус и оценка уже в шапке и шкалах,
+          а место нужно, чтобы модалка влезла целиком (11.11.2026). */}
+      {!compact && (
       <div className="flex flex-wrap items-center gap-2">
         {/* Яйцо — подпись редкости, а не кнопка: раньше клик уводил в каталог
             с фильтром по первому жанру, и это читалось как случайный переход
@@ -250,11 +299,13 @@ export function GameDetails({ game, compact = false }) {
           </span>
         )}
       </div>
+      )}
 
       {/* Впечатления Тиана: единственная колонка таблицы, которая не доходила до
           посетителя (459/459 заполнено). Ставлю выше баров: это текст, ради которого
-          открывают страницу, а не приложение к шкалам. */}
-      {game.notes && (
+          открывают страницу, а не приложение к шкалам. В панели — две строки,
+          иначе она не влезает целиком. */}
+      {game.notes && !compact && (
         <div className="rounded-btn bg-night-700/40 p-3.5">
           <div className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-ink-faint">
             <FiMessageCircle className="text-pastel-mint" aria-hidden="true" />
@@ -264,21 +315,30 @@ export function GameDetails({ game, compact = false }) {
         </div>
       )}
 
-      {/* Бары и мета — рядом: шкалы короткие (448 px), справа не пусто */}
-      <div className="grid gap-5 lg:grid-cols-2 lg:gap-8">
+      {/* Бары и мета — рядом. В панели две колонки всегда: иначе восемь
+          строк не влезают в уменьшенную высоту (11.11.2026). */}
+      <div
+        className={
+          compact
+            ? "grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2"
+            : "grid gap-5 lg:grid-cols-2 lg:gap-8"
+        }
+      >
       {/* Бары */}
-      <div className="max-w-md space-y-3">
+      <div className="max-w-xs space-y-3">
         <Bar
           label="Оценка"
           icon={ratingIcon(parseNum(game.rating))}
           value={game.rating}
           max={10}
+          tone="gold"
         />
         <Bar
           label="Сложность"
           skulls={skullCount(parseNum(game.complexity))}
           value={game.complexity}
           max={10}
+          tone="pink"
         />
         <Bar
           label="Прогресс"
@@ -286,6 +346,7 @@ export function GameDetails({ game, compact = false }) {
           value={game.progress}
           max={100}
           suffix="%"
+          tone="mint"
         />
       </div>
 
@@ -294,6 +355,7 @@ export function GameDetails({ game, compact = false }) {
         <MetaCell
           icon={FiTag}
           iconCls="text-pastel-purple"
+          tone="#C9A0DC"
           label="Жанр"
           onGo={() =>
             navigate(
@@ -306,6 +368,7 @@ export function GameDetails({ game, compact = false }) {
         <MetaCell
           icon={FiGlobe}
           iconCls="text-pastel-blue"
+          tone="#A0C4FF"
           label="Сеттинг"
           onGo={() =>
             navigate(`/catalog?q=${encodeURIComponent(game.setting || "")}`)
@@ -313,13 +376,13 @@ export function GameDetails({ game, compact = false }) {
         >
           {game.setting}
         </MetaCell>
-        <MetaCell icon={FiClock} iconCls="text-pastel-amber" label="Наиграно">
+        <MetaCell icon={FiClock} iconCls="text-pastel-amber" tone="#FFD9A0" label="Наиграно">
           {parseNum(game.hours) ? `${parseNum(game.hours)} ч.` : ""}
         </MetaCell>
-        <MetaCell icon={FiCalendar} iconCls="text-pastel-mint" label="Выход">
+        <MetaCell icon={FiCalendar} iconCls="text-pastel-mint" tone="#9FE2B9" label="Выход">
           {game.releaseDate}
         </MetaCell>
-        <MetaCell icon={FiCalendar} iconCls="text-pastel-pink" label="Играл">
+        <MetaCell icon={FiCalendar} iconCls="text-pastel-pink" tone="#FFB6C1" label="Играл">
           {game.playedDate}
         </MetaCell>
       </div>

@@ -1,7 +1,8 @@
 import { memo, useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiClock, FiEye, FiStar } from "react-icons/fi";
-import { FaSkull, FaTrophy } from "react-icons/fa";
+import { FaSkull } from "react-icons/fa";
+import { LuTrophy } from "react-icons/lu";
 import { parseNum, hasMI } from "../utils/normalize";
 import { statusMeta, ratingColor } from "../utils/statusMeta";
 import { RARITY_GLOW } from "../utils/rarity";
@@ -107,12 +108,11 @@ export const GameCard = memo(function GameCard({
           {/* Кубок МИ — справа от названия, у правого края карточки. Раньше он
               стоял отдельной строкой внизу и растягивал карточку (владелец 11.11.2026). */}
           {hasMI(game) && (
-            <span
-              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-pastel-amber/40 bg-pastel-amber/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-pastel-amber"
+            <LuTrophy
+              className="shrink-0 text-[15px] text-pastel-amber drop-shadow-[0_0_6px_rgba(255,217,160,0.55)]"
               title="Игра участвовала в «Мастер Игорей»"
-            >
-              <FaTrophy aria-hidden="true" /> МИ
-            </span>
+              aria-label="Участник «Мастер Игорей»"
+            />
           )}
         </div>
         <div className="line-clamp-1 text-xs text-ink-dim">

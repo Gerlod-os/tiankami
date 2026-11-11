@@ -51,8 +51,14 @@ export function CollectionsPage() {
             .map((g) => byTitle.get(String(g.name).toLowerCase()))
             .filter(Boolean);
           // В маленькой подборке веер показывает всё, поэтому справа выводим
-          // названия целиком — иначе место пустует.
-          const listGames = preview.length > 3 ? preview.slice(3, 5) : preview;
+          // названия целиком — иначе место пустует. Номер берём из rank:
+          // где его нет (золотой список, кооперативы) — не выдумываем.
+          const listGames = (c.games.length > 3 ? c.games.slice(3, 5) : c.games)
+            .map((g) => ({
+              rank: g.rank || null,
+              title: byTitle.get(String(g.name).toLowerCase())?.title || g.name,
+            }))
+            .filter((g) => g.title);
           return (
             <Link
               key={c.slug}
@@ -95,14 +101,19 @@ export function CollectionsPage() {
                   <CoverFan games={preview} count={3} />
                 </div>
                 {listGames.length > 0 && (
-                  <ul className="min-w-0 flex-1 space-y-1 pt-1 text-xs text-ink-dim">
-                    {listGames.map((g) => (
-                      <li key={g.slug} className="line-clamp-1">
-                        {g.title}
+                  <ul className="min-w-0 flex-1 space-y-1.5 pt-0.5 text-sm text-ink-dim">
+                    {listGames.map((g, i) => (
+                      <li key={g.title + i} className="flex gap-1.5">
+                        {g.rank && (
+                          <span className="shrink-0 font-display text-xs font-bold text-pastel-purple">
+                            {g.rank}.
+                          </span>
+                        )}
+                        <span className="line-clamp-1">{g.title}</span>
                       </li>
                     ))}
                     {c.games.length > 5 && (
-                      <li className="text-ink-faint">и ещё {c.games.length - 5}…</li>
+                      <li className="text-xs text-ink-faint">и ещё {c.games.length - 5}…</li>
                     )}
                   </ul>
                 )}

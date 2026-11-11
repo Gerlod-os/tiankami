@@ -55,21 +55,24 @@ export function GameModal({ game, onClose }) {
     >
       <div
         ref={boxRef}
-        className="pointer-events-auto relative max-h-[78vh] w-full max-w-[560px] animate-fadeUp overflow-y-auto rounded-card border border-white/10 bg-night-900/95 shadow-card backdrop-blur sm:max-h-[calc(100vh-3rem)]"
+        className="pointer-events-auto relative flex max-h-[72vh] w-full max-w-[560px] animate-fadeUp flex-col overflow-hidden rounded-card border border-white/10 bg-night-900/95 shadow-card backdrop-blur sm:max-h-[58vh]"
       >
-        {/* Обложка 192×96 — ровно 2:1, как у Steam. Широкая полоса резала
+        {/* Скроллится только содержимое: кнопка «Страница игры» живёт отдельной
+            полосой внизу и не накрывает шкалы (11.11.2026). */}
+        <div className="min-h-0 flex-1 overflow-hidden">
+        {/* Обложка 160×80 — 2:1, как у Steam. Широкая полоса резала
             верх арта: у игр с персонажем срезало голову (замечено 18.10.2026). */}
-        <div className="flex items-start gap-4 p-5 pb-0">
+        <div className="flex items-start gap-3 p-3.5 pb-0">
           {game.image ? (
             <img
               src={game.image}
               alt={`Обложка ${game.title}`}
               width={460}
               height={215}
-              className="h-[96px] w-[192px] shrink-0 rounded-btn border border-white/10 object-cover"
+              className="h-[72px] w-[144px] shrink-0 rounded-btn border border-white/10 object-cover"
             />
           ) : (
-            <div className="h-[96px] w-[192px] shrink-0 rounded-btn border border-dashed border-white/15 bg-gradient-to-br from-night-700 to-night-600" />
+            <div className="h-[72px] w-[144px] shrink-0 rounded-btn border border-dashed border-white/15 bg-gradient-to-br from-night-700 to-night-600" />
           )}
           <div className="min-w-0 flex-1 pr-9">
             <h2 className="font-display text-lg font-black leading-tight text-ink">
@@ -90,13 +93,16 @@ export function GameModal({ game, onClose }) {
             <FiX />
           </button>
         </div>
-        <div className="p-5 pt-4">
+        <div className="p-3.5 pt-2.5">
           <GameDetails game={game} compact />
-          <div className="mt-5 flex justify-end">
-            <Link to={`/catalog/${game.slug}`} className="btn-primary text-sm">
-              Страница игры <FiArrowRight />
-            </Link>
-          </div>
+        </div>
+        </div>
+        {/* Кнопка отдельной полосой внизу: при уменьшенной высоте она
+            уезжала за прокрутку, и владелец её не находил (11.11.2026). */}
+        <div className="flex shrink-0 justify-end border-t border-white/10 px-5 py-3">
+          <Link to={`/catalog/${game.slug}`} className="btn-primary text-sm">
+            Страница игры <FiArrowRight />
+          </Link>
         </div>
       </div>
     </div>,

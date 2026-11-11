@@ -276,6 +276,27 @@
   .section-accent {
     @apply bg-gradient-to-r from-pastel-pink via-pastel-amber to-[#FF9E7A] bg-clip-text text-transparent;
   }
+  /* Подчёркивание характеристики: цветное слева, прозрачное справа —
+     линия мягко уходит к значению, без рамки вокруг текста (11.11.2026). */
+  .meta-underline {
+    position: relative;
+    padding-bottom: 3px;
+  }
+  .meta-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    border-radius: 2px;
+    background-image: linear-gradient(
+      90deg,
+      var(--tone, #ffffff) 0%,
+      color-mix(in srgb, var(--tone, #ffffff) 55%, transparent) 45%,
+      transparent 100%
+    );
+  }
   .bar-track {
     @apply h-2 overflow-hidden rounded-full bg-white/10;
   }
@@ -347,45 +368,6 @@
       rgba(255, 182, 193, 0.07)
     );
   }
-  /* Плашка «Обо мне»: тёмная подложка сайта + розовое свечение и заголовок
-     тем же шрифтом, что остальные заголовки. Референс владельца 11.11.2026. */
-  .about-hero {
-    background-image: linear-gradient(
-      160deg,
-      rgba(24, 22, 38, 0.95),
-      rgba(40, 28, 48, 0.9)
-    );
-  }
-  .about-hero-glow {
-    position: absolute;
-    inset: -20% -10% auto -10%;
-    height: 90%;
-    background: radial-gradient(
-      55% 60% at 50% 40%,
-      rgba(255, 182, 193, 0.35),
-      rgba(255, 143, 163, 0.12) 55%,
-      transparent 75%
-    );
-    filter: blur(8px);
-  }
-  .about-hero-badge {
-    position: absolute;
-    left: 0.75rem;
-    top: 0.75rem;
-    z-index: 20;
-    padding: 0.35rem 0.85rem;
-    border-radius: 0.75rem;
-    border: 1px solid rgba(255, 182, 193, 0.45);
-    background: rgba(20, 18, 32, 0.82);
-    font-family: "Unbounded", "Nunito", system-ui, sans-serif;
-    font-weight: 800;
-    font-size: 0.8rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #ffb6c1;
-    text-shadow: 0 0 14px rgba(255, 143, 163, 0.55);
-    backdrop-filter: blur(6px);
-  }
   .gold-card:hover {
     transform: scale(1.03);
     box-shadow: 0 0 40px rgba(255, 217, 160, 0.3);
@@ -397,8 +379,13 @@
     @apply relative rounded-card rounded-bl-sm border border-pastel-pink/25 bg-pastel-pink/10 p-3 text-sm leading-relaxed text-ink;
   }
   .skull {
+    /* Белые черепа сложности с белым свечением — как эмодзи 💀 в прежней
+       версии. Серый цвет наследовался от подписи и читался бледно
+       (замечание владельца 11.11.2026). */
     @apply text-base leading-none;
-    filter: drop-shadow(0 0 6px rgba(255, 143, 163, 0.5));
+    color: #ffffff;
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.75))
+      drop-shadow(0 0 10px rgba(255, 255, 255, 0.35));
   }
 }
 

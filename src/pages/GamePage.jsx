@@ -196,7 +196,10 @@ export function GamePage() {
       {/* HERO: обложка слева, текст справа — как в Steam/Backloggd.
           Было: обложка по центру на 100vh, текст прижат к её левому краю, оценка
           висела справа отдельным блоком — три разных оси на одном экране. */}
-      <header className="card relative overflow-hidden">
+      {/* Одна карточка на всю страницу: шапка и детали жили в двух рамках,
+          между ними была пустота (замечание владельца 11.11.2026). */}
+      <section className="card overflow-hidden">
+      <header className="relative overflow-hidden">
         {/* Фоновый арт убран: при высоте карточки 300 px он резал голову персонажа
             сверху. Обложка слева и так даёт цвет, вторая копия не нужна. */}
         <div className="relative z-10 grid gap-6 p-6 md:grid-cols-[300px_minmax(0,1fr)] md:items-start md:p-8 xl:grid-cols-[300px_minmax(0,1fr)_auto]">
@@ -337,9 +340,10 @@ export function GamePage() {
         </div>
       </header>
 
-      <div className="card p-5 md:p-7">
+      <div className="border-t border-white/10 p-5 md:p-7">
         <GameDetails game={game} />
       </div>
+      </section>
 
       {recs.length > 0 && (
         <section>

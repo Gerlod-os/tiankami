@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { FiExternalLink, FiYoutube, FiUsers, FiBookOpen, FiInfo, FiAward, FiFilm, FiPlay } from "react-icons/fi";
+import { Link } from "react-router-dom";
+import { FiExternalLink, FiYoutube, FiUsers, FiBookOpen, FiInfo, FiAward, FiFilm, FiPlay, FiArrowRight } from "react-icons/fi";
 import { FaGamepad } from "react-icons/fa";
 import { useData } from "../components/DataProvider";
 import { GameCard } from "../components/GameCard";
@@ -27,7 +28,7 @@ function EpisodeCard({ game }) {
     : "";
 
   return (
-    <div className="card overflow-hidden">
+    <div className="group/ep overflow-hidden rounded-card">
       {playing && autoplayUrl ? (
         <iframe
           className="aspect-video w-full"
@@ -65,20 +66,31 @@ function EpisodeCard({ game }) {
           </span>
         </button>
       )}
-      <div className="flex items-center justify-between gap-2 p-3">
-        <span className="truncate font-display text-sm font-extrabold text-ink">
-          {game.title}
-        </span>
-        <a
-          className="shrink-0 text-ink-faint transition hover:text-pastel-pink"
-          href={game.miVideo}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Открыть на YouTube"
-          aria-label={`Открыть выпуск ${game.title} на YouTube`}
+      {/* Снизу — ссылка на страницу игры, как просил владелец 11.11.2026.
+          Внешняя ссылка на YouTube осталась мелкой иконкой рядом. */}
+      <div className="px-1 pt-2.5">
+        <div className="flex items-center justify-between gap-2">
+          <span className="min-w-0 truncate font-display text-sm font-extrabold text-ink">
+            {game.title}
+          </span>
+          <a
+            className="shrink-0 text-ink-faint transition hover:text-[#FF2D2D]"
+            href={game.miVideo}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Открыть выпуск на YouTube"
+            aria-label={`Открыть выпуск ${game.title} на YouTube`}
+          >
+            <FiExternalLink />
+          </a>
+        </div>
+        <Link
+          to={`/catalog/${game.slug}`}
+          className="mt-1 inline-flex items-center gap-1 text-xs font-bold text-pastel-amber transition hover:text-ink"
+          title={`Страница игры ${game.title}`}
         >
-          <FiExternalLink />
-        </a>
+          Страница игры <FiArrowRight />
+        </Link>
       </div>
     </div>
   );
@@ -186,7 +198,9 @@ export function MIPage() {
 
       {/* Выпуски */}
       {episodes.length > 0 && (
-        <section className="card p-6 md:p-8">
+        <section>
+          {/* Без карточки-обёртки: владелец 11.11.2026 попросил «без фона,
+              красиво по карточкам» — остаются постеры и подписи. */}
           <div className="flex items-center gap-2 mb-4">
             <FiYoutube className="text-red-300" />
             <h2 className="section-title text-xl"><FiFilm className="inline" aria-hidden="true" /> Выпуски</h2>

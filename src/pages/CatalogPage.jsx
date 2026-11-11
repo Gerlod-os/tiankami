@@ -691,7 +691,7 @@ export function CatalogPage() {
           сверху. Было две колонки «жанры слева, всё остальное справа» — владелец
           назвал это «разбросано хрен пойми как» и попросил единый вид (18.10.2026). */}
       {filtersOpen && (
-        <div className="card p-4 md:p-5" data-filters-panel>
+        <div className="card relative p-4 md:p-5" data-filters-panel>
           <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
               <div className="min-w-0">
                 <div className="label">Жанр</div>
@@ -825,9 +825,11 @@ export function CatalogPage() {
               </div>
             </div>
 
-            {/* Тумблер «Только МИ» — справа снизу панели фильтров.
-                Владелец 11.11.2026: в колонке года ему не место. */}
-            <div className="mt-4 flex justify-end">
+            {/* Тумблер «Только МИ» — справа, но низ на уровне колонки «Жанр».
+                Владелец 11.11.2026: отдельная строка ниже делала панель выше
+                жанров; absolute убирает лишнюю высоту. На телефоне — в потоке,
+                иначе перекрывает «Часы». */}
+            <div className="mt-4 flex justify-end sm:absolute sm:bottom-4 sm:right-4 sm:mt-0">
               <label className="flex items-center gap-2 text-xs font-semibold text-ink-dim">
                 <span className="switch">
                   <input

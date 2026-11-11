@@ -21,18 +21,16 @@ export function AboutPage() {
               с Сайтамой и попросил сделать так же, но в наших цветах. Собираем из
               готового ассета (mascot-support.webp) и типографики — новых картинок
               не генерируем. */}
-          <div className="about-hero relative overflow-hidden rounded-card border border-white/10">
-            <div className="about-hero-glow" aria-hidden="true" />
-            <img
-              src={MASCOTS.collections}
-              alt="Сайтама — маскот канала Tiankami"
-              width={900}
-              height={501}
-              className="relative z-10 w-full drop-shadow-[0_14px_28px_rgba(0,0,0,.55)]"
-              loading="lazy"
-            />
-            <span className="about-hero-badge">Обо мне</span>
-          </div>
+          {/* Без плашки и подложки: владелец 11.11.2026 назвал надпись дублем.
+              Остаётся сам персонаж на прозрачном фоне. */}
+          <img
+            src={MASCOTS.collections}
+            alt="Сайтама — маскот канала Tiankami"
+            width={900}
+            height={501}
+            className="w-full drop-shadow-[0_14px_28px_rgba(0,0,0,.55)]"
+            loading="lazy"
+          />
           <div>
             <h1 className="section-title text-3xl md:text-4xl">
               <span className="h-marker">Обо</span> <span className="section-accent">мне</span>
