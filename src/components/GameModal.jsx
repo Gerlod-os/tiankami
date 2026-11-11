@@ -4,9 +4,9 @@ import { Link } from "react-router-dom";
 import { FiX, FiArrowRight } from "react-icons/fi";
 import { GameDetails } from "./GameDetails";
 
-// Панель быстрого просмотра: Escape закрывает, фокус возвращается на карточку.
-// Ловушки фокуса нет намеренно: панель не модальная (aria-modal=false),
-// страница вокруг живая, и Tab должен свободно уходить из панели на страницу.
+// Быстрый просмотр игры: на десктопе панель справа, на телефоне — весь экран.
+// Escape закрывает, фокус возвращается на карточку. Ловушки фокуса нет
+// намеренно: aria-modal=false, и Tab свободно уходит на страницу.
 // Раньше здесь запирался Tab — остаток от полноэкранной модалки.
 export function GameModal({ game, onClose }) {
   const boxRef = useRef(null);
@@ -45,21 +45,23 @@ export function GameModal({ game, onClose }) {
   if (!game || typeof document === "undefined") return null;
 
   return createPortal(
-    // Панель, а не полноэкранное окно: стоит у правого края, страница вокруг
-    // остаётся живой и прокручивается. aria-modal=false — фон не заблокирован.
+    // На телефоне (до 640 px) модалка занимает весь экран: в панели на 72vh
+    // характеристики обрезались, и владелец 11.11.2026 попросил открывать
+    // «на всю страницу». На десктопе остаётся панель справа, страница живая.
     <div
-      className="pointer-events-none fixed inset-0 z-50 flex items-end justify-end p-3 sm:items-start sm:p-6"
+      className="pointer-events-none fixed inset-0 z-50 flex items-end justify-end p-0 sm:items-start sm:p-6"
       role="dialog"
       aria-modal="false"
       aria-label={game.title}
     >
       <div
         ref={boxRef}
-        className="pointer-events-auto relative flex max-h-[72vh] w-full max-w-[560px] animate-fadeUp flex-col overflow-hidden rounded-card border border-white/10 bg-night-900/95 shadow-card backdrop-blur sm:max-h-[58vh]"
+        className="pointer-events-auto relative flex h-[100dvh] w-full max-w-none animate-fadeUp flex-col overflow-hidden bg-night-900 shadow-card sm:h-auto sm:max-h-[calc(100dvh-3rem)] sm:max-w-[560px] sm:rounded-card sm:border sm:border-white/10 sm:bg-night-900/95 sm:backdrop-blur"
       >
-        {/* Скроллится только содержимое: кнопка «Страница игры» живёт отдельной
-            полосой внизу и не накрывает шкалы (11.11.2026). */}
-        <div className="min-h-0 flex-1 overflow-hidden">
+        {/* Прокрутка появляется только если содержимое не влезло; раньше стояло
+            overflow-hidden и срезало нижние характеристики. Кнопка «Страница
+            игры» — отдельной полосой, её видно всегда. */}
+        <div className="min-h-0 flex-1 overflow-y-auto">
         {/* Обложка 160×80 — 2:1, как у Steam. Широкая полоса резала
             верх арта: у игр с персонажем срезало голову (замечено 18.10.2026). */}
         <div className="flex items-start gap-3 p-3.5 pb-0">

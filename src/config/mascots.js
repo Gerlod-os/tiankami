@@ -18,4 +18,7 @@ export const MASCOTS = {
   fisher: img("mascot-fisher.webp"),
   // Грустный — пустое состояние каталога
   sad: img("mascot-sad.webp"),
+  // Баннер канала — шапка страницы «Обо мне». Исходник владельца 11.11.2026,
+  // белая кайма обрезана по 24 px с каждой стороны.
+  aboutBanner: img("about-banner.jpg"),
 };

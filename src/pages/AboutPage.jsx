@@ -15,23 +15,22 @@ export function AboutPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-8">
-      <section className="card relative overflow-hidden p-6 md:p-10">
-        <div className="grid items-center gap-8 md:grid-cols-[280px_minmax(0,1fr)]">
-          {/* Плашка «Обо мне» в стиле сайта: владелец 11.11.2026 прислал референс
-              с Сайтамой и попросил сделать так же, но в наших цветах. Собираем из
-              готового ассета (mascot-support.webp) и типографики — новых картинок
-              не генерируем. */}
-          {/* Без плашки и подложки: владелец 11.11.2026 назвал надпись дублем.
-              Остаётся сам персонаж на прозрачном фоне. */}
-          <img
-            src={MASCOTS.collections}
-            alt="Сайтама — маскот канала Tiankami"
-            width={900}
-            height={501}
-            className="w-full drop-shadow-[0_14px_28px_rgba(0,0,0,.55)]"
-            loading="lazy"
-          />
-          <div>
+      <section className="card overflow-hidden">
+        {/* Баннер канала вместо плашки с Сайтамой: владелец прислал картинку
+            11.11.2026 и попросил «закинуть, только отредактируй как надо».
+            Обрезана белая кайма, на телефоне кадр сдвинут к логотипу, иначе
+            надпись на широком баннере становится нечитаемой. */}
+        <img
+          src={MASCOTS.aboutBanner}
+          alt="TianKami — канал Тиана"
+          width={1872}
+          height={276}
+          className="block aspect-[1872/276] w-full object-cover max-sm:aspect-[3.4/1] max-sm:object-[38%_center]"
+          fetchPriority="high"
+          loading="eager"
+        />
+        <div className="p-6 md:p-10">
+          <div className="max-w-2xl">
             <h1 className="section-title text-3xl md:text-4xl">
               <span className="h-marker">Обо</span> <span className="section-accent">мне</span>
             </h1>
