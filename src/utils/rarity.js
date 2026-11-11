@@ -1,7 +1,7 @@
 // Система редкости в стиле Monster Train: драконьи яйца 5 уровней.
 import { parseNum } from "./normalize.js";
 
-export const RARITY_ORDER = ["common", "rare", "epic", "legendary", "mythic"];
+export const RARITY_ORDER = ["common", "rare", "epic", "legendary", "perfect", "mythic"];
 
 // Свечение карточки цветом редкости (hover)
 export const RARITY_GLOW = {
@@ -9,6 +9,8 @@ export const RARITY_GLOW = {
   rare: "rgba(160,196,255,0.40)",
   epic: "rgba(201,160,220,0.45)",
   legendary: "rgba(255,217,160,0.50)",
+  // perfect — золотое яйцо за максимальную оценку (10/10), владелец 11.11.2026
+  perfect: "rgba(255,217,160,0.62)",
   mythic: "rgba(159,226,185,0.55)",
 };
 
@@ -33,6 +35,14 @@ export const RARITY_META = {
     desc: "Золотой список: игры, которые Тиан называет легендами канала.",
     color: "#FFD9A0",
   },
+  // Отдельный уровень для 10/10: владелец 11.11.2026 попросил золотое яйцо
+  // всем играм с максимальной оценкой и свою подпись при наведении.
+  // Раньше такие игры уходили в epic (фиолетовое), если не попадали в топ-3 по часам.
+  perfect: {
+    ru: "Максимальная оценка",
+    desc: "Игры, которые заслужили максимальную оценку.",
+    color: "#FFD9A0",
+  },
   mythic: {
     ru: "Мифическое",
     desc: "10 из 10 и больше всех часов — три игры, в которые вложено больше всего времени.",
@@ -41,7 +51,8 @@ export const RARITY_META = {
 };
 
 // Правила:
-//  mythic    — топ-3 по часам среди игр с оценкой 10
+//  perfect   — оценка 10: золотое яйцо «заслужили максимальную оценку»
+//  mythic    — топ-3 по часам среди 10/10 (радужное, выше золота)
 //  legendary — игры из «ЗОЛОТОЙ СПИСОК»
 //  epic      — оценка >= 9
 //  rare      — оценка >= 7
@@ -63,7 +74,10 @@ export function computeRarities(games, collections) {
   for (const g of games) {
     const rating = parseNum(g.rating);
     let r = "common";
+    // Порядок важен: радужное (топ-3 по часам) старше золота, а золото
+    // за 10/10 старше «золотого списка» — у них разные подписи.
     if (mythicSlugs.has(g.slug)) r = "mythic";
+    else if (rating === 10) r = "perfect";
     else if (goldenTitles.has(String(g.title).toLowerCase())) r = "legendary";
     else if (rating >= 9) r = "epic";
     else if (rating >= 7) r = "rare";

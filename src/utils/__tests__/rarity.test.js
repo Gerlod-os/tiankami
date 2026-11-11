@@ -46,6 +46,18 @@ describe("computeRarities", () => {
     );
     expect(b2["h2"]).toBe("legendary");
   });
+  test("perfect — 10/10 вне топ-3 по часам, а не epic", () => {
+    // Владелец 11.11.2026: все игры с максимальной оценкой получают золотое яйцо.
+    // dd — 10/10, но по часам не в топ-3, значит не mythic.
+    expect(bySlug["dd"]).toBe("perfect");
+  });
+  test("золотой список с оценкой ниже 10 остаётся legendary", () => {
+    const { bySlug: b2 } = computeRarities(
+      [G("h2", "Hades", 8, 5)],
+      collections
+    );
+    expect(b2["h2"]).toBe("legendary");
+  });
   test("epic при оценке >= 9", () => {
     expect(bySlug["mc"]).toBe("epic");
   });

@@ -62,6 +62,9 @@ export function RarityEgg({ rarity = "common", size = 22, className = "" }) {
             </radialGradient>
           </>
         );
+      // perfect (10/10) выглядит как золотое: владелец 11.11.2026 попросил
+      // «тоже золотой у 10/10», отдельная подпись — в RARITY_META.
+      case "perfect":
       case "legendary":
         return (
           <>
@@ -140,6 +143,7 @@ export function RarityEgg({ rarity = "common", size = 22, className = "" }) {
             <path d="M32 3 C 19 3 8 22 8 38 C 8 53 19 61 32 61 C 45 61 56 53 56 38 C 56 22 45 3 32 3 Z" fill={`url(#egG${uid})`} />
           </>
         );
+      case "perfect":
       case "legendary":
         return (
           <>
