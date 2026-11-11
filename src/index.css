@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Подменный Nunito с теми же ширинами букв.
+   Пока настоящий шрифт грузится, текст рисуется Arial — он уже на 7% шире,
+   строки переносились иначе, и блоки под ними прыгали: замер CLS на «Обо мне»
+   (телефон) давал 0.18 при пороге 0.1. size-adjust выравнивает ширину под
+   Nunito (замер: Nunito шире Arial на 1.89%), поэтому при подмене шрифта
+   раскладка не меняется. Высоту строк не трогаем: у нас она задана числом. */
+@font-face {
+  font-family: "Nunito Fallback";
+  src: local("Arial"), local("Helvetica Neue"), local("Helvetica");
+  size-adjust: 101.89%;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;

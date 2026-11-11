@@ -41,6 +41,7 @@ export default {
         ],
         display: [
           '"Nunito Variable"',
+          '"Nunito Fallback"',
           "Nunito",
           "system-ui",
           "-apple-system",
