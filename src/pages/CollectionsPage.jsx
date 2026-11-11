@@ -1,9 +1,5 @@
-import { Link } from "react-router-dom";
-import { FiArrowRight } from "react-icons/fi";
 import { useData } from "../components/DataProvider";
-import { RarityEgg } from "../components/RarityEgg";
-import { CoverFan } from "../components/CoverFan";
-import { CollectionIcon } from "../components/CollectionIcon";
+import { CollectionCard } from "../components/CollectionCard";
 import { MASCOTS } from "../config/mascots";
 import { usePageMeta } from "../utils/usePageMeta";
 
@@ -43,87 +39,9 @@ export function CollectionsPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {(collections || []).map((c) => {
-          const golden = /золотой/i.test(c.name);
-          // Пять игр: три уходят в веер, остальные — в список справа.
-          const preview = c.games
-            .slice(0, 5)
-            .map((g) => byTitle.get(String(g.name).toLowerCase()))
-            .filter(Boolean);
-          // В маленькой подборке веер показывает всё, поэтому справа выводим
-          // названия целиком — иначе место пустует. Номер берём из rank:
-          // где его нет (золотой список, кооперативы) — не выдумываем.
-          const listGames = (c.games.length > 3 ? c.games.slice(3, 5) : c.games)
-            .map((g) => ({
-              rank: g.rank || null,
-              title: byTitle.get(String(g.name).toLowerCase())?.title || g.name,
-            }))
-            .filter((g) => g.title);
-          return (
-            <Link
-              key={c.slug}
-              to={`/collections/${c.slug}`}
-              className={
-                // group обязателен: веер расходится по `.group:hover .fan-img`
-                // (index.css). Без него на подборках он стоял неподвижно —
-                // владелец 11.11.2026 попросил как на главной.
-                "card card-hover group flex flex-col p-5 " +
-                (golden ? "gold-card" : "")
-              }
-            >
-              <div className="flex items-center gap-2">
-                {golden ? (
-                  <RarityEgg rarity="legendary" size={48} />
-                ) : (
-                  <CollectionIcon name={c.name} size={30} />
-                )}
-                <h2
-                  className={
-                    "line-clamp-1 font-display text-xl font-extrabold " +
-                    (golden ? "text-pastel-amber" : "text-ink")
-                  }
-                >
-                  {c.name}
-                </h2>
-              </div>
-              {c.description && (
-                <p className="mt-2 line-clamp-2 text-sm text-ink-dim">
-                  {c.description}
-                </p>
-              )}
-              {/* Веер обложек у каждой подборки — тот же вид, что у золотой на
-                  главной: владелец 18.10.2026 назвал прежние карточки «старыми»
-                  и попросил «везде как на золотом списке, красиво и живо». */}
-              {/* Веер + список игр справа: карточки выглядели пустыми,
-                  владелец 11.11.2026 попросил вернуть список, веер не убирать. */}
-              <div className="mt-4 flex items-start gap-4">
-                <div className="shrink-0">
-                  <CoverFan games={preview} count={3} />
-                </div>
-                {listGames.length > 0 && (
-                  <ul className="min-w-0 flex-1 space-y-1.5 pt-0.5 text-sm text-ink-dim">
-                    {listGames.map((g, i) => (
-                      <li key={g.title + i} className="flex gap-1.5">
-                        {g.rank && (
-                          <span className="shrink-0 font-display text-xs font-bold text-pastel-purple">
-                            {g.rank}.
-                          </span>
-                        )}
-                        <span className="line-clamp-1">{g.title}</span>
-                      </li>
-                    ))}
-                    {c.games.length > 5 && (
-                      <li className="text-xs text-ink-faint">и ещё {c.games.length - 5}…</li>
-                    )}
-                  </ul>
-                )}
-              </div>
-              <span className="mt-auto flex items-center gap-1 pt-4 text-xs font-bold text-pastel-pink">
-                {c.games.length} игр <FiArrowRight />
-              </span>
-            </Link>
-          );
-        })}
+        {(collections || []).map((c) => (
+          <CollectionCard key={c.slug} collection={c} byTitle={byTitle} />
+        ))}
       </div>
     </div>
   );

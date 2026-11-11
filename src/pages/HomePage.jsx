@@ -7,9 +7,7 @@ import { TwitchWidgetInHero } from "../components/TwitchWidgetInHero";
 import { CatchOfDay } from "../components/CatchOfDay";
 import { LiveBanner } from "../components/LiveBanner";
 import { BRAND } from "../config/branding";
-import { RarityEgg } from "../components/RarityEgg";
-import { CollectionIcon } from "../components/CollectionIcon";
-import { CoverFan } from "../components/CoverFan";
+import { CollectionCard } from "../components/CollectionCard";
 import { computeStats, lastPlayedGame } from "../utils/stats";
 import { useCounter } from "../utils/useCounter";
 import { useCountdown, streamMoment } from "../utils/useCountdown";
@@ -197,34 +195,12 @@ export function HomePage() {
           <h2 className="section-title"><span className="h-marker">Подборки</span> <span className="section-accent">от Тиана</span></h2>
           <Link to="/collections" className="btn-ghost text-sm">Все подборки <FiArrowRight /></Link>
         </div>
-        <div className="grid gap-4 pt-4 sm:grid-cols-2 lg:grid-cols-4">
-          {(collections || []).slice(0, 4).map((c) => {
-            const golden = /золотой/i.test(c.name);
-            const fanGames = c.games
-              .map((g) => byTitle.get(String(g.name).toLowerCase()))
-              .filter(Boolean);
-            return (
-              <Link
-                key={c.slug}
-                to={`/collections/${c.slug}`}
-                className={"card card-hover group flex flex-col p-5 " + (golden ? "gold-card" : "")}
-              >
-                <div className="flex items-center gap-3">
-                  {golden ? <RarityEgg rarity="legendary" size={30} /> : <CollectionIcon name={c.name} />}
-                  <h3 className={"line-clamp-1 font-display text-lg font-extrabold " + (golden ? "text-pastel-amber" : "text-ink")}>
-                    {c.name}
-                  </h3>
-                </div>
-                {/* Веер обложек у каждой подборки, как у золотой: один живой вид
-                    вместо двух разных (замечание владельца 18.10.2026) */}
-                <div className="mt-4">
-                  <CoverFan games={fanGames} count={3} />
-                </div>
-                {c.description && <p className="mt-2 line-clamp-1 text-xs text-ink-dim">{c.description}</p>}
-                <span className="mt-auto pt-3 text-xs font-bold text-pastel-pink">{c.games.length} игр →</span>
-              </Link>
-            );
-          })}
+        {/* Три колонки и тот же компонент, что на странице подборок: вид один
+            (замечание владельца 11.11.2026). */}
+        <div className="grid gap-4 pt-4 sm:grid-cols-2 lg:grid-cols-3">
+          {(collections || []).slice(0, 3).map((c) => (
+            <CollectionCard key={c.slug} collection={c} byTitle={byTitle} />
+          ))}
         </div>
       </section>
     </div>

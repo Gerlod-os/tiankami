@@ -255,11 +255,8 @@ export function GamePage() {
             >
               {game.title}
             </h1>
-            <p className="mt-2 text-base text-ink-dim md:text-lg">
-              {game.genre}
-              {game.setting ? ` · ${game.setting}` : ""}
-            </p>
-
+            {/* Жанр и сеттинг не дублируем: ниже в деталях они идут отдельными
+                строками с подписями (замечание владельца 11.11.2026). */}
             <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
               {parseNum(game.rating) > 0 && (
                 <span className="flex items-baseline gap-1.5 xl:hidden">
@@ -340,7 +337,9 @@ export function GamePage() {
         </div>
       </header>
 
-      <div className="border-t border-white/10 p-5 md:p-7">
+      {/* Разделительной полосы нет: шапка и детали — одна карточка, без
+          «двух окон» (замечание владельца 11.11.2026). */}
+      <div className="px-6 pb-7 md:px-8">
         <GameDetails game={game} />
       </div>
       </section>

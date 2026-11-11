@@ -14,7 +14,7 @@ import {
 import { FaSkull, FaSteam } from "react-icons/fa";
 import { LuTrophy } from "react-icons/lu";
 import { parseNum, isUrl, hasMI } from "../utils/normalize";
-import { statusMeta, ratingColor } from "../utils/statusMeta";
+import { statusMeta } from "../utils/statusMeta";
 import { parseYouTubeUrl, posterVideoId } from "../utils/youtube";
 import { moodOf } from "../utils/recommend";
 import { RarityEgg } from "./RarityEgg";
@@ -64,7 +64,10 @@ function Bar({ label, icon: Icon, skulls = 0, value, max, suffix, tone = "gold" 
           )}{" "}
           {label}
         </span>
-        <span className="font-display font-bold text-ink">
+        <span
+          className="font-display text-base font-black tabular-nums"
+          style={{ color: c.from, textShadow: `0 0 12px ${c.glow}` }}
+        >
           {v > 0 ? `${v}${suffix || `/${max}`}` : "—"}
         </span>
       </div>
@@ -82,43 +85,35 @@ function Bar({ label, icon: Icon, skulls = 0, value, max, suffix, tone = "gold" 
   );
 }
 
-// Две ячейки сетки: подпись с иконкой и значение. Иконка одна — вторая,
-// стоявшая перед значением, была дублем и сбивала выравнивание.
-// tone — цвет пары «подпись + значение»: у жанра, сеттинга, часов и дат свои
-// цвета, чтобы характеристики не сливались в серую стену (11.11.2026).
+// Одна строка «подпись → значение». Линия под строкой начинается у подписи
+// и тает к значению: так видно, к чему относится цвет (11.11.2026).
+// tone — цвет пары, у жанра, сеттинга, часов и дат свой.
 function MetaCell({ icon: Icon, iconCls, label, children, onGo, tone }) {
   if (!children) return null;
   const Comp = onGo ? "button" : "span";
   const colored = Boolean(tone);
   return (
-    <>
+    <div className="meta-row text-sm" style={colored ? { ["--tone"]: tone } : undefined}>
       <span
-        className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider"
-        style={
-          colored
-            ? { color: tone, textShadow: `0 0 10px ${tone}55` }
-            : undefined
-        }
+        className="flex shrink-0 items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide"
+        style={colored ? { color: tone } : undefined}
       >
         <Icon
           className={"shrink-0 " + (colored ? "" : iconCls)}
           aria-hidden="true"
-          style={colored ? { filter: `drop-shadow(0 0 5px ${tone}88)` } : undefined}
         />{" "}
         {label}
       </span>
       <Comp
         {...(onGo ? { type: "button", onClick: onGo } : {})}
         className={
-          (onGo
-            ? "inline-flex min-h-8 w-full items-center justify-self-start text-left text-ink underline-offset-2 transition hover:text-pastel-blue hover:underline"
-            : "min-w-0 w-full text-ink") + (colored ? " meta-underline" : "")
+          "min-w-0 truncate text-right font-semibold text-ink " +
+          (onGo ? "transition hover:text-pastel-blue hover:underline" : "")
         }
-        style={colored ? { ["--tone"]: tone } : undefined}
       >
         {children}
       </Comp>
-    </>
+    </div>
   );
 }
 
@@ -152,14 +147,14 @@ export function GameDetails({ game, compact = false }) {
     : game.image || "";
 
   return (
-    <div className={compact ? "space-y-3" : "space-y-5"}>
+    <div className="space-y-3">
       {/* Обложки здесь нет: в шапке страницы она уже стоит дважды (фон + видимая).
           Третья копия на том же экране — дубль (план, Б17). */}
 
-      {/* YouTube под обложкой: сначала постер, плеер — по клику.
-          В модалке плеера нет: там место занимает обложка, а смотреть — на странице игры. */}
+      {/* YouTube: сначала постер, плеер — по клику. В модалке плеера нет,
+          чтобы не раздувать панель; смотреть — на странице игры. */}
       {showPlayer && !compact && (
-        <div className="mx-auto max-w-xl overflow-hidden rounded-card border border-white/10 shadow-card">
+        <div className="mx-auto max-w-lg overflow-hidden rounded-card border border-white/10 shadow-card">
           {playing ? (
             <iframe
               className="aspect-video w-full"
@@ -207,57 +202,51 @@ export function GameDetails({ game, compact = false }) {
         </div>
       )}
 
-      {/* Кнопки — только в модалке: на странице игры они уже стоят в шапке.
-          Steam забирает свободное место, YouTube — по содержимому и уже:
-          владелец 11.11.2026 попросил не растягивать обе на половину. */}
+      {/* Кнопки — только в модалке. Заливка как на странице игры и один
+          размер на всех: flex-1 делит ряд поровну при любом числе кнопок
+          (замечание владельца 11.11.2026). */}
       {compact && (
-      <div className="flex flex-wrap gap-2">
-        {/* Цветные кнопки без заливки: обводка + свечение + цветной текст,
-            как просил владелец 11.11.2026. */}
+      <div className="flex gap-2">
         {game.steamUrl && (
           <a
-            className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-btn border px-3 py-2.5 font-display font-bold transition duration-300 hover:bg-white/5"
+            className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-btn px-2 py-2.5 text-xs font-display font-extrabold text-[#0E1621] transition duration-300 hover:scale-[1.02]"
             style={{
-              borderColor: "rgba(102,192,244,0.45)",
-              color: "#66C0F4",
-              boxShadow: "0 0 18px rgba(102,192,244,0.16)",
+              backgroundImage: "linear-gradient(135deg,#66C0F4 0%,#3E8BC0 100%)",
+              boxShadow: "0 8px 20px rgba(102,192,244,0.25)",
             }}
             href={game.steamUrl}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <FaSteam className="text-lg" /> В Steam
+            <FaSteam className="shrink-0 text-base" /> В Steam
           </a>
         )}
         {isUrl(game.youtube) && (
           <a
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-btn border px-3.5 py-2.5 text-sm font-display font-bold transition duration-300 hover:bg-white/5"
+            className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-btn px-2 py-2.5 text-xs font-display font-extrabold text-white transition duration-300 hover:scale-[1.02]"
             style={{
-              borderColor: "rgba(255,45,45,0.45)",
-              color: "#FF6B6B",
-              boxShadow: "0 0 18px rgba(255,45,45,0.16)",
+              backgroundImage: "linear-gradient(135deg,#FF2D2D 0%,#C40000 100%)",
+              boxShadow: "0 8px 20px rgba(255,0,0,0.22)",
             }}
             href={game.youtube}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <FiYoutube className="text-lg" />{" "}
-            {/list=/.test(game.youtube) ? "YouTube плейлист" : "YouTube"}
+            <FiYoutube className="shrink-0 text-base" /> YouTube
           </a>
         )}
         {hasMI(game) && isUrl(game.miVideo) && (
           <a
-            className="col-span-2 inline-flex w-full items-center justify-center gap-2 rounded-btn border px-3 py-2 font-display font-bold transition duration-300 hover:bg-white/5"
+            className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-btn px-2 py-2.5 text-xs font-display font-extrabold text-[#2A1B08] transition duration-300 hover:scale-[1.02]"
             style={{
-              borderColor: "rgba(255,217,160,0.45)",
-              color: "#FFD9A0",
-              boxShadow: "0 0 18px rgba(255,217,160,0.16)",
+              backgroundImage: "linear-gradient(135deg,#FFD9A0 0%,#E8A33D 100%)",
+              boxShadow: "0 8px 20px rgba(255,217,160,0.22)",
             }}
             href={game.miVideo}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <LuTrophy className="text-lg" /> Выпуск МИ
+            <LuTrophy className="shrink-0 text-base" /> Выпуск МИ
           </a>
         )}
       </div>
@@ -287,31 +276,22 @@ export function GameDetails({ game, compact = false }) {
             <MITrophy size="xs" /> МИ
           </span>
         )}
-        {parseNum(game.rating) > 0 && (
-          <span className="chip border border-white/10 bg-night-900/70">
-            <span
-              className={
-                ratingColor(game.rating) + " font-display font-extrabold"
-              }
-            >
-              {parseNum(game.rating)}/10
-            </span>
-          </span>
-        )}
+        {/* Оценки здесь нет: она уже крупно в шапке страницы и в шкале выше.
+            Третий поворот того же числа читался как дубль (11.11.2026). */}
       </div>
       )}
 
-      {/* Впечатления Тиана: единственная колонка таблицы, которая не доходила до
-          посетителя (459/459 заполнено). Ставлю выше баров: это текст, ради которого
-          открывают страницу, а не приложение к шкалам. В панели — две строки,
-          иначе она не влезает целиком. */}
-      {game.notes && !compact && (
-        <div className="rounded-btn bg-night-700/40 p-3.5">
-          <div className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-ink-faint">
+      {/* Впечатления Тиана: в панели две строки, на странице целиком.
+          Владелец 11.11.2026 попросил вернуть их и в модалку. */}
+      {game.notes && (
+        <div className={"rounded-btn bg-night-700/40 " + (compact ? "p-2.5" : "p-3.5")}>
+          <div className="mb-1 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-ink-faint">
             <FiMessageCircle className="text-pastel-mint" aria-hidden="true" />
             Впечатления Тиана
           </div>
-          <p className="text-sm leading-relaxed text-ink-dim">{game.notes}</p>
+          <p className={(compact ? "line-clamp-2 text-xs " : "text-sm ") + "leading-relaxed text-ink-dim"}>
+            {game.notes}
+          </p>
         </div>
       )}
 
@@ -350,8 +330,9 @@ export function GameDetails({ game, compact = false }) {
         />
       </div>
 
-      {/* Мета: одна иконка у подписи, значения строго по одной вертикали */}
-      <div className="grid grid-cols-[112px_minmax(0,1fr)] items-center gap-x-3 gap-y-2 text-sm sm:grid-cols-[132px_minmax(0,1fr)]">
+      {/* В панели мету держим в одну колонку иначе значения обрезаются;
+          на странице игры — две в ряд. */}
+      <div className={compact ? "grid grid-cols-1 gap-y-2" : "grid grid-cols-1 gap-x-5 gap-y-2 sm:grid-cols-2"}>
         <MetaCell
           icon={FiTag}
           iconCls="text-pastel-purple"

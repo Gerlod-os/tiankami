@@ -8,22 +8,20 @@ import { safeGet, safeSet } from "../utils/storage";
 import { afterLoad } from "../utils/idle";
 
 const STATUS_KEY = "tiankami_twitch_status";
-const AVATAR_KEY = "tiankami_twitch_avatar";
 const STATUS_TTL = 5 * 60 * 1000;
-const AVATAR_TTL = 24 * 60 * 60 * 1000; // 24 часа
 
 export function TwitchWidgetInHero() {
   const [status, setStatus] = useState(null);
-  const [avatar, setAvatar] = useState(MASCOTS.logo);
 
   useEffect(() => {
     let alive = true;
     const stop = afterLoad(() => {
-    (async () => {
       const cached = safeGet(STATUS_KEY);
       if (cached && Date.now() - cached.ts < STATUS_TTL) {
         setStatus(cached);
-      } else {
+        return;
+      }
+      (async () => {
         try {
           const res = await fetch(
             `https://decapi.me/twitch/uptime/${BRAND.twitchLogin}`
@@ -39,26 +37,8 @@ export function TwitchWidgetInHero() {
         } catch {
           if (alive) setStatus(cached || { live: false, text: "" });
         }
-      }
-      const av = safeGet(AVATAR_KEY);
-      if (av && Date.now() - av.ts < AVATAR_TTL && av.url) {
-        setAvatar(av.url);
-      } else {
-        try {
-          const res = await fetch(
-            `https://decapi.me/twitch/avatar/${BRAND.twitchLogin}`
-          );
-          const url = (await res.text()).trim();
-          if (/^https?:\/\//.test(url)) {
-            safeSet(AVATAR_KEY, { ts: Date.now(), url });
-            if (alive) setAvatar(url);
-          }
-        } catch {
-          /* остаётся локальный логотип */
-        }
-      }
-    })();
-    }, { interaction: true });
+      })();
+    });
     return () => {
       alive = false;
       stop();
@@ -69,12 +49,13 @@ export function TwitchWidgetInHero() {
   return (
     <div className="card flex items-center gap-4 p-4">
       <img
-        src={avatar}
+        src={MASCOTS.tianAvatar}
         alt="Аватар канала Tiankami"
         width={300}
         height={300}
         className="h-14 w-14 rounded-full border-2 border-pastel-pink object-cover shadow-glow-pink"
-        loading="lazy"
+        fetchPriority="high"
+        loading="eager"
       />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">

@@ -28,49 +28,51 @@ function EpisodeCard({ game }) {
     : "";
 
   return (
-    <div className="group/ep overflow-hidden rounded-card">
-      {playing && autoplayUrl ? (
-        <iframe
-          className="aspect-video w-full"
-          src={autoplayUrl}
-          title={`Выпуск МИ: ${game.title}`}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          loading="lazy"
-        />
-      ) : (
-        <button
-          type="button"
-          onClick={() => setPlaying(true)}
-          className="group relative flex aspect-video w-full items-center justify-center overflow-hidden bg-night-800"
-          aria-label={`Смотреть выпуск МИ: ${game.title}`}
-        >
-          {poster && (
-            <img
-              src={poster}
-              alt=""
-              aria-hidden="true"
-              width={1280}
-              height={720}
-              loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover opacity-80 transition duration-300 group-hover:scale-[1.03] group-hover:opacity-95"
-              onError={(e) => {
-                if (posterFallback && e.currentTarget.src !== posterFallback)
-                  e.currentTarget.src = posterFallback;
-              }}
-            />
-          )}
-          <span className="absolute inset-0 bg-night-900/45" />
-          <span className="relative flex h-12 w-12 items-center justify-center rounded-full bg-[#FF2D2D] text-white shadow-[0_8px_22px_rgba(255,0,0,0.35)] transition group-hover:scale-110">
-            <FiPlay className="ml-0.5 text-xl" aria-hidden="true" />
-          </span>
-        </button>
-      )}
-      {/* Снизу — ссылка на страницу игры, как просил владелец 11.11.2026.
-          Внешняя ссылка на YouTube осталась мелкой иконкой рядом. */}
-      <div className="px-1 pt-2.5">
+    // У каждого выпуска своя карточка с фоном: без рамки постеры слипались,
+    // а ссылка на игру терялась (замечание владельца 11.11.2026).
+    <div className="card flex h-full flex-col p-3">
+      <div className="overflow-hidden rounded-btn">
+        {playing && autoplayUrl ? (
+          <iframe
+            className="aspect-video w-full"
+            src={autoplayUrl}
+            title={`Выпуск МИ: ${game.title}`}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            loading="lazy"
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setPlaying(true)}
+            className="group relative flex aspect-video w-full items-center justify-center overflow-hidden bg-night-800"
+            aria-label={`Смотреть выпуск МИ: ${game.title}`}
+          >
+            {poster && (
+              <img
+                src={poster}
+                alt=""
+                aria-hidden="true"
+                width={1280}
+                height={720}
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover opacity-80 transition duration-300 group-hover:scale-[1.03] group-hover:opacity-95"
+                onError={(e) => {
+                  if (posterFallback && e.currentTarget.src !== posterFallback)
+                    e.currentTarget.src = posterFallback;
+                }}
+              />
+            )}
+            <span className="absolute inset-0 bg-night-900/45" />
+            <span className="relative flex h-12 w-12 items-center justify-center rounded-full bg-[#FF2D2D] text-white shadow-[0_8px_22px_rgba(255,0,0,0.35)] transition group-hover:scale-110">
+              <FiPlay className="ml-0.5 text-xl" aria-hidden="true" />
+            </span>
+          </button>
+        )}
+      </div>
+      <div className="mt-3 flex flex-1 flex-col">
         <div className="flex items-center justify-between gap-2">
-          <span className="min-w-0 truncate font-display text-sm font-extrabold text-ink">
+          <span className="min-w-0 truncate font-display text-base font-extrabold text-ink">
             {game.title}
           </span>
           <a
@@ -86,7 +88,7 @@ function EpisodeCard({ game }) {
         </div>
         <Link
           to={`/catalog/${game.slug}`}
-          className="mt-1 inline-flex items-center gap-1 text-xs font-bold text-pastel-amber transition hover:text-ink"
+          className="btn-ghost mt-auto w-full text-sm"
           title={`Страница игры ${game.title}`}
         >
           Страница игры <FiArrowRight />
@@ -199,13 +201,13 @@ export function MIPage() {
       {/* Выпуски */}
       {episodes.length > 0 && (
         <section>
-          {/* Без карточки-обёртки: владелец 11.11.2026 попросил «без фона,
-              красиво по карточкам» — остаются постеры и подписи. */}
+          {/* Общей плашки вокруг всех выпусков нет: фон у каждой отдельной
+              карточки. Зазор крупнее — раньше постеры выглядели слипшимися. */}
           <div className="flex items-center gap-2 mb-4">
             <FiYoutube className="text-red-300" />
             <h2 className="section-title text-xl"><FiFilm className="inline" aria-hidden="true" /> Выпуски</h2>
           </div>
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {episodes.map((g) => (
               <li key={g.slug}>
                 <EpisodeCard game={g} />

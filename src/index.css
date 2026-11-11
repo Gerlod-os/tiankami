@@ -276,24 +276,30 @@
   .section-accent {
     @apply bg-gradient-to-r from-pastel-pink via-pastel-amber to-[#FF9E7A] bg-clip-text text-transparent;
   }
-  /* Подчёркивание характеристики: цветное слева, прозрачное справа —
-     линия мягко уходит к значению, без рамки вокруг текста (11.11.2026). */
-  .meta-underline {
+  /* Одна строка «подпись → значение»: линия идёт от самой подписи и тает
+     к значению справа. Раньше она висела только под значением и читалась
+     как чужой разделитель (замечание владельца 11.11.2026). */
+  .meta-row {
     position: relative;
-    padding-bottom: 3px;
+    display: flex;
+    min-width: 0;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-bottom: 4px;
   }
-  .meta-underline::after {
+  .meta-row::after {
     content: "";
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
-    height: 2px;
+    height: 1px;
     border-radius: 2px;
     background-image: linear-gradient(
       90deg,
       var(--tone, #ffffff) 0%,
-      color-mix(in srgb, var(--tone, #ffffff) 55%, transparent) 45%,
+      color-mix(in srgb, var(--tone, #ffffff) 40%, transparent) 55%,
       transparent 100%
     );
   }
@@ -379,13 +385,10 @@
     @apply relative rounded-card rounded-bl-sm border border-pastel-pink/25 bg-pastel-pink/10 p-3 text-sm leading-relaxed text-ink;
   }
   .skull {
-    /* Белые черепа сложности с белым свечением — как эмодзи 💀 в прежней
-       версии. Серый цвет наследовался от подписи и читался бледно
+    /* Просто белые черепа без свечения: гало вокруг них читалась как грязь
        (замечание владельца 11.11.2026). */
     @apply text-base leading-none;
     color: #ffffff;
-    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.75))
-      drop-shadow(0 0 10px rgba(255, 255, 255, 0.35));
   }
 }
 

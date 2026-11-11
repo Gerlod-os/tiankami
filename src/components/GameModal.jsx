@@ -62,40 +62,27 @@ export function GameModal({ game, onClose }) {
             overflow-hidden и срезало нижние характеристики. Кнопка «Страница
             игры» — отдельной полосой, её видно всегда. */}
         <div className="min-h-0 flex-1 overflow-y-auto">
-        {/* Обложка 160×80 — 2:1, как у Steam. Широкая полоса резала
-            верх арта: у игр с персонажем срезало голову (замечено 18.10.2026). */}
-        <div className="flex items-start gap-3 p-3.5 pb-0">
-          {game.image ? (
-            <img
-              src={game.image}
-              alt={`Обложка ${game.title}`}
-              width={460}
-              height={215}
-              className="h-[72px] w-[144px] shrink-0 rounded-btn border border-white/10 object-cover"
-            />
-          ) : (
-            <div className="h-[72px] w-[144px] shrink-0 rounded-btn border border-dashed border-white/15 bg-gradient-to-br from-night-700 to-night-600" />
-          )}
-          <div className="min-w-0 flex-1 pr-9">
-            <h2 className="font-display text-lg font-black leading-tight text-ink">
-              {game.title}
-            </h2>
-            <p className="mt-1 line-clamp-2 text-xs text-ink-dim">
-              {game.genre}
-              {game.setting ? ` · ${game.setting}` : ""}
-            </p>
-          </div>
-          <button
-            ref={closeRef}
-            type="button"
-            onClick={onClose}
-            className="absolute right-3 top-3 z-10 rounded-full border border-white/15 bg-night-900/80 p-2 text-ink-dim backdrop-blur transition hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pastel-pink/70"
-            aria-label="Закрыть"
-          >
-            <FiX />
-          </button>
+        {/* Обложку из панели убрал владелец 11.11.2026: под карточкой под ней
+            она же видна на странице, в панели это третий повтор арта. */}
+        <div className="px-4 pb-0 pr-12 pt-4">
+          <h2 className="font-display text-xl font-black leading-tight text-ink">
+            {game.title}
+          </h2>
+          <p className="mt-1 line-clamp-1 text-sm text-ink-dim">
+            {game.genre}
+            {game.setting ? ` · ${game.setting}` : ""}
+          </p>
         </div>
-        <div className="p-3.5 pt-2.5">
+        <button
+          ref={closeRef}
+          type="button"
+          onClick={onClose}
+          className="absolute right-3 top-3 z-10 rounded-full border border-white/15 bg-night-900/80 p-2 text-ink-dim backdrop-blur transition hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pastel-pink/70"
+          aria-label="Закрыть"
+        >
+          <FiX />
+        </button>
+        <div className="p-4 pt-3">
           <GameDetails game={game} compact />
         </div>
         </div>
