@@ -127,9 +127,12 @@ export const GameCard = memo(function GameCard({
           <Highlight text={game.genre || "Рогалик"} q={highlight} />
           {game.setting ? ` · ${game.setting}` : ""}
         </div>
-        <div className="mt-auto flex items-end justify-between gap-2 pt-1">
-          <span className="flex shrink-0 items-center gap-2 whitespace-nowrap text-xs text-ink-faint">
-            <span className="flex items-center gap-1">
+        {/* Низ карточки переносится, а не вылезает за край: на телефоне в
+            двух колонках часы, черепа и «Обзор» вместе шире карточки — раньше
+            кнопку срезало справа (замечено 11.11.2026). */}
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5 pt-1">
+          <span className="flex min-w-0 items-center gap-2 text-xs text-ink-faint">
+            <span className="flex items-center gap-1 whitespace-nowrap">
               <FiClock /> {parseNum(game.hours) || "—"} ч.
             </span>
             {skulls > 0 && (
@@ -141,13 +144,16 @@ export const GameCard = memo(function GameCard({
             )}
           </span>
           {/* «Обзор» ведёт на страницу игры — владелец 11.11.2026 развёл два
-              действия: клик по карточке — быстрый просмотр, «Обзор» — страница. */}
+              действия: клик по карточке — быстрый просмотр, «Обзор» — страница.
+              На телефоне остаётся только иконка: с подписью кнопка не влезает
+              в строку и падала на вторую (11.11.2026). */}
           <Link
             to={`/catalog/${game.slug}`}
-            className="btn-ghost !min-h-8 !px-3 !py-1 text-xs"
+            className="btn-ghost ml-auto !min-h-8 shrink-0 !px-2.5 !py-1 text-xs"
             title={`Открыть страницу ${game.title}`}
+            aria-label={`Открыть страницу ${game.title}`}
           >
-            <FiEye /> Обзор
+            <FiEye /> <span className="hidden sm:inline">Обзор</span>
           </Link>
         </div>
       </div>
