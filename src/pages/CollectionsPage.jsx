@@ -54,7 +54,10 @@ export function CollectionsPage() {
               key={c.slug}
               to={`/collections/${c.slug}`}
               className={
-                "card card-hover flex flex-col p-5 " +
+                // group обязателен: веер расходится по `.group:hover .fan-img`
+                // (index.css). Без него на подборках он стоял неподвижно —
+                // владелец 11.11.2026 попросил как на главной.
+                "card card-hover group flex flex-col p-5 " +
                 (golden ? "gold-card" : "")
               }
             >
