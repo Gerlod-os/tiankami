@@ -249,6 +249,45 @@ export function GameDetails({ game, compact = false }) {
           suffix="%"
           tone="mint"
         />
+
+        {/* Ссылки — в пустое место под шкалами: половина колонки стояла
+            пустой, а в шапке кнопки жались под названием (владелец 12.11.2026).
+            Ширина та же, что у шкал, — колонка читается одним блоком. */}
+        {!compact && (game.steamUrl || game.youtube) && (
+          <div className="flex flex-col gap-2 pt-2">
+            {game.steamUrl && (
+              <a
+                className="inline-flex items-center justify-center gap-2 rounded-btn px-4 py-2.5 text-sm font-display font-extrabold text-[#0E1621] transition duration-300 hover:scale-[1.02]"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(135deg,#66C0F4 0%,#3E8BC0 100%)",
+                  boxShadow: "0 10px 26px rgba(102,192,244,0.30)",
+                }}
+                href={game.steamUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <FaSteam className="text-lg" /> В Steam
+              </a>
+            )}
+            {isUrl(game.youtube) && (
+              <a
+                className="inline-flex items-center justify-center gap-2 rounded-btn px-4 py-2.5 text-sm font-display font-extrabold text-white transition duration-300 hover:scale-[1.02]"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(135deg,#FF2D2D 0%,#C40000 100%)",
+                  boxShadow: "0 10px 26px rgba(255,0,0,0.28)",
+                }}
+                href={game.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <FiYoutube className="text-lg" />{" "}
+                {/list=/.test(game.youtube) ? "YouTube плейлист" : "YouTube"}
+              </a>
+            )}
+          </div>
+        )}
       </div>
 
       {/* В панели мету держим в одну колонку иначе значения обрезаются;
@@ -327,12 +366,12 @@ export function GameDetails({ game, compact = false }) {
       {/* Впечатления — под тегами, над видео: владелец 11.11.2026 отменил
           отдельную вкладку. В окне они остаются двумя строками выше. */}
       {game.notes && !compact && (
-        <div className="rounded-card bg-night-700/40 p-4">
-          <div className="t-micro mb-2 flex items-center gap-1.5">
-            <FiMessageCircle className="text-pastel-mint" aria-hidden="true" />
+        <div className="rounded-card border border-pastel-mint/25 bg-pastel-mint/[0.07] p-4 shadow-card">
+          <div className="mb-2 flex items-center gap-2 font-display text-sm font-extrabold text-pastel-mint">
+            <FiMessageCircle aria-hidden="true" />
             Впечатления Тиана
           </div>
-          <p className="text-sm leading-relaxed text-ink-dim">{game.notes}</p>
+          <p className="text-base leading-relaxed text-ink">{game.notes}</p>
         </div>
       )}
 

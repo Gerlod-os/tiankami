@@ -4,9 +4,7 @@ import {
   FiArrowLeft,
   FiChevronRight,
   FiChevronLeft,
-  FiYoutube,
 } from "react-icons/fi";
-import { FaSteam } from "react-icons/fa";
 import { useData } from "../components/DataProvider";
 import { GameDetails } from "../components/GameDetails";
 import { GameChips } from "../components/GameChips";
@@ -298,39 +296,9 @@ export function GamePage() {
               )}
             </div>
 
-            <div className="mt-auto flex flex-wrap gap-3 pt-5">
-              {game.steamUrl && (
-                <a
-                  className="inline-flex items-center justify-center gap-2 rounded-btn px-4 py-2.5 text-sm font-display font-extrabold text-[#0E1621] transition duration-300 hover:scale-[1.02]"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(135deg,#66C0F4 0%,#3E8BC0 100%)",
-                    boxShadow: "0 10px 26px rgba(102,192,244,0.30)",
-                  }}
-                  href={game.steamUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaSteam className="text-lg" /> В Steam
-                </a>
-              )}
-              {game.youtube && (
-                <a
-                  className="inline-flex items-center justify-center gap-2 rounded-btn px-4 py-2.5 text-sm font-display font-extrabold text-white transition duration-300 hover:scale-[1.02]"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(135deg,#FF2D2D 0%,#C40000 100%)",
-                    boxShadow: "0 10px 26px rgba(255,0,0,0.28)",
-                  }}
-                  href={game.youtube}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FiYoutube className="text-lg" />{" "}
-                  {/list=/.test(game.youtube) ? "YouTube плейлист" : "YouTube"}
-                </a>
-              )}
-            </div>
+            {/* Кнопки Steam и YouTube переехали в детали игры — в пустое место
+                справа от шкал (слово владельца 12.11.2026): в шапке они жались
+                под названием, а половина колонки шкал стояла пустой. */}
           </div>
 
           {/* Оценка крупно справа — как на проде: цвет по рейтингу, свечение,
