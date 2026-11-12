@@ -68,17 +68,17 @@ export function CollectionCard({ collection: c, byTitle }) {
         {listGames.length > 0 && (
           <ul className="min-w-0 flex-1 space-y-1 text-base font-semibold text-ink-dim">
             {listGames.map((g, i) => (
-              <li key={g.title + i} className="flex gap-1.5">
+              <li key={g.title + i} className="flex gap-1">
                 {/* Пустая ячейка вместо номера: названия начинаются с одной
                     вертикали и у золотого списка, и у топов. */}
-                <span className="w-5 shrink-0 font-display text-sm font-bold text-pastel-purple">
+                <span className="w-4 shrink-0 font-display text-sm font-bold text-pastel-purple">
                   {g.rank ? `${g.rank}.` : ""}
                 </span>
-                <span className="line-clamp-1">{g.title}</span>
+                <span className="line-clamp-1 font-bold text-ink">{g.title}</span>
               </li>
             ))}
             {c.games.length > 4 && (
-              <li className="pl-[26px] text-sm text-ink-faint" title={`И ещё ${c.games.length - 4} игр`}>
+              <li className="pl-[20px] text-sm text-ink-faint" title={`И ещё ${c.games.length - 4} игр`}>
                 и ещё {c.games.length - 4}…
               </li>
             )}
