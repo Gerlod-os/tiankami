@@ -296,6 +296,26 @@ export function GamePage() {
               )}
             </div>
 
+            {/* Теги игры — справа от обложки, под чипсами. Крупнее обычного
+                чипса: это не служебная метка, а описание игры, и под шкалами
+                они терялись (слово владельца 12.11.2026). */}
+            {game.features && (
+              <div className="mt-6 flex flex-wrap gap-2">
+                {String(game.features)
+                  .split(",")
+                  .map((f) => f.trim())
+                  .filter(Boolean)
+                  .map((f) => (
+                    <span
+                      key={f}
+                      className="chip border border-pastel-purple/30 bg-pastel-purple/10 px-3.5 py-1.5 text-sm text-pastel-purple"
+                    >
+                      {f}
+                    </span>
+                  ))}
+              </div>
+            )}
+
             {/* Кнопки Steam и YouTube переехали в детали игры — в пустое место
                 справа от шкал (слово владельца 12.11.2026): в шапке они жались
                 под названием, а половина колонки шкал стояла пустой. */}

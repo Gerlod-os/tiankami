@@ -83,12 +83,15 @@ function Bar({ label, icon: Icon, skulls = 0, value, max, suffix, tone = "gold" 
 // Одна строка «подпись → значение». Линия под строкой начинается у подписи
 // и тает к значению: так видно, к чему относится цвет (11.11.2026).
 // tone — цвет пары, у жанра, сеттинга, часов и дат свой.
-function MetaCell({ icon: Icon, iconCls, label, children, onGo, tone }) {
+function MetaCell({ icon: Icon, iconCls, label, children, onGo, tone, wide }) {
   if (!children) return null;
   const Comp = onGo ? "button" : "span";
   const colored = Boolean(tone);
   return (
-    <div className="meta-row text-sm" style={colored ? { ["--tone"]: tone } : undefined}>
+    <div
+      className={"meta-row text-sm" + (wide ? " sm:col-span-2" : "")}
+      style={colored ? { ["--tone"]: tone } : undefined}
+    >
       <span
         className="t-micro flex shrink-0 items-center gap-1.5"
         style={colored ? { color: tone } : undefined}
@@ -102,6 +105,9 @@ function MetaCell({ icon: Icon, iconCls, label, children, onGo, tone }) {
       <Comp
         {...(onGo ? { type: "button", onClick: onGo } : {})}
         className={
+          // Подпись слева, значение справа, линия под всей строкой — так блок
+          // читается таблицей, как «Подробности» в Steam. Значение по центру
+          // своей половины (как было 12.11) выглядело рассыпанным.
           "min-w-0 truncate text-right font-semibold text-ink " +
           // py-0.5 поднимает высоту нажимаемого значения до 24 px (WCAG 2.5.8):
           // было 20 px, аудит 11.11.2026 считал это мелкой целью.
@@ -214,17 +220,19 @@ export function GameDetails({ game, compact = false }) {
       )}
 
       {/* Бары и мета — рядом. В панели две колонки всегда: иначе восемь
-          строк не влезают в уменьшенную высоту (11.11.2026). */}
+          строк не влезают в уменьшенную высоту (11.11.2026).
+          На странице игры левая колонка фиксированной ширины: шкалы, теги и
+          ссылки стоят на одной вертикали, мета занимает остаток. */}
       <div
         className={
           compact
             ? "grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2"
-            : "grid gap-5 lg:grid-cols-2 lg:gap-8"
+            : "grid gap-6 lg:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] lg:gap-10"
         }
       >
       {/* Бары. На странице игры оценка стоит бейджем на обложке — шкала
           остаётся только в окне, чтобы число не повторялось (11.11.2026). */}
-      <div className="max-w-xs space-y-3">
+      <div className="space-y-3">
         {compact && (
           <Bar
             label="Оценка"
@@ -249,6 +257,9 @@ export function GameDetails({ game, compact = false }) {
           suffix="%"
           tone="mint"
         />
+
+        {/* Теги переехали в шапку, справа от обложки: под шкалами они терялись
+            (слово владельца 12.11.2026). В окне остаются отдельной строкой. */}
 
         {/* Ссылки — в пустое место под шкалами: половина колонки стояла
             пустой, а в шапке кнопки жались под названием (владелец 12.11.2026).
@@ -290,9 +301,14 @@ export function GameDetails({ game, compact = false }) {
         )}
       </div>
 
-      {/* В панели мету держим в одну колонку иначе значения обрезаются;
-          на странице игры — две в ряд. */}
-      <div className={compact ? "grid grid-cols-1 gap-y-2" : "grid grid-cols-1 gap-x-5 gap-y-2 sm:grid-cols-2"}>
+      {/* Правая колонка: метаданные и впечатления. Ширина ограничена: строка
+          «подпись — значение» шире 28rem разваливается на два края, между ними
+          остаётся полтысячи пикселей пустоты (замер 12.11.2026). */}
+      <div className="space-y-4">
+      {/* Мета — две колонки на широком экране. Пятая строка занимает обе:
+          иначе в правой колонке остаётся пустая ячейка и блок выглядит
+          недорисованным (владелец 12.11.2026). */}
+      <div className={compact ? "grid grid-cols-1 gap-y-2" : "grid grid-cols-1 gap-x-10 gap-y-1 sm:grid-cols-2"}>
         <MetaCell
           icon={FiTag}
           tone="#D7A8F5"
@@ -339,14 +355,31 @@ export function GameDetails({ game, compact = false }) {
           icon={FiCalendar}
           tone="#FF9DB8"
           label="Играл"
+          wide={!compact}
           onGo={() => navigate("/catalog?sort=played-desc")}
         >
           {game.playedDate}
         </MetaCell>
       </div>
+
+      {/* Впечатления — в правой колонке, под метаданными: так колонка не
+          обрывается пустотой, а заметки видно сразу под подписями
+          (владелец 12.11.2026). В окне они остаются двумя строками выше. */}
+      {game.notes && !compact && (
+        <div className="rounded-card border border-pastel-mint/25 bg-pastel-mint/[0.07] p-4 shadow-card">
+          <div className="mb-2 flex items-center gap-2 font-display text-sm font-extrabold text-pastel-mint">
+            <FiMessageCircle aria-hidden="true" />
+            Впечатления Тиана
+          </div>
+          <p className="text-base leading-relaxed text-ink">{game.notes}</p>
+        </div>
+      )}
+      </div>
       </div>
 
-      {game.features && (
+      {/* Теги в окне остаются отдельной строкой; на странице игры они уже
+          стоят в левой колонке, под шкалами. */}
+      {game.features && compact && (
         <div className="flex max-w-full flex-wrap gap-1.5">
           {String(game.features)
             .split(",")
@@ -360,18 +393,6 @@ export function GameDetails({ game, compact = false }) {
                 {f}
               </span>
             ))}
-        </div>
-      )}
-
-      {/* Впечатления — под тегами, над видео: владелец 11.11.2026 отменил
-          отдельную вкладку. В окне они остаются двумя строками выше. */}
-      {game.notes && !compact && (
-        <div className="rounded-card border border-pastel-mint/25 bg-pastel-mint/[0.07] p-4 shadow-card">
-          <div className="mb-2 flex items-center gap-2 font-display text-sm font-extrabold text-pastel-mint">
-            <FiMessageCircle aria-hidden="true" />
-            Впечатления Тиана
-          </div>
-          <p className="text-base leading-relaxed text-ink">{game.notes}</p>
         </div>
       )}
 
