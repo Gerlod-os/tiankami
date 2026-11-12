@@ -2,7 +2,7 @@
 
 [![Сборка и выкладка на GitHub Pages](https://github.com/Gerlod-os/tiankami/actions/workflows/deploy.yml/badge.svg)](https://github.com/Gerlod-os/tiankami/actions/workflows/deploy.yml)
 
-Сайт-каталог рогаликов Twitch-канала **Tiankami**: ,более 460 игр с оценками, часами, статусами
+Сайт-каталог рогаликов Twitch-канала **Tiankami**: более 460 игр с оценками, часами, статусами
 прохождений, подборками и расписанием стримов. Каждая страница — готовый HTML, а не пустой
 каркас: ссылку на любую игру можно отправить и открыть с телефона.
 
