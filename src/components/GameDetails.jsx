@@ -221,18 +221,20 @@ export function GameDetails({ game, compact = false }) {
 
       {/* Бары и мета — рядом. В панели две колонки всегда: иначе восемь
           строк не влезают в уменьшенную высоту (11.11.2026).
-          На странице игры левая колонка фиксированной ширины: шкалы, теги и
-          ссылки стоят на одной вертикали, мета занимает остаток. */}
+          На странице игры сетка 2×2: сверху шкалы и метаданные, снизу ссылки
+          и «Впечатления». Так кнопки стоят в одной полосе с заметками —
+          верхняя начинается там же, где заметки, нижняя кончается там же
+          (слово владельца 12.11.2026). */}
       <div
         className={
           compact
             ? "grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2"
-            : "grid gap-6 lg:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] lg:gap-10"
+            : "grid gap-4 lg:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] lg:gap-x-10 lg:gap-y-4"
         }
       >
       {/* Бары. На странице игры оценка стоит бейджем на обложке — шкала
           остаётся только в окне, чтобы число не повторялось (11.11.2026). */}
-      <div className="space-y-3">
+      <div className={"space-y-3" + (compact ? "" : " lg:col-start-1 lg:row-start-1")}>
         {compact && (
           <Bar
             label="Оценка"
@@ -261,54 +263,52 @@ export function GameDetails({ game, compact = false }) {
         {/* Теги переехали в шапку, справа от обложки: под шкалами они терялись
             (слово владельца 12.11.2026). В окне остаются отдельной строкой. */}
 
-        {/* Ссылки — в пустое место под шкалами: половина колонки стояла
-            пустой, а в шапке кнопки жались под названием (владелец 12.11.2026).
-            Ширина та же, что у шкал, — колонка читается одним блоком. */}
-        {!compact && (game.steamUrl || game.youtube) && (
-          <div className="flex flex-col gap-2 pt-2">
-            {game.steamUrl && (
-              <a
-                className="inline-flex items-center justify-center gap-2 rounded-btn px-4 py-2.5 text-sm font-display font-extrabold text-[#0E1621] transition duration-300 hover:scale-[1.02]"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(135deg,#66C0F4 0%,#3E8BC0 100%)",
-                  boxShadow: "0 10px 26px rgba(102,192,244,0.30)",
-                }}
-                href={game.steamUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaSteam className="text-lg" /> В Steam
-              </a>
-            )}
-            {isUrl(game.youtube) && (
-              <a
-                className="inline-flex items-center justify-center gap-2 rounded-btn px-4 py-2.5 text-sm font-display font-extrabold text-white transition duration-300 hover:scale-[1.02]"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(135deg,#FF2D2D 0%,#C40000 100%)",
-                  boxShadow: "0 10px 26px rgba(255,0,0,0.28)",
-                }}
-                href={game.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FiYoutube className="text-lg" />{" "}
-                {/list=/.test(game.youtube) ? "YouTube плейлист" : "YouTube"}
-              </a>
-            )}
-          </div>
-        )}
       </div>
 
-      {/* Правая колонка: метаданные и впечатления. Ширина ограничена: строка
-          «подпись — значение» шире 28rem разваливается на два края, между ними
-          остаётся полтысячи пикселей пустоты (замер 12.11.2026). */}
-      <div className="space-y-4">
+      {/* Ссылки — отдельная полоса сетки, напротив «Впечатлений»: верхняя
+          кнопка начинается там же, где заметки, нижняя кончается там же
+          (слово владельца 12.11.2026). Ширина та же, что у шкал, — колонка
+          читается одним блоком. */}
+      {!compact && (game.steamUrl || game.youtube) && (
+        <div className="flex flex-col gap-2 lg:col-start-1 lg:row-start-2 lg:justify-between">
+          {game.steamUrl && (
+            <a
+              className="inline-flex items-center justify-center gap-2 rounded-btn px-4 py-2.5 text-sm font-display font-extrabold text-[#0E1621] transition duration-300 hover:scale-[1.02]"
+              style={{
+                backgroundImage:
+                  "linear-gradient(135deg,#66C0F4 0%,#3E8BC0 100%)",
+                boxShadow: "0 10px 26px rgba(102,192,244,0.30)",
+              }}
+              href={game.steamUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaSteam className="text-lg" /> В Steam
+            </a>
+          )}
+          {isUrl(game.youtube) && (
+            <a
+              className="inline-flex items-center justify-center gap-2 rounded-btn px-4 py-2.5 text-sm font-display font-extrabold text-white transition duration-300 hover:scale-[1.02]"
+              style={{
+                backgroundImage:
+                  "linear-gradient(135deg,#FF2D2D 0%,#C40000 100%)",
+                boxShadow: "0 10px 26px rgba(255,0,0,0.28)",
+              }}
+              href={game.youtube}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FiYoutube className="text-lg" />{" "}
+              {/list=/.test(game.youtube) ? "YouTube плейлист" : "YouTube"}
+            </a>
+          )}
+        </div>
+      )}
+
       {/* Мета — две колонки на широком экране. Пятая строка занимает обе:
           иначе в правой колонке остаётся пустая ячейка и блок выглядит
           недорисованным (владелец 12.11.2026). */}
-      <div className={compact ? "grid grid-cols-1 gap-y-2" : "grid grid-cols-1 gap-x-10 gap-y-1 sm:grid-cols-2"}>
+      <div className={(compact ? "grid grid-cols-1 gap-y-2" : "grid grid-cols-1 gap-x-10 gap-y-1 sm:grid-cols-2") + (compact ? "" : " lg:col-start-2 lg:row-start-1")}>
         <MetaCell
           icon={FiTag}
           tone="#D7A8F5"
@@ -362,11 +362,12 @@ export function GameDetails({ game, compact = false }) {
         </MetaCell>
       </div>
 
-      {/* Впечатления — в правой колонке, под метаданными: так колонка не
-          обрывается пустотой, а заметки видно сразу под подписями
-          (владелец 12.11.2026). В окне они остаются двумя строками выше. */}
+      {/* Впечатления — под метаданными, во второй полосе сетки: напротив них
+          стоят ссылки, поэтому кнопки и заметки занимают одну высоту по верху
+          и по низу (слово владельца 12.11.2026). В окне они остаются двумя
+          строками выше. */}
       {game.notes && !compact && (
-        <div className="rounded-card border border-pastel-mint/25 bg-pastel-mint/[0.07] p-4 shadow-card">
+        <div className="rounded-card border border-pastel-mint/25 bg-pastel-mint/[0.07] p-4 shadow-card lg:col-start-2 lg:row-start-2">
           <div className="mb-2 flex items-center gap-2 font-display text-sm font-extrabold text-pastel-mint">
             <FiMessageCircle aria-hidden="true" />
             Впечатления Тиана
@@ -374,7 +375,6 @@ export function GameDetails({ game, compact = false }) {
           <p className="text-base leading-relaxed text-ink">{game.notes}</p>
         </div>
       )}
-      </div>
       </div>
 
       {/* Теги в окне остаются отдельной строкой; на странице игры они уже

@@ -28,6 +28,8 @@ describe("computeRarities", () => {
     G("dd", "Darkest Dungeon", 10, 100),
     G("mc", "Monster Train", 9, 50),
     G("brotato", "Brotato", 7, 20),
+    G("six", "Шестёрка", 6, 8),
+    G("five", "Пятёрка", 5, 4),
     G("weak", "Слабая игра", 4, 3),
   ];
   const { bySlug } = computeRarities(games, collections);
@@ -64,7 +66,11 @@ describe("computeRarities", () => {
   test("rare при оценке >= 7", () => {
     expect(bySlug["brotato"]).toBe("rare");
   });
-  test("common для остальных", () => {
+  test("normal — белое яйцо за 5–6 (слово владельца 12.11.2026)", () => {
+    expect(bySlug["six"]).toBe("normal");
+    expect(bySlug["five"]).toBe("normal");
+  });
+  test("common — только ниже 5", () => {
     expect(bySlug["weak"]).toBe("common");
   });
 });

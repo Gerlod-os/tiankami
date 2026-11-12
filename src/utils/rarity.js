@@ -1,11 +1,13 @@
 // Система редкости в стиле Monster Train: драконьи яйца 5 уровней.
 import { parseNum } from "./normalize.js";
 
-export const RARITY_ORDER = ["common", "rare", "epic", "legendary", "perfect", "mythic"];
+export const RARITY_ORDER = ["common", "normal", "rare", "epic", "legendary", "perfect", "mythic"];
 
 // Свечение карточки цветом редкости (hover)
 export const RARITY_GLOW = {
   common: "rgba(154,160,174,0.25)",
+  // normal — белое яйцо за оценку 5–6 (слово владельца 12.11.2026)
+  normal: "rgba(255,255,255,0.42)",
   rare: "rgba(160,196,255,0.40)",
   epic: "rgba(201,160,220,0.45)",
   legendary: "rgba(255,217,160,0.50)",
@@ -17,8 +19,16 @@ export const RARITY_GLOW = {
 export const RARITY_META = {
   common: {
     ru: "Обычное",
-    desc: "Оценка ниже 7 — рогалик на вечер. Тиан попробовал, но звать не станет.",
+    desc: "Оценка ниже 5 — рогалик на вечер. Тиан попробовал, но звать не станет.",
     color: "#9aa0ae",
+  },
+  // Белое яйцо за оценку 5–6 (слово владельца 12.11.2026: «игра норм»).
+  // С этого дня серое яйцо осталось только у игр ниже 5, поэтому в подписи
+  // common число поменялось с 7 на 5 — иначе подсказка врала бы.
+  normal: {
+    ru: "Норм",
+    desc: "Оценка 5–6: игра норм. Разок-другой зайдёт, но звать не стану.",
+    color: "#FFFFFF",
   },
   rare: {
     ru: "Редкое",
@@ -56,7 +66,8 @@ export const RARITY_META = {
 //  legendary — игры из «ЗОЛОТОЙ СПИСОК»
 //  epic      — оценка >= 9
 //  rare      — оценка >= 7
-//  common    — остальные
+//  normal    — оценка 5–6: белое яйцо «норм» (слово владельца 12.11.2026)
+//  common    — остальные, ниже 5
 export function computeRarities(games, collections) {
   const goldenTitles = new Set();
   const gold = (collections || []).find((c) => /золотой список/i.test(c.name));
@@ -81,6 +92,7 @@ export function computeRarities(games, collections) {
     else if (goldenTitles.has(String(g.title).toLowerCase())) r = "legendary";
     else if (rating >= 9) r = "epic";
     else if (rating >= 7) r = "rare";
+    else if (rating >= 5) r = "normal";
     bySlug[g.slug] = r;
   }
   return { bySlug, goldenTitles, mythicSlugs };

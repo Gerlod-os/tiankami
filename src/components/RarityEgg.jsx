@@ -34,6 +34,17 @@ export function RarityEgg({ rarity = "common", size = 22, className = "" }) {
             <stop offset="100%" stopColor="#4a4540" />
           </radialGradient>
         );
+      // Белое яйцо (оценка 5–6): светлая скорлупа без цветного оттенка.
+      // Свечение тоже белое — на тёмном фоне оно читается как «норм»,
+      // а не как выцветшее серое (слово владельца 12.11.2026).
+      case "normal":
+        return (
+          <radialGradient id={`eg${uid}`} cx="35%" cy="30%" r="80%">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="45%" stopColor="#e9e9f3" />
+            <stop offset="100%" stopColor="#a6a6ba" />
+          </radialGradient>
+        );
       case "rare":
         return (
           <>
@@ -124,6 +135,8 @@ export function RarityEgg({ rarity = "common", size = 22, className = "" }) {
     switch (rarity) {
       case "common":
         return <path d={EGG} fill={shell} stroke="#6a6058" strokeWidth="1.5" />;
+      case "normal":
+        return <path d={EGG} fill={shell} stroke="#ffffff" strokeWidth="1.5" />;
       case "rare":
         return (
           <>
