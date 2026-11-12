@@ -6,3 +6,5 @@ dist-server
 *.local
 .DS_Store
 coverage
+# замеры аудита — рабочие файлы, в репозитории не нужны
+audit/
