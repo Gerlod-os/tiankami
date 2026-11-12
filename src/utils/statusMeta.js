@@ -53,13 +53,16 @@ export function statusMeta(status) {
 }
 
 // Цвет оценки = цвет яйца редкости (utils/rarity.js): 10 — золото perfect,
-// 9 — фиолет epic, 7–8 — голубой rare, ниже 7 — серый common. Раньше 5–6 были
-// янтарными и путались с золотым яйцом (замечание владельца 11.11.2026).
+// 9 — фиолет epic, 7–8 — голубой rare, 5–6 — белый normal, ниже 5 — серый
+// common. Раньше 5–6 были янтарными и путались с золотым яйцом (замечание
+// владельца 11.11.2026). Белыми они стали 12.11.2026 вместе с яйцом — иначе
+// цифра расходилась бы с ним цветом.
 export function ratingColor(r) {
   const n = parseNum(r);
   if (n >= 10) return "text-[#FFD9A0]";
   if (n >= 9) return "text-[#C9A0DC]";
   if (n >= 7) return "text-[#A0C4FF]";
+  if (n >= 5) return "text-[#FFFFFF]";
   return "text-[#9aa0ae]";
 }
 
