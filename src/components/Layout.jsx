@@ -71,7 +71,14 @@ export function Layout({ children }) {
   const { schedule } = useData();
   // Ближайший стрим в шапке: первый будущий по дате. Время суток не учитываем —
   // иначе на сервере и в браузере могли бы получиться разные стримы.
-  const nextStream = splitSchedule(schedule, formatRuDate(todayUTC()), "00:00").upcoming[0];
+  // Считаем только после монтирования: в статичном HTML дата сборки, а в браузере
+  // дата посетителя. Если рисовать сразу, React ругается на расхождение
+  // гидратации (#418, замер 12.11.2026) — тексты в шапке не совпадают.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const nextStream = mounted
+    ? splitSchedule(schedule, formatRuDate(todayUTC()), "00:00").upcoming[0]
+    : null;
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
