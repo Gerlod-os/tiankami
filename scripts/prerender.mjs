@@ -239,7 +239,11 @@ const sitemap = [
   ...routes.map((r) => {
     const lm = lastmodFor(r);
     const lastmod = lm ? `<lastmod>${lm}</lastmod>` : "";
-    return `  <url><loc>${SITE}${r === "/" ? "/" : r + "/"}</loc>${lastmod}<changefreq>${r.startsWith("/catalog/") ? "weekly" : "daily"}</changefreq></url>`;
+    // Кириллицу в адресе кодируем: по протоколу sitemap `<loc>` — это URL,
+    // а не текст. Без кодирования поисковик такие строки отбрасывает
+    // (13 адресов подборок, замер 12.11.2026).
+    const loc = encodeURI(SITE + (r === "/" ? "/" : r + "/"));
+    return `  <url><loc>${loc}</loc>${lastmod}<changefreq>${r.startsWith("/catalog/") ? "weekly" : "daily"}</changefreq></url>`;
   }),
   "</urlset>",
 ].join("\n");
