@@ -15,6 +15,7 @@ import { Highlight } from "./Highlight";
 export const GameCard = memo(function GameCard({
   game,
   onQuickView,
+  openSlug = "",
   highlight = "",
   rarity = "common",
   delay = 0,
@@ -28,14 +29,18 @@ export const GameCard = memo(function GameCard({
   // Клик по карточке открывает быстрый просмотр, но ссылка остаётся ссылкой:
   // в HTML живёт href (гейт внутренних ссылок и поисковики), а клик перехватываем.
   // Ctrl/Cmd/Shift/средняя кнопка — обычное открытие страницы в новой вкладке.
+  // Второй клик по игре, окно которой уже открыто, ведёт на её страницу:
+  // окно не перехватывает — действие повторяется, но уже с полным переходом
+  // (слово владельца 12.11.2026).
   const quickOpen = useCallback(
     (e) => {
       if (!onQuickView) return;
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      if (openSlug && openSlug === game.slug) return;
       e.preventDefault();
       onQuickView(game);
     },
-    [onQuickView, game]
+    [onQuickView, game, openSlug]
   );
 
   return (

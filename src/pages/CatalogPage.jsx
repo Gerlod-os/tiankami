@@ -1017,6 +1017,7 @@ export function CatalogPage() {
                 key={g.slug}
                 game={g}
                 onQuickView={setModal}
+                openSlug={modal?.slug || ""}
                 highlight={q}
                 rarity={bySlug?.[g.slug] || "common"}
                 delay={i % PAGE}

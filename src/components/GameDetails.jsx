@@ -147,48 +147,6 @@ export function GameDetails({ game, compact = false }) {
 
       {/* YouTube: сначала постер, плеер — по клику. В модалке плеера нет,
           чтобы не раздувать панель; смотреть — на странице игры. */}
-      {showPlayer && !compact && (
-        <div className="w-full overflow-hidden rounded-card border border-white/10 shadow-card">
-          {playing ? (
-            <iframe
-              className="aspect-video w-full"
-              src={autoplayUrl}
-              title={`Прохождение ${game.title} на YouTube`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              loading="lazy"
-            />
-          ) : (
-            <button
-              type="button"
-              onClick={() => setPlaying(true)}
-              aria-label={`Смотреть прохождение ${game.title} на YouTube`}
-              className="group relative flex aspect-video w-full items-center justify-center overflow-hidden bg-night-800"
-            >
-              {poster && (
-                <img
-                  src={poster}
-                  alt=""
-                  aria-hidden="true"
-                  width={1280}
-                  height={720}
-                  className="absolute inset-0 h-full w-full object-cover opacity-95 transition duration-300 group-hover:scale-[1.02]"
-                  onError={(e) => {
-                    if (posterFallback && e.currentTarget.src !== posterFallback)
-                      e.currentTarget.src = posterFallback;
-                  }}
-                />
-              )}
-              {/* Контурная иконка из линий: ни залитого круга, ни текста,
-                  ни затемнения — обложка видео остаётся видна (11.11.2026). */}
-              <span className="relative flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/90 bg-night-900/20 text-white backdrop-blur-sm transition group-hover:scale-110">
-                <FiPlay className="ml-0.5 text-lg" aria-hidden="true" />
-              </span>
-            </button>
-          )}
-        </div>
-      )}
-
       {/* Кнопки — только в модалке. Заливка как на странице игры и один
           размер на всех: flex-1 делит ряд поровну при любом числе кнопок
           (замечание владельца 11.11.2026). */}
@@ -366,7 +324,7 @@ export function GameDetails({ game, compact = false }) {
         </div>
       )}
 
-      {/* Впечатления — в самом низу, под тегами: владелец 11.11.2026 отменил
+      {/* Впечатления — под тегами, над видео: владелец 11.11.2026 отменил
           отдельную вкладку. В окне они остаются двумя строками выше. */}
       {game.notes && !compact && (
         <div className="rounded-card bg-night-700/40 p-4">
@@ -375,6 +333,50 @@ export function GameDetails({ game, compact = false }) {
             Впечатления Тиана
           </div>
           <p className="text-sm leading-relaxed text-ink-dim">{game.notes}</p>
+        </div>
+      )}
+
+      {/* Плеер — в самом низу страницы: текстовые данные игры выше, видео
+          последним (слово владельца 12.11.2026). Постер, iframe по клику. */}
+      {showPlayer && !compact && (
+        <div className="w-full overflow-hidden rounded-card border border-white/10 shadow-card">
+          {playing ? (
+            <iframe
+              className="aspect-video w-full"
+              src={autoplayUrl}
+              title={`Прохождение ${game.title} на YouTube`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              loading="lazy"
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setPlaying(true)}
+              aria-label={`Смотреть прохождение ${game.title} на YouTube`}
+              className="group relative flex aspect-video w-full items-center justify-center overflow-hidden bg-night-800"
+            >
+              {poster && (
+                <img
+                  src={poster}
+                  alt=""
+                  aria-hidden="true"
+                  width={1280}
+                  height={720}
+                  className="absolute inset-0 h-full w-full object-cover opacity-95 transition duration-300 group-hover:scale-[1.02]"
+                  onError={(e) => {
+                    if (posterFallback && e.currentTarget.src !== posterFallback)
+                      e.currentTarget.src = posterFallback;
+                  }}
+                />
+              )}
+              {/* Контурная иконка из линий: ни залитого круга, ни текста,
+                  ни затемнения — обложка видео остаётся видна (11.11.2026). */}
+              <span className="relative flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/90 bg-night-900/20 text-white backdrop-blur-sm transition group-hover:scale-110">
+                <FiPlay className="ml-0.5 text-lg" aria-hidden="true" />
+              </span>
+            </button>
+          )}
         </div>
       )}
     </div>
