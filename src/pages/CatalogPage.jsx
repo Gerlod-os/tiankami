@@ -801,6 +801,174 @@ export function CatalogPage() {
             ))}
           </div>
         )}
+
+        {/* Панель фильтров — выпадает из-под липкой строки. Раньше жила в потоке
+            ниже и при прокрученной странице открывалась выше экрана: за ней
+            приходилось ездить вверх (слово владельца 13.11.2026).
+            Высота ограничена, прокрутка внутри — на телефоне панель не занимает
+            весь экран. */}
+        {filtersOpen && (
+          <div
+            className="absolute inset-x-0 top-full z-40 px-4 pt-2 md:px-6"
+            data-filters-panel
+          >
+            {/* Фон непрозрачный: обычный .card полупрозрачный, и сквозь панель
+                читались карточки каталога. */}
+            <div className="card relative max-h-[70dvh] overflow-y-auto !bg-night-800 p-4 md:p-5">
+              <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                <div className="min-w-0">
+                  <div className="label">Жанр</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {meta.genres.slice(0, 14).map((x) => (
+                      <Chip
+                        key={x}
+                        active={genresSel.has(x)}
+                        onClick={() => toggleGenre(x)}
+                        disabled={!genresSel.has(x) && genresSel.size >= MAX_GENRES}
+                        className="!px-3 !py-1.5 text-xs"
+                      >
+                        {x}
+                      </Chip>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="min-w-0">
+                  {/* Подпись «Год и кубок» владелец 11.11.2026 попросил убрать.
+                      Пустой label той же высоты держит селект на одной линии
+                      с соседними колонками. */}
+                  <div className="label" aria-hidden="true">&nbsp;</div>
+                  <SelectMenu
+                    label="Год выхода"
+                    value={year}
+                    icon={FiCalendar}
+                    onChange={(v) => apply({ year: v })}
+                    options={[
+                      { v: "any", l: "Любой год" },
+                      ...meta.years.map((y) => ({ v: String(y), l: String(y) })),
+                    ]}
+                  />
+                </div>
+
+                <div className="min-w-0">
+                  <div className="label">Статус</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    <Chip
+                      active={status === "any"}
+                      onClick={() => apply({ status: null })}
+                    >
+                      Любой
+                    </Chip>
+                    {statuses.map((s) => (
+                      <Chip
+                        key={s}
+                        active={status === s}
+                        onClick={() => apply({ status: status === s ? null : s })}
+                      >
+                        {s}
+                      </Chip>
+                    ))}
+                  </div>
+                </div>
+                <div className="min-w-0">
+                  <div className="label">Оценка</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[0, 6, 8, 9, 10].map((r) => (
+                      <Chip
+                        key={r}
+                        active={ratingMin === r}
+                        onClick={() => apply({ rating: ratingMin === r ? null : r })}
+                      >
+                        {r === 0 ? (
+                          "Любая"
+                        ) : (
+                          <span className="inline-flex items-center gap-1">
+                            <FiStar aria-hidden="true" />
+                            {r}+
+                          </span>
+                        )}
+                      </Chip>
+                    ))}
+                  </div>
+                </div>
+                <div className="min-w-0">
+                  <div className="label">Сложность</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    <Chip
+                      active={complexity === "any"}
+                      onClick={() => apply({ complexity: null })}
+                    >
+                      Любая
+                    </Chip>
+                    <Chip
+                      active={complexity === "low"}
+                      onClick={() =>
+                        apply({ complexity: complexity === "low" ? null : "low" })
+                      }
+                    >
+                      <FaSkull className="inline" aria-hidden="true" /> Лёгкие
+                    </Chip>
+                    <Chip
+                      active={complexity === "mid"}
+                      onClick={() =>
+                        apply({ complexity: complexity === "mid" ? null : "mid" })
+                      }
+                    >
+                      <FaSkull className="inline" aria-hidden="true" /><FaSkull className="inline" aria-hidden="true" /> Средне
+                    </Chip>
+                    <Chip
+                      active={complexity === "high"}
+                      onClick={() =>
+                        apply({ complexity: complexity === "high" ? null : "high" })
+                      }
+                    >
+                      <FaSkull className="inline" aria-hidden="true" /><FaSkull className="inline" aria-hidden="true" /><FaSkull className="inline" aria-hidden="true" /> Хардкор
+                    </Chip>
+                  </div>
+                </div>
+                <div className="min-w-0">
+                  <div className="label">Часы</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      ["any", "Любые"],
+                      ["lt10", "<10ч"],
+                      ["10-49", "10–50ч"],
+                      ["50-99", "50–100ч"],
+                      ["100+", "100ч+"],
+                    ].map(([v, l]) => (
+                      <Chip
+                        key={v}
+                        active={hours === v}
+                        onClick={() => apply({ hours: hours === v ? null : v })}
+                      >
+                        {l}
+                      </Chip>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Тумблер «Только МИ» — справа, но низ на уровне колонки «Жанр».
+                  Владелец 11.11.2026: отдельная строка ниже делала панель выше
+                  жанров; absolute убирает лишнюю высоту. На телефоне — в потоке,
+                  иначе перекрывает «Часы». */}
+              <div className="mt-4 flex justify-end sm:absolute sm:bottom-4 sm:right-4 sm:mt-0">
+                <label className="flex items-center gap-2 text-xs font-semibold text-ink-dim">
+                  <span className="switch">
+                    <input
+                      type="checkbox"
+                      checked={miOnly}
+                      onChange={(e) => apply({ mi: e.target.checked ? "1" : null })}
+                      aria-label="Только с кубком МИ"
+                    />
+                    <span className="knob" />
+                  </span>
+                  Только МИ
+                </label>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {collection && (
@@ -817,165 +985,6 @@ export function CatalogPage() {
             )}
           </div>
         </div>
-      )}
-
-      {/* Панель фильтров — одна таблица: столбцы равной ширины, у каждого подпись
-          сверху. Было две колонки «жанры слева, всё остальное справа» — владелец
-          назвал это «разбросано хрен пойми как» и попросил единый вид (18.10.2026). */}
-      {filtersOpen && (
-        <div className="card relative p-4 md:p-5" data-filters-panel>
-          <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-              <div className="min-w-0">
-                <div className="label">Жанр</div>
-                <div className="flex flex-wrap gap-1.5">
-                  {meta.genres.slice(0, 14).map((x) => (
-                    <Chip
-                      key={x}
-                      active={genresSel.has(x)}
-                      onClick={() => toggleGenre(x)}
-                      disabled={!genresSel.has(x) && genresSel.size >= MAX_GENRES}
-                      className="!px-3 !py-1.5 text-xs"
-                    >
-                      {x}
-                    </Chip>
-                  ))}
-                </div>
-              </div>
-
-              <div className="min-w-0">
-                {/* Подпись «Год и кубок» владелец 11.11.2026 попросил убрать.
-                    Пустой label той же высоты держит селект на одной линии
-                    с соседними колонками. */}
-                <div className="label" aria-hidden="true">&nbsp;</div>
-                <SelectMenu
-                  label="Год выхода"
-                  value={year}
-                  icon={FiCalendar}
-                  onChange={(v) => apply({ year: v })}
-                  options={[
-                    { v: "any", l: "Любой год" },
-                    ...meta.years.map((y) => ({ v: String(y), l: String(y) })),
-                  ]}
-                />
-              </div>
-
-              <div className="min-w-0">
-                <div className="label">Статус</div>
-                <div className="flex flex-wrap gap-1.5">
-                  <Chip
-                    active={status === "any"}
-                    onClick={() => apply({ status: null })}
-                  >
-                    Любой
-                  </Chip>
-                  {statuses.map((s) => (
-                    <Chip
-                      key={s}
-                      active={status === s}
-                      onClick={() => apply({ status: status === s ? null : s })}
-                    >
-                      {s}
-                    </Chip>
-                  ))}
-                </div>
-              </div>
-              <div className="min-w-0">
-                <div className="label">Оценка</div>
-                <div className="flex flex-wrap gap-1.5">
-                  {[0, 6, 8, 9, 10].map((r) => (
-                    <Chip
-                      key={r}
-                      active={ratingMin === r}
-                      onClick={() => apply({ rating: ratingMin === r ? null : r })}
-                    >
-                      {r === 0 ? (
-                        "Любая"
-                      ) : (
-                        <span className="inline-flex items-center gap-1">
-                          <FiStar aria-hidden="true" />
-                          {r}+
-                        </span>
-                      )}
-                    </Chip>
-                  ))}
-                </div>
-              </div>
-              <div className="min-w-0">
-                <div className="label">Сложность</div>
-                <div className="flex flex-wrap gap-1.5">
-                  <Chip
-                    active={complexity === "any"}
-                    onClick={() => apply({ complexity: null })}
-                  >
-                    Любая
-                  </Chip>
-                  <Chip
-                    active={complexity === "low"}
-                    onClick={() =>
-                      apply({ complexity: complexity === "low" ? null : "low" })
-                    }
-                  >
-                    <FaSkull className="inline" aria-hidden="true" /> Лёгкие
-                  </Chip>
-                  <Chip
-                    active={complexity === "mid"}
-                    onClick={() =>
-                      apply({ complexity: complexity === "mid" ? null : "mid" })
-                    }
-                  >
-                    <FaSkull className="inline" aria-hidden="true" /><FaSkull className="inline" aria-hidden="true" /> Средне
-                  </Chip>
-                  <Chip
-                    active={complexity === "high"}
-                    onClick={() =>
-                      apply({ complexity: complexity === "high" ? null : "high" })
-                    }
-                  >
-                    <FaSkull className="inline" aria-hidden="true" /><FaSkull className="inline" aria-hidden="true" /><FaSkull className="inline" aria-hidden="true" /> Хардкор
-                  </Chip>
-                </div>
-              </div>
-              <div className="min-w-0">
-                <div className="label">Часы</div>
-                <div className="flex flex-wrap gap-1.5">
-                  {[
-                    ["any", "Любые"],
-                    ["lt10", "<10ч"],
-                    ["10-49", "10–50ч"],
-                    ["50-99", "50–100ч"],
-                    ["100+", "100ч+"],
-                  ].map(([v, l]) => (
-                    <Chip
-                      key={v}
-                      active={hours === v}
-                      onClick={() => apply({ hours: hours === v ? null : v })}
-                    >
-                      {l}
-                    </Chip>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Тумблер «Только МИ» — справа, но низ на уровне колонки «Жанр».
-                Владелец 11.11.2026: отдельная строка ниже делала панель выше
-                жанров; absolute убирает лишнюю высоту. На телефоне — в потоке,
-                иначе перекрывает «Часы». */}
-            <div className="mt-4 flex justify-end sm:absolute sm:bottom-4 sm:right-4 sm:mt-0">
-              <label className="flex items-center gap-2 text-xs font-semibold text-ink-dim">
-                <span className="switch">
-                  <input
-                    type="checkbox"
-                    checked={miOnly}
-                    onChange={(e) => apply({ mi: e.target.checked ? "1" : null })}
-                    aria-label="Только с кубком МИ"
-                  />
-                  <span className="knob" />
-                </span>
-                Только МИ
-              </label>
-            </div>
-          </div>
       )}
 
       {filtered.length === 0 ? (
