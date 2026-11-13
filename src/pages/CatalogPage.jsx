@@ -155,13 +155,27 @@ function SelectMenu({
           setActive(Math.max(0, options.findIndex((o) => o.v === value)));
         }}
         className={
-          "input flex items-center gap-2 pl-3 pr-8 text-xs font-semibold " +
-          (tall ? "!h-12 !py-2 " : "!h-11 !py-1.5 sm:!h-10 ") +
+          // В верхней строке шрифт как у «Фильтров» (14 px): «Сначала недавние»
+          // не должна выглядеть мельче соседей (слово владельца 13.11.2026).
+          "input flex items-center gap-2 pl-3 pr-8 font-semibold " +
+          (tall ? "!h-12 !py-2 text-sm " : "!h-11 !py-1.5 text-xs sm:!h-10 ") +
           btnClass
         }
       >
         {Icon && <Icon className="shrink-0 text-pastel-purple" />}
-        <span className="min-w-0 truncate">{current?.l}</span>
+        <span className="min-w-0 truncate">
+          {/* На телефоне длинная подпись не влезает рядом с «Фильтрами»:
+              «Сначала недавние» обрезалось до «Сначала недавн…». Короткий
+              вариант — только для узкого экрана, в списке текст полный. */}
+          {current?.short ? (
+            <>
+              <span className="sm:hidden">{current.short}</span>
+              <span className="hidden sm:inline">{current.l}</span>
+            </>
+          ) : (
+            current?.l
+          )}
+        </span>
         <FiChevronDown
           className={
             "pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-pastel-purple transition " +
@@ -198,7 +212,9 @@ function SelectMenu({
                 onMouseEnter={() => setActive(i)}
                 onClick={() => choose(o.v)}
                 className={
-                  "flex cursor-pointer items-center justify-between gap-2 rounded-btn px-3 py-2 text-xs " +
+                  "flex cursor-pointer items-center justify-between gap-2 rounded-btn px-3 py-2 " +
+                  (tall ? "text-sm" : "text-xs") +
+                  " " +
                   (i === active ? "bg-white/10 text-ink" : "text-ink-dim")
                 }
               >
@@ -805,7 +821,7 @@ export function CatalogPage() {
               })
             }
             options={[
-              { v: "played-desc", l: "Сначала недавние" },
+              { v: "played-desc", l: "Сначала недавние", short: "Недавние" },
               { v: "rating-desc", l: "По оценке Тиана" },
               { v: "hours-desc", l: "По часам" },
               { v: "release-desc", l: "По дате выхода" },
