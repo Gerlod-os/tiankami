@@ -202,8 +202,14 @@ export function GameModal({ game, onClose }) {
         </div>
         {/* Кнопка на всю ширину, без разделительной полосы: геометрия окна
             не рвётся линией перед самым низом (11.11.2026). */}
+        {/* Переход на страницу закрывает окно: держать его поверх новой игры
+            незачем (слово владельца 13.11.2026). */}
         <div className="shrink-0 px-4 pb-4 pt-1">
-          <Link to={`/catalog/${game.slug}`} className="btn-primary w-full text-sm">
+          <Link
+            to={`/catalog/${game.slug}`}
+            onClick={onClose}
+            className="btn-primary w-full text-sm"
+          >
             Страница игры <FiArrowRight />
           </Link>
         </div>

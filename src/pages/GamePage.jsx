@@ -20,7 +20,7 @@ import { recommendSimilar } from "../utils/recommend";
 // Круг: набор повторяется трижды, старт — в средней копии. У края средней копии
 // scrollLeft перескакивает на ширину одного набора, поэтому листать можно в обе
 // стороны без конца и стрелки никогда не упираются (замер 18.10.2026).
-function SimilarCarousel({ items, bySlug, onQuickView }) {
+function SimilarCarousel({ items, bySlug, onQuickView, openSlug }) {
   const ref = useRef(null);
   const [active, setActive] = useState(0);
 
@@ -137,6 +137,7 @@ function SimilarCarousel({ items, bySlug, onQuickView }) {
             <GameCard
               game={g}
               onQuickView={onQuickView}
+              openSlug={openSlug}
               rarity={bySlug?.[g.slug] || "common"}
             />
           </div>
@@ -151,6 +152,13 @@ export function GamePage() {
   const { games, bySlug } = useData();
   const [modal, setModal] = useState(null);
   const game = games.find((g) => g.slug === slug);
+
+  // Перешли на другую игру — окно быстрого просмотра закрываем. При смене slug
+  // React Router не размонтирует страницу, поэтому состояние модалки живёт
+  // дальше и висело поверх новой игры (слово владельца 13.11.2026).
+  useEffect(() => {
+    setModal(null);
+  }, [slug]);
 
   usePageMeta(
     game
@@ -361,6 +369,7 @@ export function GamePage() {
             items={recs}
             bySlug={bySlug}
             onQuickView={setModal}
+            openSlug={modal?.slug || ""}
           />
         </section>
       )}
