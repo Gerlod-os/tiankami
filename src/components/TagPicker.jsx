@@ -33,7 +33,6 @@ export function TagPicker({ items, selected, onToggle, onClear, max = 5 }) {
   useEffect(() => {
     if (!open) return undefined;
     measure();
-    inputRef.current?.focus();
     const onDown = (e) => {
       if (panelRef.current?.contains(e.target)) return;
       if (btnRef.current?.contains(e.target)) return;
@@ -75,6 +74,10 @@ export function TagPicker({ items, selected, onToggle, onClear, max = 5 }) {
     return items.filter((x) => x.tag.toLowerCase().includes(s));
   }, [items, q]);
 
+  // Фокус в поиск — только когда портал уже отрисован (pos посчитан).
+  useEffect(() => {
+    if (open && pos) inputRef.current?.focus();
+  }, [open, pos]);
   const full = selected.size >= max;
 
   return (
@@ -86,7 +89,7 @@ export function TagPicker({ items, selected, onToggle, onClear, max = 5 }) {
         aria-expanded={open}
         aria-label="Фильтр по тегам"
         onClick={() => setOpen((o) => !o)}
-        className="input relative flex !h-12 w-full items-center gap-2 !py-2 pl-3 pr-8 text-left text-xs font-semibold"
+        className="input relative flex !h-11 w-full items-center gap-2 !py-1.5 pl-3 pr-8 text-left text-xs font-semibold sm:!h-10"
       >
         <FiTag className="shrink-0 text-pastel-amber" aria-hidden="true" />
         <span className="min-w-0 flex-1 truncate">
@@ -108,7 +111,7 @@ export function TagPicker({ items, selected, onToggle, onClear, max = 5 }) {
             role="listbox"
             aria-multiselectable="true"
             aria-label="Теги игр"
-            data-tag-panel
+            data-filter-popup
             style={{
               left: pos.left,
               width: pos.width,

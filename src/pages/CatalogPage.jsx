@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { pagesCount, pageSlice, pageNumbers } from "../utils/pagination";
 import {
@@ -35,6 +36,7 @@ import { ratingColor } from "../utils/statusMeta";
 import { topRated } from "../utils/stats";
 import { usePageMeta } from "../utils/usePageMeta";
 import { MASCOTS } from "../config/mascots";
+import { useAnchoredPanel } from "../utils/useAnchoredPanel";
 
 const PAGE = 24;
 
@@ -71,7 +73,10 @@ function Chip({ active, onClick, children, title, disabled, className = "" }) {
       title={title}
       disabled={disabled}
       className={
-        "chip border px-4 py-2 transition duration-200 disabled:cursor-not-allowed disabled:opacity-40 " +
+        // В панели фильтров чипсы компактнее обычных: их десятки, и крупные
+        // кнопки раздували панель до 476 px (замечание владельца 13.11.2026).
+        // На телефоне оставляем чуть выше — палец должен попадать.
+        "chip border px-2.5 py-1.5 text-xs leading-tight transition duration-200 disabled:cursor-not-allowed disabled:opacity-40 sm:px-2.5 sm:py-1 sm:text-[11px] " +
         className +
         " " +
         (active
@@ -88,35 +93,18 @@ function Chip({ active, onClick, children, title, disabled, className = "" }) {
 // оформление зависит от ОС), клавиатура — по паттерну listbox WAI-ARIA APG.
 function SelectMenu({ label, value, options, onChange, icon: Icon, wrapClass = "", btnClass = "!w-auto" }) {
   const uid = useId().replace(/:/g, "");
-  const [open, setOpen] = useState(false);
+  // Список рендерится порталом: панель фильтров прокручивается и обрезает
+  // absolute-потомков (список годов из 18 пунктов терял последние).
+  const { open, setOpen, pos, btnRef, panelRef } = useAnchoredPanel({ width: 224 });
   const [active, setActive] = useState(0);
-  const boxRef = useRef(null);
-  const btnRef = useRef(null);
-  const listRef = useRef(null);
   const current = options.find((o) => o.v === value) || options[0];
 
+  // Фокус — на сам список (panelRef), чтобы работали стрелки и Enter.
+  // Зависимость от pos обязательна: портал появляется только когда посчитана
+  // позиция, и до этого panelRef.current ещё null (замер 13.11.2026).
   useEffect(() => {
-    if (!open) return undefined;
-    const onDown = (e) => {
-      if (boxRef.current && !boxRef.current.contains(e.target)) setOpen(false);
-    };
-    const onKey = (e) => {
-      if (e.key === "Escape") {
-        setOpen(false);
-        btnRef.current?.focus();
-      }
-    };
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
-
-  useEffect(() => {
-    if (open) listRef.current?.focus();
-  }, [open]);
+    if (open && pos) panelRef.current?.focus();
+  }, [open, pos, panelRef]);
 
   const choose = (v) => {
     onChange(v);
@@ -144,7 +132,7 @@ function SelectMenu({ label, value, options, onChange, icon: Icon, wrapClass = "
   };
 
   return (
-    <span className={"relative inline-block shrink-0 " + wrapClass} ref={boxRef}>
+    <span className={"relative inline-block shrink-0 " + wrapClass}>
       <button
         ref={btnRef}
         type="button"
@@ -156,7 +144,7 @@ function SelectMenu({ label, value, options, onChange, icon: Icon, wrapClass = "
           setActive(Math.max(0, options.findIndex((o) => o.v === value)));
         }}
         className={
-          "input flex !h-12 items-center gap-2 !py-2 pl-3 pr-8 text-xs font-semibold " +
+          "input flex !h-11 items-center gap-2 !py-1.5 pl-3 pr-8 text-xs font-semibold sm:!h-10 " +
           btnClass
         }
       >
@@ -169,35 +157,46 @@ function SelectMenu({ label, value, options, onChange, icon: Icon, wrapClass = "
           }
         />
       </button>
-      {open && (
-        <ul
-          ref={listRef}
-          role="listbox"
-          aria-label={label}
-          tabIndex={-1}
-          aria-activedescendant={`${uid}-opt-${active}`}
-          onKeyDown={onListKey}
-          className="absolute right-0 z-40 mt-2 max-h-72 w-56 overflow-y-auto rounded-btn border border-white/10 bg-night-700 p-1 shadow-card focus:outline-none"
-        >
-          {options.map((o, i) => (
-            <li
-              key={o.v}
-              id={`${uid}-opt-${i}`}
-              role="option"
-              aria-selected={o.v === value}
-              onMouseEnter={() => setActive(i)}
-              onClick={() => choose(o.v)}
-              className={
-                "flex cursor-pointer items-center justify-between gap-2 rounded-btn px-3 py-2 text-xs " +
-                (i === active ? "bg-white/10 text-ink" : "text-ink-dim")
-              }
-            >
-              <span>{o.l}</span>
-              {o.v === value && <FiCheck className="shrink-0 text-pastel-pink" />}
-            </li>
-          ))}
-        </ul>
-      )}
+      {open &&
+        pos &&
+        createPortal(
+          <ul
+            ref={panelRef}
+            role="listbox"
+            aria-label={label}
+            tabIndex={-1}
+            aria-activedescendant={`${uid}-opt-${active}`}
+            onKeyDown={onListKey}
+            data-filter-popup
+            style={{
+              left: pos.left,
+              width: pos.width,
+              top: pos.top,
+              bottom: pos.bottom,
+              maxHeight: pos.maxHeight,
+            }}
+            className="fixed z-[60] overflow-y-auto rounded-btn border border-white/10 bg-night-700 p-1 shadow-card focus:outline-none"
+          >
+            {options.map((o, i) => (
+              <li
+                key={o.v}
+                id={`${uid}-opt-${i}`}
+                role="option"
+                aria-selected={o.v === value}
+                onMouseEnter={() => setActive(i)}
+                onClick={() => choose(o.v)}
+                className={
+                  "flex cursor-pointer items-center justify-between gap-2 rounded-btn px-3 py-2 text-xs " +
+                  (i === active ? "bg-white/10 text-ink" : "text-ink-dim")
+                }
+              >
+                <span>{o.l}</span>
+                {o.v === value && <FiCheck className="shrink-0 text-pastel-pink" />}
+              </li>
+            ))}
+          </ul>,
+          document.body,
+        )}
     </span>
   );
 }
@@ -331,7 +330,13 @@ export function CatalogPage() {
   // Сворачивание фильтров: Escape, клик вне (НО НЕ при скролле — фильтр остаётся)
   useEffect(() => {
     if (!filtersOpen) return undefined;
-    const onKey = (e) => e.key === "Escape" && setFiltersOpen(false);
+    // Escape сначала закрывает выпадающий список (год, теги), и только
+    // следующим нажатием — саму панель. Иначе один Escape схлопывал всё.
+    const onKey = (e) => {
+      if (e.key !== "Escape") return;
+      if (document.querySelector("[data-filter-popup]")) return;
+      setFiltersOpen(false);
+    };
     // Закрываем на click, а не на mousedown: панель схлопывается на 310 px, и если
     // это случится до отпускания кнопки, click уйдёт общему предку — карточка
     // не откроется (проверено 18.10.2026). После click переход уже начался.
@@ -340,9 +345,9 @@ export function CatalogPage() {
       // Панель фильтров теперь отдельная карточка под строкой поиска: без этой
       // проверки клик по чипсу считался «вне» и схлопывал панель.
       if (e.target.closest && e.target.closest("[data-filters-panel]")) return;
-      // Список тегов живёт порталом в body — он тоже «внутри» фильтров,
-      // иначе клик по тегу схлопывал всю панель (замер 13.11.2026).
-      if (e.target.closest && e.target.closest("[data-tag-panel]")) return;
+      // Выпадающие списки (год, теги) живут порталом в body — они тоже «внутри»
+      // фильтров, иначе клик по пункту схлопывал всю панель (замер 13.11.2026).
+      if (e.target.closest && e.target.closest("[data-filter-popup]")) return;
       setFiltersOpen(false);
     };
     document.addEventListener("keydown", onKey);
@@ -847,9 +852,11 @@ export function CatalogPage() {
           >
             {/* Фон непрозрачный: обычный .card полупрозрачный, и сквозь панель
                 читались карточки каталога. */}
-            <div className="card relative max-h-[70dvh] overflow-y-auto !bg-night-800 p-4 md:p-5">
-              <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-                <div className="min-w-0">
+            <div className="card relative max-h-[70dvh] overflow-y-auto !bg-night-800 p-3 md:p-4">
+              <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                {/* Жанры — две колонки из шести: 14 чипсов в узкой колонке
+                    растягивали панель втрое (замер 13.11.2026: 476 px). */}
+                <div className="min-w-0 sm:col-span-2">
                   <div className="label">Жанр</div>
                   <div className="flex flex-wrap gap-1.5">
                     {meta.genres.slice(0, 14).map((x) => (
@@ -858,29 +865,11 @@ export function CatalogPage() {
                         active={genresSel.has(x)}
                         onClick={() => toggleGenre(x)}
                         disabled={!genresSel.has(x) && genresSel.size >= MAX_GENRES}
-                        className="!px-3 !py-1.5 text-xs"
                       >
                         {x}
                       </Chip>
                     ))}
                   </div>
-                </div>
-
-                <div className="min-w-0">
-                  {/* Подпись «Год и кубок» владелец 11.11.2026 попросил убрать.
-                      Пустой label той же высоты держит селект на одной линии
-                      с соседними колонками. */}
-                  <div className="label" aria-hidden="true">&nbsp;</div>
-                  <SelectMenu
-                    label="Год выхода"
-                    value={year}
-                    icon={FiCalendar}
-                    onChange={(v) => apply({ year: v })}
-                    options={[
-                      { v: "any", l: "Любой год" },
-                      ...meta.years.map((y) => ({ v: String(y), l: String(y) })),
-                    ]}
-                  />
                 </div>
 
                 <div className="min-w-0">
@@ -960,6 +949,21 @@ export function CatalogPage() {
                   </div>
                 </div>
                 <div className="min-w-0">
+                  {/* Подпись вернулась: без неё селект выглядел ещё одним жанром
+                      и прилипал к чипсам (замечание владельца 13.11.2026). */}
+                  <div className="label">Год</div>
+                  <SelectMenu
+                    label="Год выхода"
+                    value={year}
+                    icon={FiCalendar}
+                    onChange={(v) => apply({ year: v })}
+                    options={[
+                      { v: "any", l: "Любой год" },
+                      ...meta.years.map((y) => ({ v: String(y), l: String(y) })),
+                    ]}
+                  />
+                </div>
+                <div className="min-w-0 xl:col-span-2">
                   <div className="label">Часы</div>
                   <div className="flex flex-wrap gap-1.5">
                     {[
@@ -999,7 +1003,7 @@ export function CatalogPage() {
                   Владелец 11.11.2026: отдельная строка ниже делала панель выше
                   жанров; absolute убирает лишнюю высоту. На телефоне — в потоке,
                   иначе перекрывает «Часы». */}
-              <div className="mt-4 flex justify-end sm:absolute sm:bottom-4 sm:right-4 sm:mt-0">
+              <div className="mt-3 flex justify-end sm:absolute sm:bottom-3 sm:right-3 sm:mt-0">
                 <label className="flex items-center gap-2 text-xs font-semibold text-ink-dim">
                   <span className="switch">
                     <input
