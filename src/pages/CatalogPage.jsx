@@ -75,8 +75,8 @@ function Chip({ active, onClick, children, title, disabled, className = "" }) {
       className={
         // В панели фильтров чипсы компактнее обычных: их десятки, и крупные
         // кнопки раздували панель до 476 px (замечание владельца 13.11.2026).
-        // На телефоне оставляем чуть выше — палец должен попадать.
-        "chip border px-2.5 py-1.5 text-xs leading-tight transition duration-200 disabled:cursor-not-allowed disabled:opacity-40 sm:px-2.5 sm:py-1 sm:text-[11px] " +
+        // Текст — обычные 12 px: на 11 px читалось мелко (правка 13.11.2026).
+        "chip border px-2.5 py-1.5 text-xs leading-tight transition duration-200 disabled:cursor-not-allowed disabled:opacity-40 sm:px-2.5 sm:py-1 " +
         className +
         " " +
         (active
@@ -91,7 +91,18 @@ function Chip({ active, onClick, children, title, disabled, className = "" }) {
 
 // Свой список вместо <select>: системный белый список не оформить (MDN <option> —
 // оформление зависит от ОС), клавиатура — по паттерну listbox WAI-ARIA APG.
-function SelectMenu({ label, value, options, onChange, icon: Icon, wrapClass = "", btnClass = "!w-auto" }) {
+// tall — для верхней строки каталога: там все элементы одной высоты 48 px,
+// и «Сначала недавние» не должна проседать рядом с поиском (слово владельца 13.11.2026).
+function SelectMenu({
+  label,
+  value,
+  options,
+  onChange,
+  icon: Icon,
+  wrapClass = "",
+  btnClass = "!w-auto",
+  tall = false,
+}) {
   const uid = useId().replace(/:/g, "");
   // Список рендерится порталом: панель фильтров прокручивается и обрезает
   // absolute-потомков (список годов из 18 пунктов терял последние).
@@ -144,7 +155,8 @@ function SelectMenu({ label, value, options, onChange, icon: Icon, wrapClass = "
           setActive(Math.max(0, options.findIndex((o) => o.v === value)));
         }}
         className={
-          "input flex !h-11 items-center gap-2 !py-1.5 pl-3 pr-8 text-xs font-semibold sm:!h-10 " +
+          "input flex items-center gap-2 pl-3 pr-8 text-xs font-semibold " +
+          (tall ? "!h-12 !py-2 " : "!h-11 !py-1.5 sm:!h-10 ") +
           btnClass
         }
       >
@@ -782,6 +794,7 @@ export function CatalogPage() {
           <SelectMenu
             label="Сортировка"
             value={sort}
+            tall
             wrapClass="min-w-0 flex-1 sm:flex-none"
             btnClass="!w-full sm:!w-auto"
             onChange={(v) =>
@@ -852,7 +865,9 @@ export function CatalogPage() {
           >
             {/* Фон непрозрачный: обычный .card полупрозрачный, и сквозь панель
                 читались карточки каталога. */}
-            <div className="card relative max-h-[70dvh] overflow-y-auto !bg-night-800 p-3 md:p-4">
+            {/* pb-16 на телефоне: внизу справа висит круглая кнопка-маскот
+                (fixed), и без запаса она накрывала «100ч+» и теги. */}
+            <div className="card relative max-h-[70dvh] overflow-y-auto !bg-night-800 p-3 pb-16 md:p-4">
               <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
                 {/* Жанры — две колонки из шести: 14 чипсов в узкой колонке
                     растягивали панель втрое (замер 13.11.2026: 476 px). */}
