@@ -233,6 +233,38 @@ export function getGameMetadata(games) {
   return { genres: [...genres].sort((a, b) => a.localeCompare(b, "ru")), years: [...years].sort() };
 }
 
+// ─── Теги («Особенности» в таблице) ──────────────────────────────────────────
+// Одна строка через запятую: «Декбилдер, Пиксельарт». Отдельная функция, потому
+// что тот же разбор нужен фильтру, подсказкам поиска и странице игры.
+export function splitFeatures(value) {
+  return String(value || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+// Сколько игр у каждого тега: [{ tag, count }], редкие — в конце.
+// Сортировка по частоте, а не по алфавиту: 257 тегов, из них 141 встречается
+// у одной игры — в списке сверху должны быть те, что реально сужают выборку.
+export function featureCounts(games) {
+  const m = new Map();
+  games.forEach((g) => {
+    splitFeatures(g.features).forEach((t) => m.set(t, (m.get(t) || 0) + 1));
+  });
+  return [...m.entries()]
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag, "ru"));
+}
+
+// Теги — по «ИЛИ», как жанры: у игры в среднем 2,25 тега, поэтому два тега по
+// «И» давали бы почти всегда пусто. Пустой выбор пропускает всё.
+export function matchesFeatures(game, selected) {
+  const want = selected instanceof Set ? selected : new Set(selected || []);
+  if (!want.size) return true;
+  return splitFeatures(game.features).some((t) => want.has(t));
+}
+
+
 // ─── Числовые парсеры для сортировок/шкал ────────────────────────────────────
 export function parseNum(value) {
   const n = parseFloat(String(value || "").replace(",", "."));

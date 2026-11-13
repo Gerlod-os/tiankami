@@ -21,8 +21,15 @@ import { useData } from "../components/DataProvider";
 import { GameCard } from "../components/GameCard";
 import { GameModal } from "../components/GameModal";
 import { RarityEgg } from "../components/RarityEgg";
+import { TagPicker } from "../components/TagPicker";
 import { Highlight } from "../components/Highlight";
-import { getGameMetadata, parseNum, hasMI } from "../utils/normalize";
+import {
+  getGameMetadata,
+  parseNum,
+  hasMI,
+  featureCounts,
+  matchesFeatures,
+} from "../utils/normalize";
 import { parseRuDate } from "../utils/date";
 import { ratingColor } from "../utils/statusMeta";
 import { topRated } from "../utils/stats";
@@ -214,6 +221,7 @@ export function CatalogPage() {
 
   const q = sp.get("q") || "";
   const genresSel = useMemo(() => new Set(sp.getAll("genre")), [sp]);
+  const tagsSel = useMemo(() => new Set(sp.getAll("tag")), [sp]);
   const status = sp.get("status") || "any";
   const year = sp.get("year") || "any";
   const ratingMin = Number(sp.get("rating")) || 0;
@@ -242,6 +250,9 @@ export function CatalogPage() {
   const searchRef = useRef(null);
   const filtersRef = useRef(null);
   const MAX_GENRES = 2;
+  // Тегов у игры в среднем 2,25 (медиана 2) — пять с запасом хватает.
+  // Ограничение нужно, чтобы «ИЛИ» не превращалось в «весь каталог».
+  const MAX_TAGS = 5;
 
   // Липкая строка фильтров встаёт под шапку сайта. Высоту шапки меряю, а не
   // угадываю: на телефоне и десктопе она разная, и от неё зависит, не наедет
@@ -329,6 +340,9 @@ export function CatalogPage() {
       // Панель фильтров теперь отдельная карточка под строкой поиска: без этой
       // проверки клик по чипсу считался «вне» и схлопывал панель.
       if (e.target.closest && e.target.closest("[data-filters-panel]")) return;
+      // Список тегов живёт порталом в body — он тоже «внутри» фильтров,
+      // иначе клик по тегу схлопывал всю панель (замер 13.11.2026).
+      if (e.target.closest && e.target.closest("[data-tag-panel]")) return;
       setFiltersOpen(false);
     };
     document.addEventListener("keydown", onKey);
@@ -363,6 +377,9 @@ export function CatalogPage() {
     );
     return m;
   }, [games]);
+
+  // Теги со счётчиками: 257 штук, редкие — в конце списка.
+  const tagItems = useMemo(() => featureCounts(games), [games]);
 
   const collection = useMemo(() => {
     if (!collectionParam) return null;
@@ -400,6 +417,8 @@ export function CatalogPage() {
         // Жанры — по «ИЛИ», как написано в подписи: два жанра дают объединение.
         if (![...genresSel].some((x) => gset.includes(x))) return false;
       }
+      // Теги — по «ИЛИ»: хватает одного совпадения.
+      if (!matchesFeatures(g, tagsSel)) return false;
       if (status !== "any" && g.status !== status) return false;
       if (year !== "any" && !String(g.releaseDate).includes(year)) return false;
       if (parseNum(g.rating) < ratingMin) return false;
@@ -421,6 +440,7 @@ export function CatalogPage() {
     games,
     q,
     genresSel,
+    tagsSel,
     status,
     year,
     ratingMin,
@@ -473,6 +493,7 @@ export function CatalogPage() {
   const hasFilters =
     q ||
     genresSel.size ||
+    tagsSel.size ||
     status !== "any" ||
     year !== "any" ||
     ratingMin > 0 ||
@@ -487,6 +508,7 @@ export function CatalogPage() {
     apply({
       q: null,
       genre: null,
+      tag: null,
       status: null,
       year: null,
       rating: null,
@@ -506,6 +528,13 @@ export function CatalogPage() {
     apply({ genre: [...next] });
   };
 
+  const toggleTag = (x) => {
+    const next = new Set(tagsSel);
+    if (next.has(x)) next.delete(x);
+    else if (next.size < MAX_TAGS) next.add(x);
+    apply({ tag: [...next] });
+  };
+
   // Активные фильтры видимой строкой: панель свёрнута, а состояние видно.
   // Каждую плашку можно снять по одной, не открывая панель (11.11.2026).
   const HOURS_LABELS = {
@@ -519,6 +548,10 @@ export function CatalogPage() {
     const list = [];
     for (const g of genresSel) {
       list.push({ key: `genre-${g}`, label: g, clear: () => toggleGenre(g) });
+    }
+    // Тег подписан «#», чтобы плашку нельзя было спутать с жанром.
+    for (const t of tagsSel) {
+      list.push({ key: `tag-${t}`, label: `#${t}`, clear: () => toggleTag(t) });
     }
     if (status !== "any") {
       list.push({
@@ -572,7 +605,7 @@ export function CatalogPage() {
     return list;
     // toggleGenre и apply пересоздаются вместе с searchParams — этого достаточно.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [genresSel, status, year, ratingMin, complexity, hours, miOnly, collectionParam, searchParams]);
+  }, [genresSel, tagsSel, status, year, ratingMin, complexity, hours, miOnly, collectionParam, searchParams]);
 
   return (
     <div className="space-y-6">
@@ -945,6 +978,20 @@ export function CatalogPage() {
                       </Chip>
                     ))}
                   </div>
+                </div>
+
+                {/* Теги — седьмая колонка: одна кнопка вместо сотни чипсов.
+                    До пяти, внутри выпадающего списка есть поиск
+                    (слово владельца 13.11.2026). */}
+                <div className="min-w-0 sm:col-span-2">
+                  <div className="label">Теги</div>
+                  <TagPicker
+                    items={tagItems}
+                    selected={tagsSel}
+                    onToggle={toggleTag}
+                    onClear={() => apply({ tag: null })}
+                    max={MAX_TAGS}
+                  />
                 </div>
               </div>
 
