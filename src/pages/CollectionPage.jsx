@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useLayoutEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { FiArrowLeft, FiStar, FiPackage } from "react-icons/fi";
 import { useData } from "../components/DataProvider";
@@ -14,14 +14,44 @@ export function CollectionPage() {
   const { collections, games, bySlug } = useData();
   const [modal, setModal] = useState(null);
   const collection = (collections || []).find((c) => c.slug === slug);
+  const golden = /золотой/i.test(collection?.name || "");
 
   // «Везде» (слово владельца 11.11.2026): клик по строке открывает быстрый
   // просмотр, Ctrl/Cmd/Shift — обычный переход на страницу игры.
-  const quickOpen = useCallback((e, game) => {
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-    e.preventDefault();
-    setModal(game);
-  }, []);
+  // Второй клик по игре, окно которой уже открыто, ведёт на её страницу:
+  // так же, как в каталоге и в «похожих» (слово владельца 12.11.2026).
+  // Раньше каждый клик перехватывался, поэтому двойной клик не открывал игру.
+  const quickOpen = useCallback(
+    (e, game) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      if (modal?.slug === game.slug) return;
+      e.preventDefault();
+      setModal(game);
+    },
+    [modal],
+  );
+
+  // Золотой список — без мест: все 10/10, порядок ничего не значит. Поэтому
+  // перемешиваем при каждом заходе. Только после гидратации: порядок в статике
+  // и в браузере обязан совпасть, иначе React #418 (грабля из описания проекта).
+  const [order, setOrder] = useState(null);
+  useLayoutEffect(() => {
+    if (!collection) return;
+    if (!golden) {
+      setOrder(null);
+      return;
+    }
+    const idx = collection.games.map((_, i) => i);
+    for (let i = idx.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [idx[i], idx[j]] = [idx[j], idx[i]];
+    }
+    setOrder(idx);
+  }, [collection, golden]);
+
+  const rows = order
+    ? order.map((i) => collection?.games[i]).filter(Boolean)
+    : collection?.games || [];
 
   usePageMeta({
     title: collection
@@ -49,7 +79,6 @@ export function CollectionPage() {
   // и раньше карта схлопывалась в один ключ «undefined» — все строки подборки
   // оставались без ссылки, обложки и оценки (найдено 18.10.2026).
   const byTitle = new Map(games.map((g) => [String(g.title).toLowerCase(), g]));
-  const golden = /золотой/i.test(collection.name);
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -79,7 +108,7 @@ export function CollectionPage() {
 
       {/* Список игр */}
       <ol className="space-y-3">
-        {collection.games.map((g, i) => {
+        {rows.map((g, i) => {
           const match = byTitle.get(String(g.name).toLowerCase());
           const pos = g.rank ? parseInt(g.rank, 10) : i + 1;
           return (
@@ -101,10 +130,13 @@ export function CollectionPage() {
                       loading="lazy"
                     />
                   )}
-                  {/* Номер */}
-                  <span className="w-10 shrink-0 text-center font-display text-2xl font-black text-pastel-purple">
-                    {rankMedal(g.rank) || `#${pos}`}
-                  </span>
+                  {/* Номер: в золотом списке его нет — мест там не раздают,
+                      все 10/10, а порядок перемешивается (слово владельца 13.11.2026). */}
+                  {!golden && (
+                    <span className="w-10 shrink-0 text-center font-display text-2xl font-black text-pastel-purple">
+                      {rankMedal(g.rank) || `#${pos}`}
+                    </span>
+                  )}
                   {/* Яйцо — слева от названия, как в каталоге (решение владельца 18.10.2026) */}
                   <RarityEgg
                     rarity={bySlug?.[match.slug] || "common"}
@@ -137,9 +169,11 @@ export function CollectionPage() {
                 </Link>
               ) : (
                 <div className="card flex items-center gap-4 p-4 opacity-70">
-                  <span className="w-10 shrink-0 text-center font-display text-xl font-black text-ink-faint">
-                    {rankMedal(g.rank) || `#${pos}`}
-                  </span>
+                  {!golden && (
+                    <span className="w-10 shrink-0 text-center font-display text-xl font-black text-ink-faint">
+                      {rankMedal(g.rank) || `#${pos}`}
+                    </span>
+                  )}
                   <span className="truncate font-display font-bold text-ink-dim">{g.name}</span>
                 </div>
               )}
