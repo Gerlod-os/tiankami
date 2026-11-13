@@ -48,9 +48,14 @@ describe("matchesFeatures", () => {
     expect(matchesFeatures(game, [])).toBe(true);
   });
 
-  test("совпал один тег — игра проходит (логика «ИЛИ»)", () => {
+  test("совпал один тег из одного выбранного — игра проходит", () => {
     expect(matchesFeatures(game, new Set(["Кооп"]))).toBe(true);
-    expect(matchesFeatures(game, ["Другое", "Декбилдер"])).toBe(true);
+    expect(matchesFeatures(game, ["Декбилдер"])).toBe(true);
+  });
+
+  test("нужны ВСЕ выбранные теги, а не любой (логика «И»)", () => {
+    expect(matchesFeatures(game, ["Декбилдер", "Кооп"])).toBe(true);
+    expect(matchesFeatures(game, ["Декбилдер", "Пиксельарт"])).toBe(false);
   });
 
   test("нет ни одного общего тега — игра отсеивается", () => {

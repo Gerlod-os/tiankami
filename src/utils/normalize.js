@@ -256,12 +256,15 @@ export function featureCounts(games) {
     .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag, "ru"));
 }
 
-// Теги — по «ИЛИ», как жанры: у игры в среднем 2,25 тега, поэтому два тега по
-// «И» давали бы почти всегда пусто. Пустой выбор пропускает всё.
+// Теги — по «И»: игра должна иметь ВСЕ выбранные теги (слово владельца 13.11.2026,
+// до этого было «ИЛИ»). Пустой выбор пропускает всё.
+// Цена решения: тегов у игры в среднем 2,25, поэтому три-четыре тега подряд
+// почти всегда дают пусто. Это осознанный выбор — фильтр ищет точное пересечение.
 export function matchesFeatures(game, selected) {
   const want = selected instanceof Set ? selected : new Set(selected || []);
   if (!want.size) return true;
-  return splitFeatures(game.features).some((t) => want.has(t));
+  const own = splitFeatures(game.features);
+  return [...want].every((t) => own.includes(t));
 }
 
 

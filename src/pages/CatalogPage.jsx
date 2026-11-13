@@ -261,8 +261,8 @@ export function CatalogPage() {
   const searchRef = useRef(null);
   const filtersRef = useRef(null);
   const MAX_GENRES = 2;
-  // Тегов у игры в среднем 2,25 (медиана 2) — пять с запасом хватает.
-  // Ограничение нужно, чтобы «ИЛИ» не превращалось в «весь каталог».
+  // Тегов у игры в среднем 2,25 (медиана 2). Фильтр работает по «И», поэтому
+  // пять тегов — это уже очень узкая выборка; больше и не нужно.
   const MAX_TAGS = 5;
 
   // Липкая строка фильтров встаёт под шапку сайта. Высоту шапки меряю, а не
@@ -431,10 +431,11 @@ export function CatalogPage() {
         const gset = String(g.genre)
           .split(",")
           .map((s) => s.trim());
-        // Жанры — по «ИЛИ», как написано в подписи: два жанра дают объединение.
-        if (![...genresSel].some((x) => gset.includes(x))) return false;
+        // Жанры — по «И»: игра должна быть в каждом выбранном жанре
+        // (слово владельца 13.11.2026, раньше давало объединение).
+        if (![...genresSel].every((x) => gset.includes(x))) return false;
       }
-      // Теги — по «ИЛИ»: хватает одного совпадения.
+      // Теги — по «И»: нужны все выбранные.
       if (!matchesFeatures(g, tagsSel)) return false;
       if (status !== "any" && g.status !== status) return false;
       if (year !== "any" && !String(g.releaseDate).includes(year)) return false;
