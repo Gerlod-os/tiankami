@@ -1,8 +1,6 @@
 // Система редкости в стиле Monster Train: драконьи яйца 5 уровней.
 import { parseNum } from "./normalize.js";
 
-export const RARITY_ORDER = ["common", "normal", "rare", "epic", "legendary", "perfect", "mythic"];
-
 // Свечение карточки цветом редкости (hover)
 export const RARITY_GLOW = {
   common: "rgba(154,160,174,0.25)",

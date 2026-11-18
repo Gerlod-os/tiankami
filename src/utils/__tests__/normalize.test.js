@@ -9,7 +9,6 @@ import {
   extractSteamAppId,
   extractUrlFromCell,
   steamHeaderUrl,
-  steamCoverUrl,
   getGameMetadata,
   parseNum,
   hasMI,
@@ -149,7 +148,6 @@ describe("ссылки", () => {
     expect(steamHeaderUrl("7")).toBe(
       "https://cdn.cloudflare.steamstatic.com/steam/apps/7/header.jpg"
     );
-    expect(steamCoverUrl("7")).toContain("library_600x900");
   });
 });
 

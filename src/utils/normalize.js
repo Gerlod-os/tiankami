@@ -212,9 +212,6 @@ export function extractUrlFromCell(cell) {
 export function steamHeaderUrl(appId) {
   return `https://cdn.cloudflare.steamstatic.com/steam/apps/${appId}/header.jpg`;
 }
-export function steamCoverUrl(appId) {
-  return `https://cdn.cloudflare.steamstatic.com/steam/apps/${appId}/library_600x900.jpg`;
-}
 
 // Жанры и годы для фильтров
 export function getGameMetadata(games) {

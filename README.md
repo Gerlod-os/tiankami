@@ -55,7 +55,7 @@ npm run preview      # локальная проверка собранного 
 
 ```bash
 npm run lint        # oxlint
-npm test            # vitest, 152 теста
+npm test            # vitest, 162 теста
 npm run test:data   # формат и полнота данных
 npm run test:links  # битые внутренние ссылки по собранному dist/
 npm run audit       # LCP/CLS, битые картинки, тап-таргеты, ошибки консоли
