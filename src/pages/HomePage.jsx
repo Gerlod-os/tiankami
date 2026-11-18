@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiArrowRight, FiCalendar, FiZap, FiStar } from "react-icons/fi";
 import { FaYoutube } from "react-icons/fa";
@@ -15,6 +15,7 @@ import { usePageMeta } from "../utils/usePageMeta";
 import { statusMeta, ratingColor } from "../utils/statusMeta";
 import { parseNum, isUrl } from "../utils/normalize";
 import { todayUTC, formatRuDate } from "../utils/date";
+import { buildDate } from "../utils/loadData";
 import { splitSchedule, useMoscowTime } from "../utils/schedule";
 
 const GRADS = ["grad-pink", "grad-mint", "grad-blue", "grad-amber"];
@@ -55,8 +56,16 @@ export function HomePage() {
   const last = lastPlayedGame(games);
   // Ближайший стрим — тот же выбор, что на странице расписания: закончившийся
   // сегодняшний не показываем, иначе в 22:00 главная зовёт на утренний стрим.
+  // Первый рендер обязан совпасть с сервером: в пререндере дата — день сборки,
+  // а время пустое (useMoscowTime отдаёт "" до эффекта). Без этого расходятся
+  // сутки на стыке дня и «уже кончившийся» стрим — React #418 (18.11.2026).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const nowMsk = useMoscowTime();
-  const nextStream = splitSchedule(schedule, formatRuDate(todayUTC()), nowMsk).upcoming[0];
+  const todayRu = mounted
+    ? formatRuDate(todayUTC())
+    : buildDate() || formatRuDate(todayUTC());
+  const nextStream = splitSchedule(schedule, todayRu, nowMsk).upcoming[0];
   const byTitle = useMemo(
     () => new Map(games.map((g) => [String(g.title).toLowerCase(), g])),
     [games]

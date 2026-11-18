@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import { FiClock, FiCalendar, FiZap, FiTrendingUp } from "react-icons/fi";
 import { FaTwitch } from "react-icons/fa";
 import { useData } from "../components/DataProvider";
 import { parseRuDate, todayUTC, formatRuDate, formatRuDateLong } from "../utils/date";
+import { buildDate } from "../utils/loadData";
 import { splitSchedule, useMoscowTime } from "../utils/schedule";
 import { BRAND } from "../config/branding";
 import { usePageMeta } from "../utils/usePageMeta";
@@ -89,7 +91,13 @@ export function SchedulePage() {
       "Расписание стримов Tiankami: ближайший стрим по календарю канала на Twitch и прошедшие трансляции с записями.",
   });
 
-  const todayRu = formatRuDate(todayUTC());
+  // Первый рендер — как на сервере: дата сборки, время пустое. Иначе на стыке
+  // суток пререндер и браузер дают разные списки (React #418, 18.11.2026).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const todayRu = mounted
+    ? formatRuDate(todayUTC())
+    : buildDate() || formatRuDate(todayUTC());
   const nowMsk = useMoscowTime();
   const { upcoming, past } = splitSchedule(schedule, todayRu, nowMsk);
   const next = upcoming[0];

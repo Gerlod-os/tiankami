@@ -22,6 +22,7 @@ import { MASCOTS } from "../config/mascots";
 import { useData } from "./DataProvider";
 import { splitSchedule } from "../utils/schedule";
 import { formatRuDate, todayUTC } from "../utils/date";
+import { buildDate } from "../utils/loadData";
 import { TwitchHeaderWidget } from "./TwitchHeaderWidget";
 import { FxPanel } from "./FxPanel";
 import { YandexMetrika } from "./YandexMetrika";
@@ -79,6 +80,11 @@ export function Layout({ children }) {
   const nextStream = mounted
     ? splitSchedule(schedule, formatRuDate(todayUTC()), "00:00").upcoming[0]
     : null;
+  // Год в подвале: до монтирования — год сборки, иначе 31 декабря пререндер и
+  // браузер рисуют разные числа (React #418).
+  const year = mounted
+    ? new Date().getFullYear()
+    : Number(buildDate().slice(-4)) || new Date().getFullYear();
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -324,7 +330,7 @@ export function Layout({ children }) {
           (18.10.2026). */}
       <footer className="border-t border-white/5 bg-night-900/60">
         <div className="mx-auto max-w-7xl px-4 py-3 text-center text-xs text-ink-faint">
-          © {new Date().getFullYear()} {BRAND.name} · {BRAND.footerText} · сделано с{" "}
+          © {year} {BRAND.name} · {BRAND.footerText} · сделано с{" "}
           <span aria-hidden="true">🥐</span> и любовью
         </div>
       </footer>

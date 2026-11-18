@@ -19,8 +19,9 @@
       content="Уютный хардкор: база рогаликов с оценками стримера, подборками и расписанием стримов."
     />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://tiankami.vercel.app/" />
-    <meta property="og:image" content="https://tiankami.vercel.app/img/og.png" />
+    <!-- og:url и og:image подставляет пререндер по каждому адресу
+         (scripts/prerender.mjs). Здесь стояли адреса старого хостинга
+         tiankami.vercel.app — при dev-сервере они и уходили в разметку. -->
     <meta name="twitter:card" content="summary_large_image" />
     <!--ssr-head-->
   </head>
