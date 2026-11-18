@@ -13,6 +13,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "sync": "node scripts/sync-data.js",
+    "playlists": "node scripts/yt-playlists.mjs",
     "test": "vitest run",
     "test:data": "node scripts/check-data.mjs",
     "test:links": "node scripts/check-links.mjs",
