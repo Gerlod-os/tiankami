@@ -13,17 +13,27 @@ const FRAME_KEY = "tiankami_modal_frame";
 // они не трогают — это и есть защита от случайного закрытия (11.11.2026).
 // Окно одно: размер и место запоминаются и переходят к следующей игре
 // (владелец 11.11.2026 — «меняется только содержимое»).
+// Окно целиком внутри экрана. Раньше левый край ограничивался числом
+// `innerWidth - 160`, а ширина доходила до 560: при 1440 px правый край
+// уезжал на 1840, то есть 400 px за экран (замер 18.11.2026). Теперь
+// границы считаются от фактической ширины и высоты окна.
+function fitFrame(f) {
+  const width = clamp(f.width, 360, window.innerWidth - 16);
+  const height = clamp(f.height, 240, window.innerHeight - 16);
+  return {
+    width,
+    height,
+    left: clamp(f.left, 8, Math.max(8, window.innerWidth - width - 8)),
+    top: clamp(f.top, 8, Math.max(8, window.innerHeight - height - 8)),
+  };
+}
+
 function readFrame() {
   if (typeof window === "undefined") return null;
   try {
     const f = JSON.parse(sessionStorage.getItem(FRAME_KEY) || "null");
     if (!f || typeof f.width !== "number") return null;
-    return {
-      left: clamp(f.left, 8, window.innerWidth - 160),
-      top: clamp(f.top, 8, window.innerHeight - 56),
-      width: clamp(f.width, 360, window.innerWidth - 16),
-      height: clamp(f.height, 240, window.innerHeight - 16),
-    };
+    return fitFrame(f);
   } catch {
     return null;
   }
@@ -45,6 +55,14 @@ export function GameModal({ game, onClose }) {
       /* приватный режим — размер просто не переживёт перезагрузку */
     }
   }, [frame]);
+
+  // Экран сузился — окно возвращаем внутрь. Без этого после сжатия до 900 px
+  // правый край оставался на 1840 (замер 18.11.2026).
+  useEffect(() => {
+    const onResize = () => setFrame((f) => (f ? fitFrame(f) : f));
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   useEffect(() => {
     if (!game) return undefined;
@@ -98,12 +116,13 @@ export function GameModal({ game, onClose }) {
   const moveDrag = (e) => {
     const d = dragRef.current;
     if (!d) return;
-    setFrame({
-      left: clamp(d.left + e.clientX - d.x, 8, window.innerWidth - 160),
-      top: clamp(d.top + e.clientY - d.y, 8, window.innerHeight - 56),
-      width: d.width,
-      height: d.height,
-    });
+    setFrame(
+      fitFrame({
+        ...d,
+        left: d.left + e.clientX - d.x,
+        top: d.top + e.clientY - d.y,
+      })
+    );
   };
 
   const startResize = (e) => {

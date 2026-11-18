@@ -40,29 +40,48 @@ function Bobber({ dip }) {
 }
 
 export function CatchOfDay() {
-  const { games, rarityBySlug } = useData();
+  // Ключ контекста — bySlug: computeRarities возвращает { bySlug, goldenTitles,
+  // mythicSlugs } (utils/rarity.js:99). Здесь стояло rarityBySlug, которого в
+  // контексте нет, поэтому яйцо пойманной игры всегда было серым (18.11.2026).
+  const { games, bySlug } = useData();
   const [caught, setCaught] = useState(null);
   const [phase, setPhase] = useState("idle"); // idle | casting | caught
   const [locked, setLocked] = useState(false);
   const [drops, setDrops] = useState([]);
+  const [day, setDay] = useState(null);
   const dropId = useRef(0);
   const calm =
     typeof window !== "undefined" &&
     typeof window.matchMedia === "function" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // День — отдельным состоянием: иначе после полуночи эффект не перезапускался
+  // (он висел на [games]) и кнопка навсегда оставалась «Придти завтра»
+  // (замер 18.11.2026: заброс в 23:59:40, через полночь кнопка та же).
+  useEffect(() => {
+    const sync = () => setDay(todayKey());
+    sync();
+    const t = setInterval(sync, 60_000);
+    return () => clearInterval(t);
+  }, []);
+
   // Улов за сегодня — из хранилища. Только после mount: сервер рисует пустое
   // состояние, иначе разъедется разметка (React #418).
+  // Ключа за новый день нет — состояние сбрасываем, заброс снова доступен.
   useEffect(() => {
-    const saved = safeGet(todayKey());
-    if (!saved?.slug) return;
-    const game = games.find((g) => g.slug === saved.slug);
+    if (!day) return;
+    const saved = safeGet(day);
+    const game = saved?.slug ? games.find((g) => g.slug === saved.slug) : null;
     if (game) {
       setCaught(game);
       setPhase("caught");
       setLocked(true);
+      return;
     }
-  }, [games]);
+    setCaught(null);
+    setPhase("idle");
+    setLocked(false);
+  }, [day, games]);
 
   const cast = () => {
     if (phase === "casting" || locked || !games.length) return;
@@ -187,7 +206,7 @@ export function CatchOfDay() {
                 )}
                 <span className="absolute left-2 top-2">
                   <RarityEgg
-                    rarity={rarityBySlug?.[caught.slug] || "common"}
+                    rarity={bySlug?.[caught.slug] || "common"}
                     size={40}
                   />
                 </span>

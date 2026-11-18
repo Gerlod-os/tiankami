@@ -12,28 +12,35 @@ export function LiveBanner() {
   const [live, setLive] = useState(null);
 
   useEffect(() => {
+    let alive = true;
     const stop = afterLoad(
       () => {
         (async () => {
           const cached = safeGet(KEY);
           if (cached && Date.now() - cached.ts < TTL) {
-            setLive(cached.live ? cached : null);
+            if (alive) setLive(cached.live ? cached : null);
             return;
           }
           try {
             const res = await fetch(`https://decapi.me/twitch/uptime/${BRAND.twitchLogin}`);
             const text = (await res.text()).trim();
-            const next = { ts: Date.now(), live: !/offline|unknown|error/i.test(text), text };
+            // Пустой ответ — это не эфир. Раньше регулярка на пустой строке
+            // не срабатывала, и плашка показывала LIVE при пустом 200
+            // (проверка 18.11.2026).
+            const next = { ts: Date.now(), live: text.length > 0 && !/offline|unknown|error/i.test(text), text };
             safeSet(KEY, next);
-            setLive(next.live ? next : null);
+            if (alive) setLive(next.live ? next : null);
           } catch {
-            setLive(null);
+            if (alive) setLive(null);
           }
         })();
       },
       { interaction: true }
     );
-    return stop;
+    return () => {
+      alive = false;
+      stop();
+    };
   }, []);
 
   if (!live) return null;

@@ -29,7 +29,8 @@ export function TwitchWidgetInHero() {
           const text = (await res.text()).trim();
           const next = {
             ts: Date.now(),
-            live: !/offline|unknown|error/i.test(text),
+            // Пустой 200 — не эфир (проверка 18.11.2026).
+            live: text.length > 0 && !/offline|unknown|error/i.test(text),
             text,
           };
           safeSet(STATUS_KEY, next);

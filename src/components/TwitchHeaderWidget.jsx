@@ -13,7 +13,8 @@ async function loadStatus() {
   try {
     const res = await fetch(`https://decapi.me/twitch/uptime/${BRAND.twitchLogin}`);
     const text = (await res.text()).trim();
-    const live = !/offline|unknown|error/i.test(text);
+    // Пустой 200 — не эфир (проверка 18.11.2026).
+    const live = text.length > 0 && !/offline|unknown|error/i.test(text);
     const next = { ts: Date.now(), live, text };
     safeSet(CACHE_KEY, next);
     return next;

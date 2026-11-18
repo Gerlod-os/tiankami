@@ -276,6 +276,9 @@ export function CatalogPage() {
   const [emptyPhrase, setEmptyPhrase] = useState(EMPTY_PHRASES[0]);
   const searchRef = useRef(null);
   const filtersRef = useRef(null);
+  // Таймер закрытия подсказок по blur: без ссылки старый таймер мог закрыть
+  // список, открытый уже после повторного фокуса (18.11.2026).
+  const blurTimer = useRef(0);
   const MAX_GENRES = 2;
   // Тегов у игры в среднем 2,25 (медиана 2). Фильтр работает по «И», поэтому
   // пять тегов — это уже очень узкая выборка; больше и не нужно.
@@ -678,8 +681,20 @@ export function CatalogPage() {
             apply({ q: e.target.value || null }, true);
           }}
           onFocus={() => setDropOpen(true)}
-          onBlur={() => setTimeout(() => setDropOpen(false), 150)}
-          onKeyDown={(e) => e.key === "Escape" && setDropOpen(false)}
+          onBlur={() => {
+            clearTimeout(blurTimer.current);
+            blurTimer.current = setTimeout(() => setDropOpen(false), 150);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setDropOpen(false);
+            // Enter набирает первую подсказку: раньше он не делал ничего и
+            // оставлял в адресе недопечатанный запрос (18.11.2026).
+            if (e.key === "Enter" && dropOpen && sugg?.g?.length) {
+              e.preventDefault();
+              setDropOpen(false);
+              navigate(`/catalog/${sugg.g[0].slug}`);
+            }
+          }}
           aria-label="Живой поиск по каталогу"
         />
         {/* Единственная кнопка сброса на странице. Раньше их было три: в панели
@@ -709,7 +724,12 @@ export function CatalogPage() {
                 key={g.slug}
                 type="button"
                 className="flex w-full items-center gap-2 rounded-btn px-2 py-1.5 text-left text-sm text-ink transition hover:bg-white/10"
-                onMouseDown={() => navigate(`/catalog/${g.slug}`)}
+                // preventDefault на mousedown гасит blur поля (иначе список
+                // закрывался до клика), а действие висит на onClick — его же
+                // шлёт Enter с клавиатуры. Было только onMouseDown: с Tab
+                // и Enter подсказка не выбиралась (18.11.2026).
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => navigate(`/catalog/${g.slug}`)}
               >
                 <RarityEgg rarity={bySlug?.[g.slug] || "common"} size={16} />
                 <span className="min-w-0 flex-1 truncate">
@@ -731,7 +751,8 @@ export function CatalogPage() {
               <button
                 key={`genre-${x}`}
                 type="button"
-                onMouseDown={() => {
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
                   setQInput("");
                   apply({
                     q: null,
@@ -753,7 +774,8 @@ export function CatalogPage() {
               <button
                 key={`setting-${x}`}
                 type="button"
-                onMouseDown={() => {
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
                   setQInput(x);
                   apply({ q: x }, true);
                 }}
@@ -769,7 +791,8 @@ export function CatalogPage() {
               <button
                 key={`feature-${x}`}
                 type="button"
-                onMouseDown={() => {
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
                   setQInput(x);
                   apply({ q: x }, true);
                 }}
