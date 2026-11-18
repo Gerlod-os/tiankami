@@ -158,7 +158,7 @@ export function GameDetails({ game, compact = false }) {
           (замечание владельца 11.11.2026). */}
       {compact && (
       <div className="flex gap-2">
-        {game.steamUrl && (
+        {isUrl(game.steamUrl) && (
           <a
             className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-btn px-2 py-2.5 text-xs font-display font-extrabold text-[#0E1621] transition duration-300 hover:scale-[1.02]"
             style={{
@@ -269,9 +269,9 @@ export function GameDetails({ game, compact = false }) {
           кнопка начинается там же, где заметки, нижняя кончается там же
           (слово владельца 12.11.2026). Ширина та же, что у шкал, — колонка
           читается одним блоком. */}
-      {!compact && (game.steamUrl || game.youtube) && (
+      {!compact && (isUrl(game.steamUrl) || isUrl(game.youtube)) && (
         <div className="flex flex-col gap-2 lg:col-start-1 lg:row-start-2 lg:justify-between">
-          {game.steamUrl && (
+          {isUrl(game.steamUrl) && (
             <a
               className="inline-flex items-center justify-center gap-2 rounded-btn px-4 py-2.5 text-sm font-display font-extrabold text-[#0E1621] transition duration-300 hover:scale-[1.02]"
               style={{

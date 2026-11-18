@@ -51,13 +51,13 @@ templateSrc = templateSrc.replace(
   }
 );
 
-// Вставка B: preload критичных вебшрифтов (кириллица+латиница, без -ext)
+// Вставка B: preload критичных вебшрифтов (кириллица+латиница, без -ext).
+// Inter из списка убран 18.11.2026 — шрифт удалён из проекта 11.11.2026,
+// и префиксы молча не находили ни одного файла.
 const FONT_PRELOAD_PREFIXES = [
   "nunito-cyrillic-wght-",
-  "inter-cyrillic-wght-",
   "unbounded-cyrillic-wght-",
   "nunito-latin-wght-",
-  "inter-latin-wght-",
   "unbounded-latin-wght-",
 ];
 const fontPreloads = fs
@@ -190,6 +190,10 @@ const routes = [
 console.log(`▸ Пререндер ${routes.length} страниц…`);
 const t0 = Date.now();
 let done = 0;
+// Упавшие адреса запоминаем: их нельзя тащить в sitemap — поисковик получит
+// URL, по которому нет файла (soft 404). Раньше ошибка гасилась warn, а адрес
+// всё равно попадал в карту (находка ревью 18.11.2026).
+const failed = [];
 for (const route of routes) {
   try {
     const page = buildPage(route);
@@ -198,10 +202,14 @@ for (const route of routes) {
     fs.writeFileSync(file, page);
     done++;
   } catch (e) {
+    failed.push(route);
     console.warn(`  ⚠ ${route}: ${e.message}`);
   }
 }
 console.log(`  ✔ страниц: ${done}/${routes.length} за ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+if (failed.length) {
+  console.error(`  ✖ не собрались: ${failed.length} — в sitemap не попадут, сборка падает`);
+}
 
 // ── Своя страница 404 ────────────────────────────────────────────────────────
 // GitHub Pages на неизвестный адрес отдаёт файл 404.html из корня публикуемой папки.
@@ -236,15 +244,17 @@ function lastmodFor(route) {
 const sitemap = [
   '<?xml version="1.0" encoding="UTF-8"?>',
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-  ...routes.map((r) => {
-    const lm = lastmodFor(r);
-    const lastmod = lm ? `<lastmod>${lm}</lastmod>` : "";
-    // Кириллицу в адресе кодируем: по протоколу sitemap `<loc>` — это URL,
-    // а не текст. Без кодирования поисковик такие строки отбрасывает
-    // (13 адресов подборок, замер 12.11.2026).
-    const loc = encodeURI(SITE + (r === "/" ? "/" : r + "/"));
-    return `  <url><loc>${loc}</loc>${lastmod}<changefreq>${r.startsWith("/catalog/") ? "weekly" : "daily"}</changefreq></url>`;
-  }),
+  ...routes
+    .filter((r) => !failed.includes(r))
+    .map((r) => {
+      const lm = lastmodFor(r);
+      const lastmod = lm ? `<lastmod>${lm}</lastmod>` : "";
+      // Кириллицу в адресе кодируем: по протоколу sitemap `<loc>` — это URL,
+      // а не текст. Без кодирования поисковик такие строки отбрасывает
+      // (13 адресов подборок, замер 12.11.2026).
+      const loc = encodeURI(SITE + (r === "/" ? "/" : r + "/"));
+      return `  <url><loc>${loc}</loc>${lastmod}<changefreq>${r.startsWith("/catalog/") ? "weekly" : "daily"}</changefreq></url>`;
+    }),
   "</urlset>",
 ].join("\n");
 fs.writeFileSync(path.join(DIST, "sitemap.xml"), sitemap);
@@ -253,3 +263,10 @@ fs.writeFileSync(
   `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`
 );
 console.log("✅ sitemap.xml и robots.txt готовы.");
+
+// Упавшая страница — повод не выкладывать сборку: половина сайта без файла
+// хуже, чем красный CI.
+if (failed.length) {
+  console.error(`❌ пререндер неполный: ${failed.length} адрес(ов) без файла`);
+  process.exitCode = 1;
+}

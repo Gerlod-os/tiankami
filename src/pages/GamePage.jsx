@@ -12,7 +12,7 @@ import { GameCard } from "../components/GameCard";
 import { GameModal } from "../components/GameModal";
 import { SITE_URL } from "../config/site.js";
 import { usePageMeta } from "../utils/usePageMeta";
-import { parseNum } from "../utils/normalize";
+import { parseNum, isUrl } from "../utils/normalize";
 import { ratingColor } from "../utils/statusMeta";
 import { recommendSimilar } from "../utils/recommend";
 
@@ -214,7 +214,9 @@ export function GamePage() {
             {game.image ? (
               // Обложка кликабельна, если есть прохождение: отклик на наведение
               // как у характеристик — подъём и лёгкое увеличение (11.11.2026).
-              game.youtube ? (
+              // isUrl обязателен: значение из таблицы попадает в href как есть,
+              // и javascript:-строка выполнилась бы по клику (18.11.2026).
+              isUrl(game.youtube) ? (
                 <a
                   href={game.youtube}
                   target="_blank"

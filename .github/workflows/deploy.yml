@@ -33,8 +33,17 @@ jobs:
       - name: Зависимости
         run: npm ci
 
+      # Гейты до сборки: раньше CI вызывал только build, и 163 теста в нём
+      # не запускались (находка ревью 18.11.2026).
+      - name: Линт, тесты, формат данных
+        run: npm run lint && npm test && npm run test:data
+
       - name: Сборка (данные из таблицы + пререндер)
         run: npm run build
+
+      # Ссылки проверяются по готовому dist — до выкладки, а не после.
+      - name: Битые внутренние ссылки
+        run: npm run test:links
 
       - uses: actions/configure-pages@v5
 

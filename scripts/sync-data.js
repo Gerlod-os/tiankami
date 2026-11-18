@@ -23,7 +23,6 @@ const { twitchSchedule, SCHEDULE_DAYS } = await import("./twitch-schedule.mjs");
 const { twitchRecentStreams } = await import("./twitch-recent.mjs");
 const { markYoutubeOwners } = await import("../src/utils/youtubeOwners.js");
 const { BRAND } = await import("../src/config/branding.js");
-const { parseRuDate, formatRuDate } = await import("../src/utils/date.js");
 
 async function fetchText(url, tries = 3, timeoutMs = 15000) {
   let lastErr;
@@ -31,10 +30,15 @@ async function fetchText(url, tries = 3, timeoutMs = 15000) {
     try {
       const ctrl = new AbortController();
       const t = setTimeout(() => ctrl.abort(), timeoutMs);
-      const res = await fetch(url, { signal: ctrl.signal });
-      clearTimeout(t);
-      if (!res.ok) throw new Error(`HTTP ${res.status} для ${url}`);
-      return await res.text();
+      // Таймер гасим после чтения тела: иначе он не покрывал саму передачу,
+      // и зависший ответ держал сборку без ограничения (18.11.2026).
+      try {
+        const res = await fetch(url, { signal: ctrl.signal });
+        if (!res.ok) throw new Error(`HTTP ${res.status} для ${url}`);
+        return await res.text();
+      } finally {
+        clearTimeout(t);
+      }
     } catch (e) {
       lastErr = e;
       await new Promise((r) => setTimeout(r, 800 * (i + 1)));
@@ -50,10 +54,13 @@ async function fetchBuffer(url, tries = 2, timeoutMs = 120000) {
     try {
       const ctrl = new AbortController();
       const t = setTimeout(() => ctrl.abort(), timeoutMs);
-      const res = await fetch(url, { signal: ctrl.signal });
-      clearTimeout(t);
-      if (!res.ok) throw new Error(`HTTP ${res.status} для ${url}`);
-      return Buffer.from(await res.arrayBuffer());
+      try {
+        const res = await fetch(url, { signal: ctrl.signal });
+        if (!res.ok) throw new Error(`HTTP ${res.status} для ${url}`);
+        return Buffer.from(await res.arrayBuffer());
+      } finally {
+        clearTimeout(t);
+      }
     } catch (e) {
       lastErr = e;
       await new Promise((r) => setTimeout(r, 1500 * (i + 1)));
@@ -65,19 +72,27 @@ async function fetchBuffer(url, tries = 2, timeoutMs = 120000) {
 function writeJson(name, data) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
   const file = path.join(DATA_DIR, name);
-  // Сеть недоступна — источник вернул пусто. Прежние данные не трогаем:
-  // иначе сборка на хостинге задеплоит каталог без игр.
-  if (Array.isArray(data) && data.length === 0 && fs.existsSync(file)) {
+  let prev = null;
+  if (fs.existsSync(file)) {
     try {
-      const prev = JSON.parse(fs.readFileSync(file, "utf8"));
-      if (Array.isArray(prev) && prev.length > 0) {
-        console.warn(
-          `  ⚠ src/data/${name}: свежих данных нет, оставляю прежние (${prev.length})`
-        );
-        return;
-      }
+      const parsed = JSON.parse(fs.readFileSync(file, "utf8"));
+      if (Array.isArray(parsed)) prev = parsed;
     } catch {
       /* файл битый — перезапишем */
+    }
+  }
+  // Пустой ответ и резко урезанный — это сбой источника, а не новые данные.
+  // Раньше проверялось только «пусто», поэтому частично скачанный TSV затирал
+  // каталог целиком (находка ревью 18.11.2026). Порог 50% — только для игр:
+  // расписание и подборки законно меняются на единицы записей.
+  if (Array.isArray(data) && prev && prev.length > 0) {
+    const empty = data.length === 0;
+    const shrunk = name === "games.json" && data.length < prev.length * 0.5;
+    if (empty || shrunk) {
+      console.warn(
+        `  ⚠ src/data/${name}: пришло ${data.length} вместо ${prev.length} — оставляю прежние`
+      );
+      return;
     }
   }
   fs.writeFileSync(file, JSON.stringify(data));
@@ -272,35 +287,10 @@ try {
   console.warn("  ⚠ Календарь Twitch не сработал:", e.message);
 }
 
-// Запасной вариант, если Твич не ответил целиком: таблица, как раньше.
-if (!schedule.length) {
-  try {
-    console.log("▸ Запасной вариант: «Расписание» из таблицы…");
-    const csv = await fetchText(DS.SCHEDULE_URL);
-    const rows = Papa.parse(csv, { header: true, skipEmptyLines: "greedy" }).data;
-    schedule = rows
-      .map((r) => {
-        const rawDate = String(r?.date || "").trim();
-        const game = String(r?.game || "").trim();
-        const d = parseRuDate(rawDate);
-        if (!d || !game) return null;
-        return {
-          date: formatRuDate(d),
-          time: String(r.time || "").trim(),
-          game,
-          streamLink: String(r.streamLink || "").trim(),
-        };
-      })
-      .filter(Boolean)
-      .sort(
-        (a, b) =>
-          (parseRuDate(a.date)?.getTime() || 0) - (parseRuDate(b.date)?.getTime() || 0)
-      );
-    console.log(`  ✔ стримов из таблицы: ${schedule.length}`);
-  } catch (e2) {
-    console.warn("  ⚠ Расписание из таблицы тоже не скачалось:", e2.message);
-  }
-}
+// Запасного варианта из таблицы больше нет: расписание собирается только с
+// Twitch (история трансляций + календарь). Лист «Расписание» никто не заполняет
+// с 18.10.2026, а код тянул ещё одну таблицу и умел записать пустое расписание
+// поверх собранного (убрано 18.11.2026).
 
 // ── 5. Пишем JSON ────────────────────────────────────────────────────────────
 // Обложки Steam и ссылки добавляет только шаг «Копия» с ключом Sheets API.

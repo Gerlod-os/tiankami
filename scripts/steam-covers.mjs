@@ -7,13 +7,21 @@ import { titlesClose } from "../src/utils/steam.js";
 const APPDETAILS = "https://store.steampowered.com/api/appdetails";
 const SEARCH = "https://store.steampowered.com/api/storesearch";
 
-async function getJson(url, tries = 2) {
+async function getJson(url, tries = 2, timeoutMs = 15000) {
   let lastErr;
   for (let i = 0; i < tries; i++) {
     try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.json();
+      // Без таймаута зависший ответ Steam останавливал сборку навсегда
+      // (находка ревью 18.11.2026).
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), timeoutMs);
+      try {
+        const res = await fetch(url, { signal: ctrl.signal });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+      } finally {
+        clearTimeout(t);
+      }
     } catch (e) {
       lastErr = e;
       await new Promise((r) => setTimeout(r, 600 * (i + 1)));
